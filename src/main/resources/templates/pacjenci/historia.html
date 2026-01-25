@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0">Historia Medyczna Pacjenta</h3>
+        </div>
+        <div class="card-body">
+            <h5 th:text="${pacjent.imie} + ' ' + ${pacjent.nazwisko} + ' (PESEL: ' + ${pacjent.pesel} + ')'"></h5>
+            <hr>
+
+            <div th:if="${#lists.isEmpty(historia)}" class="alert alert-info">
+                Brak zarejestrowanych chorób w historii wizyt tego pacjenta.
+            </div>
+
+            <table th:if="${!#lists.isEmpty(historia)}" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Data Wizyty</th>
+                    <th>Lekarz</th>
+                    <th>Rozpoznana Choroba</th>
+                    <th>Zalecenia</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="h : ${historia}">
+                    <td th:text="${h.dataWizyty}"></td>
+                    <td th:text="${h.lekarzNazwisko}"></td>
+                    <td th:text="${h.nazwaChoroby}" style="color: #d9534f; font-weight: bold;"></td>
+                    <td th:text="${h.zalecenia}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <a href="/pacjenci" class="btn btn-secondary mt-3">Wróć do listy pacjentów</a>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

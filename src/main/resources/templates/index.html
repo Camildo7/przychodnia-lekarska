@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Harmonogram Wizyt</h1>
+        <a href="/nowa" class="btn btn-primary btn-lg">+ Rejestracja Wizyty</a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form action="/" method="get" class="row g-3 mb-4">
+        <div class="col-auto">
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj (Nazwisko pacjenta)...">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-secondary">Szukaj</button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                <tr>
+                    <th>Data</th>
+                    <th>Pacjent</th>
+                    <th>Lekarz</th>
+                    <th>Gabinet</th>
+                    <th>Status</th>
+                    <th>Akcja / Zalecenia</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="w : ${wizyty}">
+                    <td th:text="${#temporals.format(w.dataIGodzina, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td>
+                        <strong th:text="${w.pacjent.nazwisko} + ' ' + ${w.pacjent.imie}"></strong><br>
+                        <small class="text-muted" th:text="${w.pacjent.pesel}"></small>
+                    </td>
+                    <td th:text="${w.lekarz.nazwisko} + ' ' + ${w.lekarz.imie}"></td>
+                    <td>
+                        <span th:if="${w.gabinet != null}" th:text="'Gab. ' + ${w.gabinet.numerGabinetu}"></span>
+                    </td>
+                    <td>
+                        <span th:if="${w.czyOdbyta == 'T'}" class="badge bg-success">Zakończona</span>
+                        <span th:if="${w.czyOdbyta == 'N'}" class="badge bg-primary">Planowana</span>
+                    </td>
+                    <td>
+                        <div th:if="${w.czyOdbyta == 'N'}">
+                            <form th:action="@{/zakoncz}" method="post" class="d-flex">
+                                <input type="hidden" name="idWizyty" th:value="${w.numerWizyty}"/>
+                                <input type="text" name="zalecenia" class="form-control form-control-sm me-2" placeholder="Wpisz zalecenia..." required>
+                                <button type="submit" class="btn btn-sm btn-success">Zakończ</button>
+                            </form>
+                        </div>
+                        <div th:if="${w.czyOdbyta == 'T'}" th:text="${w.zalecenia}"></div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

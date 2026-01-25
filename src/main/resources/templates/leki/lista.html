@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Magazyn Leków</h1>
+        <a href="/leki/nowy" class="btn btn-success">+ Dodaj Lek</a>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form action="/leki" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="szukaj" class="form-control" placeholder="Nazwa leku..." th:value="${param.szukaj}">
+            <button class="btn btn-outline-primary" type="submit">Szukaj</button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th>Kod EAN</th>
+                    <th>Nazwa Handlowa</th>
+                    <th>Substancja Czynna</th>
+                    <th>Stan Magazynowy</th>
+                    <th>Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${leki}">
+                    <td th:text="${l.kodEan}"></td>
+                    <td th:text="${l.nazwaHandlowa}"></td>
+                    <td th:text="${l.substancjaCzynna}"></td>
+                    <td>
+                            <span th:text="${l.stanMagazynowy} + ' ' + ${l.jednostkaMiary}"
+                                  th:class="${l.stanMagazynowy < 10} ? 'text-danger fw-bold' : ''"></span>
+                    </td>
+                    <td>
+                        <a th:href="@{/leki/edytuj/{id}(id=${l.kodEan})}" class="btn btn-sm btn-warning">Edytuj</a>
+                        <a th:href="@{/leki/usun/{id}(id=${l.kodEan})}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('Czy na pewno usunąć ten lek?')">Usuń</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

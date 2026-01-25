@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="card shadow col-md-6 mx-auto">
+        <div class="card-header bg-success text-white">Specjalizacja</div>
+        <div class="card-body">
+            <form action="/admin/specjalizacje/zapisz" method="post" th:object="${specjalizacja}">
+
+                <div class="mb-3">
+                    <label>Nazwa Specjalizacji (ID) *</label>
+                    <input type="text" th:field="*{nazwaSpecjalizacji}" class="form-control"
+                           th:readonly="${specjalizacja.nazwaSpecjalizacji != null}" required>
+                    <div class="form-text" th:if="${specjalizacja.nazwaSpecjalizacji != null}">Nazwy nie można zmienić.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label>Opis *</label>
+                    <textarea th:field="*{opis}" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Zapisz</button>
+                    <a href="/admin/specjalizacje" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

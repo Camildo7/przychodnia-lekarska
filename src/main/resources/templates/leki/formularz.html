@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Dane Leku</h4>
+                </div>
+                <div class="card-body">
+                    <form action="/leki/zapisz" method="post" th:object="${lek}">
+
+                        <div class="mb-3">
+                            <label>Kod EAN *</label>
+                            <input type="text" th:field="*{kodEan}" class="form-control"
+                                   th:readonly="${lek.kodEan != null}" required maxlength="13">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Nazwa Handlowa *</label>
+                            <input type="text" th:field="*{nazwaHandlowa}" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Substancja Czynna *</label>
+                            <input type="text" th:field="*{substancjaCzynna}" class="form-control" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Stan Magazynowy *</label>
+                                <input type="number" th:field="*{stanMagazynowy}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Jednostka (np. szt, op) *</label>
+                                <input type="text" th:field="*{jednostkaMiary}" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Zapisz Lek</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Rejestracja nowej wizyty</h3>
+                </div>
+                <div class="card-body">
+
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <span th:text="${error}"></span>
+                    </div>
+
+                    <form action="/nowa" method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Pacjent:</label>
+                            <select name="pesel" class="form-select" required>
+                                <option value="" disabled selected>-- Wybierz pacjenta --</option>
+                                <option th:each="p : ${pacjenci}"
+                                        th:value="${p.pesel}"
+                                        th:text="${p.nazwisko} + ' ' + ${p.imie} + ' (PESEL: ' + ${p.pesel} + ')'"></option>
+                            </select>
+                            <div class="form-text"><a href="/pacjenci/nowy">Nie ma pacjenta na liście? Dodaj go tutaj.</a></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Lekarz:</label>
+                            <select name="lekarzPwz" class="form-select" required>
+                                <option value="" disabled selected>-- Wybierz lekarza --</option>
+                                <option th:each="l : ${lekarze}"
+                                        th:value="${l.numerPwz}"
+                                        th:text="${l.nazwisko} + ' ' + ${l.imie}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Gabinet:</label>
+                            <select name="idGabinetu" class="form-select" required>
+                                <option value="" disabled selected>-- Wybierz gabinet --</option>
+                                <option th:each="g : ${gabinety}"
+                                        th:value="${g.numerGabinetu}"
+                                        th:text="'Gabinet ' + ${g.numerGabinetu} + ' (' + ${g.opisFunkcji} + ')'"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Data i godzina:</label>
+                            <input type="datetime-local" name="data" class="form-control" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Zarejestruj wizytę</button>
+                            <a href="/" class="btn btn-outline-secondary">Anuluj</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

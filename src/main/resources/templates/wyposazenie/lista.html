@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Ewidencja Wyposażenia</h1>
+        <a href="/wyposazenie/nowy" class="btn btn-success">+ Dodaj Sprzęt</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th>Kod Inwentarzowy</th>
+                    <th>Nazwa Sprzętu</th>
+                    <th>Lokalizacja (Gabinet)</th>
+                    <th>Data Zakupu</th>
+                    <th>Data Przeglądu</th>
+                    <th>Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="w : ${sprzety}">
+                    <td th:text="${w.kodInwentarzowy}" class="fw-bold"></td>
+                    <td th:text="${w.nazwaSprzetu}"></td>
+                    <td>
+                            <span th:if="${w.gabinet != null}"
+                                  th:text="'Gabinet ' + ${w.gabinet.numerGabinetu} + ' (Piętro ' + ${w.gabinet.pietro} + ')'">
+                            </span>
+                    </td>
+                    <td th:text="${w.dataZakupu}"></td>
+                    <td>
+                        <span th:text="${w.dataPrzegladu != null ? w.dataPrzegladu : '-'}"></span>
+                    </td>
+                    <td>
+                        <a th:href="@{/wyposazenie/edytuj/{id}(id=${w.kodInwentarzowy})}" class="btn btn-sm btn-warning">Edytuj</a>
+                        <a th:href="@{/wyposazenie/usun/{kod}(kod=${w.kodInwentarzowy})}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Czy na pewno chcesz usunąć ten sprzęt z ewidencji?')">Usuń</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(sprzety)}">
+                    <td colspan="6" class="text-center text-muted">Brak sprzętu w ewidencji.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="/" class="btn btn-outline-secondary">Wróć do strony głównej</a>
+    </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

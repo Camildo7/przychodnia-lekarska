@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">Wystawianie Recepty</div>
+                <div class="card-body">
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    <form action="/recepty/utworz" method="post">
+                        <div class="mb-3">
+                            <label>Wybierz wizytę (podstawa wystawienia):</label>
+                            <select name="idWizyty" class="form-select" required>
+                                <option th:each="w : ${wizyty}"
+                                        th:value="${w.numerWizyty}"
+                                        th:text="${w.dataIGodzina} + ' - ' + ${w.pacjent.nazwisko} + ' (' + ${w.lekarz.nazwisko} + ')'">
+                                </option>
+                            </select>
+                            <div class="form-text">Recepta zostanie przypisana do pacjenta i lekarza z wybranej wizyty.</div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Utwórz nagłówek recepty</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

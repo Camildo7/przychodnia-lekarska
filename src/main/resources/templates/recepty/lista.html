@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="d-flex justify-content-between mb-4">
+        <h1>Rejestr Recept</h1>
+        <a href="/recepty/nowa" class="btn btn-primary">+ Nowa Recepta</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <table class="table">
+                <thead><tr><th>Kod</th><th>Data</th><th>Pacjent</th><th>Lekarz</th><th>Akcja</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${recepty}">
+                    <td th:text="${r.kodDokumentu}"></td>
+                    <td th:text="${r.dataWystawienia}"></td>
+                    <td th:text="${r.pacjent.nazwisko}"></td>
+                    <td th:text="${r.lekarz.nazwisko}"></td>
+                    <td>
+                        <a th:href="@{/recepty/szczegoly(kod=${r.kodDokumentu}, pesel=${r.pacjent.pesel})}"
+                           class="btn btn-sm btn-info">Szczegóły / Leki</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

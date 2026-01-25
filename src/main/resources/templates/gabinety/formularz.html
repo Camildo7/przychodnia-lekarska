@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="card shadow col-md-6 mx-auto">
+        <div class="card-header bg-primary text-white">Gabinet</div>
+        <div class="card-body">
+            <form action="/admin/gabinety/zapisz" method="post" th:object="${gabinet}">
+                <input type="hidden" th:field="*{numerGabinetu}">
+
+                <div class="mb-3">
+                    <label>Piętro *</label>
+                    <input type="number" th:field="*{pietro}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Opis Funkcji *</label>
+                    <input type="text" th:field="*{opisFunkcji}" class="form-control" required>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success">Zapisz</button>
+                    <a href="/admin/gabinety" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

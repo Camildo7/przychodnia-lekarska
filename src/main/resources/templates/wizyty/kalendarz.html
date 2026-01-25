@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container-fluid px-4">
+    <div class="row mb-3 align-items-end">
+        <div class="col-md-3">
+            <label class="fw-bold">Filtruj wg lekarza:</label>
+            <select id="lekarzFilter" class="form-select">
+                <option value="">-- Wszyscy lekarze --</option>
+                <option th:each="l : ${lekarze}" th:value="${l.numerPwz}"
+                        th:text="${l.nazwisko} + ' ' + ${l.imie}"></option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <a href="/nowa" class="btn btn-success">+ Zarejestruj Wizytę</a>
+        </div>
+        <div class="col-md-6 text-end">
+            <span class="badge bg-primary">Planowana</span>
+            <span class="badge bg-success">Zakończona</span>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div id='calendar'></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek', // Widok tygodniowy
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            slotMinTime: '08:00:00', // Początek dnia w kalendarzu
+            slotMaxTime: '20:00:00', // Koniec dnia
+            allDaySlot: false,
+            locale: 'pl',           // Język polski
+            firstDay: 1,            // Poniedziałek
+            events: '/api/wizyty',  // Pobieranie danych z naszego controllera API
+
+            eventClick: function(info) {
+                // Po kliknięciu w wizytę przechodzimy do szczegółów
+                window.location.href = '/wizyta/' + info.event.id;
+            }
+        });
+        calendar.render();
+
+        // Obsługa filtra lekarza
+        document.getElementById('lekarzFilter').addEventListener('change', function() {
+            var lekarzId = this.value;
+            // Usuwamy stare źródło i dodajemy nowe z parametrem
+            calendar.removeAllEventSources();
+            calendar.addEventSource('/api/wizyty?lekarzId=' + lekarzId);
+        });
+    });
+</script>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

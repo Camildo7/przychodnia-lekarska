@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="d-flex justify-content-between mb-4">
+        <h1>Słownik Specjalizacji</h1>
+        <a href="/admin/specjalizacje/nowa" class="btn btn-primary">+ Dodaj Specjalizację</a>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger">Nie można usunąć (używana przez lekarza).</div>
+
+    <table class="table table-striped bg-white shadow-sm">
+        <thead class="table-light"><tr><th>Nazwa</th><th>Opis</th><th>Akcja</th></tr></thead>
+        <tbody>
+        <tr th:each="s : ${specjalizacje}">
+            <td th:text="${s.nazwaSpecjalizacji}"></td>
+            <td th:text="${s.opis}"></td>
+            <td>
+                <a th:href="@{/admin/specjalizacje/edytuj/{id}(id=${s.nazwaSpecjalizacji})}" class="btn btn-sm btn-warning">Edytuj</a>
+                <a th:href="@{/admin/specjalizacje/usun/{id}(id=${s.nazwaSpecjalizacji})}"
+                   class="btn btn-sm btn-danger" onclick="return confirm('Usunąć?')">Usuń</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

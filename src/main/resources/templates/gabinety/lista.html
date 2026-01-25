@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="d-flex justify-content-between mb-4">
+        <h1>Zarządzanie Gabinetami</h1>
+        <a href="/admin/gabinety/nowy" class="btn btn-primary">+ Dodaj Gabinet</a>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger">Gabinet jest używany i nie może zostać usunięty.</div>
+
+    <table class="table table-bordered bg-white shadow-sm">
+        <thead class="table-light">
+        <tr>
+            <th>Numer</th>
+            <th>Piętro</th>
+            <th>Opis Funkcji</th>
+            <th>Akcja</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="g : ${gabinety}">
+            <td th:text="${g.numerGabinetu}"></td>
+            <td th:text="${g.pietro}"></td>
+            <td th:text="${g.opisFunkcji}"></td>
+            <td>
+                <a th:href="@{/admin/gabinety/edytuj/{id}(id=${g.numerGabinetu})}" class="btn btn-sm btn-warning">Edytuj</a>
+                <a th:href="@{/admin/gabinety/usun/{id}(id=${g.numerGabinetu})}" class="btn btn-sm btn-danger"
+                   onclick="return confirm('Usunąć gabinet?')">Usuń</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
