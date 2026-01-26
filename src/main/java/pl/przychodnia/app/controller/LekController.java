@@ -1,7 +1,9 @@
 package pl.przychodnia.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Lek;
 import pl.przychodnia.app.repository.LekRepository;
@@ -31,20 +33,35 @@ public class LekController {
     @GetMapping("/nowy")
     public String formularz(Model model) {
         model.addAttribute("lek", new Lek());
+        model.addAttribute("isEdit", false); // Tryb tworzenia
         return "leki/formularz";
     }
 
     // Edycja leku (pobranie danych do formularza)
     @GetMapping("/edytuj/{ean}")
     public String edytuj(@PathVariable String ean, Model model) {
-        Lek lek = lekRepo.findById(ean).orElseThrow(() -> new IllegalArgumentException("Brak leku o EAN: " + ean));
+        Lek lek = lekRepo.findById(ean).orElseThrow(() -> new IllegalArgumentException("Brak leku"));
         model.addAttribute("lek", lek);
+        model.addAttribute("isEdit", true); // Tryb edycji
         return "leki/formularz";
     }
 
-    // Zapis (Insert lub Update)
     @PostMapping("/zapisz")
-    public String zapisz(Lek lek) {
+    public String zapisz(@Valid @ModelAttribute("lek") Lek lek,
+                         BindingResult result,
+                         @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
+                         Model model) {
+
+        // 1. Ochrona przed nadpisaniem EAN
+        if (!isEdit && lekRepo.existsById(lek.getKodEan())) {
+            result.rejectValue("kodEan", "error.lek", "Lek o podanym kodzie EAN już istnieje.");
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("isEdit", isEdit);
+            return "leki/formularz";
+        }
+
         lekRepo.save(lek);
         return "redirect:/leki";
     }
@@ -55,8 +72,7 @@ public class LekController {
         try {
             lekRepo.deleteById(ean);
         } catch (Exception e) {
-            // Obsługa błędu FK (jeśli lek jest na recepcie, nie można go usunąć)
-            model.addAttribute("error", "Nie można usunąć leku, ponieważ jest przypisany do recept.");
+            model.addAttribute("error", "Nie można usunąć leku (jest na receptach).");
             model.addAttribute("leki", lekRepo.findAll());
             return "leki/lista";
         }

@@ -1,13 +1,13 @@
 package pl.przychodnia.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Lekarz;
 import pl.przychodnia.app.repository.LekarzRepository;
 import pl.przychodnia.app.repository.SpecjalizacjaRepository;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/lekarze")
@@ -31,6 +31,7 @@ public class LekarzController {
     public String formularz(Model model) {
         model.addAttribute("lekarz", new Lekarz());
         model.addAttribute("dostepneSpecjalizacje", specRepo.findAll());
+        model.addAttribute("isEdit", false);
         return "lekarze/formularz";
     }
 
@@ -39,12 +40,27 @@ public class LekarzController {
         Lekarz l = lekarzRepo.findById(id).orElseThrow();
         model.addAttribute("lekarz", l);
         model.addAttribute("dostepneSpecjalizacje", specRepo.findAll());
+        model.addAttribute("isEdit", true);
         return "lekarze/formularz";
     }
 
     @PostMapping("/zapisz")
-    public String zapisz(Lekarz lekarz) {
-        // Spring automatycznie zmapuje listę ID specjalizacji z formularza na List<Specjalizacja>
+    public String zapisz(@Valid @ModelAttribute("lekarz") Lekarz lekarz,
+                         BindingResult result,
+                         @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
+                         Model model) {
+
+        // 1. ZABEZPIECZENIE PRZED DUPLIKATEM PWZ
+        if (!isEdit && lekarzRepo.existsById(lekarz.getNumerPwz())) {
+            result.rejectValue("numerPwz", "error.lekarz", "Lekarz o podanym numerze PWZ już istnieje.");
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("dostepneSpecjalizacje", specRepo.findAll());
+            model.addAttribute("isEdit", isEdit); // Ważne: odsyłamy flagę z powrotem
+            return "lekarze/formularz";
+        }
+
         lekarzRepo.save(lekarz);
         return "redirect:/lekarze";
     }

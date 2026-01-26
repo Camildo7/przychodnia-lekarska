@@ -12,11 +12,18 @@
 
                 <div class="mb-3">
                     <label>Piętro *</label>
-                    <input type="number" th:field="*{pietro}" class="form-control" required>
+                    <input type="number" th:field="*{pietro}" class="form-control"
+                           th:classappend="${#fields.hasErrors('pietro')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:errors="*{pietro}">Błąd piętra</div>
                 </div>
+
                 <div class="mb-3">
                     <label>Opis Funkcji *</label>
-                    <input type="text" th:field="*{opisFunkcji}" class="form-control" required>
+                    <input type="text" th:field="*{opisFunkcji}" class="form-control"
+                           th:classappend="${#fields.hasErrors('opisFunkcji')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:errors="*{opisFunkcji}">Błąd opisu</div>
                 </div>
 
                 <div class="d-grid gap-2">

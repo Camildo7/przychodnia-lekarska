@@ -12,13 +12,24 @@
                 <div class="mb-3">
                     <label>Nazwa Specjalizacji (ID) *</label>
                     <input type="text" th:field="*{nazwaSpecjalizacji}" class="form-control"
-                           th:readonly="${specjalizacja.nazwaSpecjalizacji != null}" required>
-                    <div class="form-text" th:if="${specjalizacja.nazwaSpecjalizacji != null}">Nazwy nie można zmienić.</div>
+                           th:readonly="${specjalizacja.nazwaSpecjalizacji != null and !#strings.isEmpty(specjalizacja.nazwaSpecjalizacji)}"
+                           th:classappend="${#fields.hasErrors('nazwaSpecjalizacji')} ? 'is-invalid' : ''"
+                           required>
+
+                    <div class="invalid-feedback" th:errors="*{nazwaSpecjalizacji}">Błąd nazwy</div>
+
+                    <div class="form-text" th:if="${specjalizacja.nazwaSpecjalizacji != null and !#strings.isEmpty(specjalizacja.nazwaSpecjalizacji)}">
+                        Nazwy nie można zmienić.
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label>Opis *</label>
-                    <textarea th:field="*{opis}" class="form-control" rows="3" required></textarea>
+                    <textarea th:field="*{opis}" class="form-control" rows="3"
+                              th:classappend="${#fields.hasErrors('opis')} ? 'is-invalid' : ''"
+                              required></textarea>
+
+                    <div class="invalid-feedback" th:errors="*{opis}">Błąd opisu</div>
                 </div>
 
                 <div class="d-grid gap-2">

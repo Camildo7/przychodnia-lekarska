@@ -1,7 +1,9 @@
 package pl.przychodnia.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Pacjent;
 import pl.przychodnia.app.repository.PacjentRepository;
@@ -38,9 +40,9 @@ public class PacjentController {
         return "pacjenci/lista";
     }
 
-    // Formularz dodawania
     @GetMapping("/nowy")
     public String formularz(Model model) {
+        model.addAttribute("pacjent", new Pacjent());
         return "pacjenci/formularz";
     }
 
@@ -51,12 +53,19 @@ public class PacjentController {
 
         model.addAttribute("historia", historia);
         model.addAttribute("pacjent", pacjent);
-        return "pacjenci/historia"; // Nowy widok
+        return "pacjenci/historia";
     }
 
     // Obsługa dodawania (wywołanie procedury)
     @PostMapping("/dodaj")
-    public String dodaj(Pacjent p, Model model) {
+    public String dodaj(@Valid @ModelAttribute("pacjent") Pacjent p,
+                        BindingResult result,
+                        Model model) {
+
+        if (result.hasErrors()) {
+            return "pacjenci/formularz";
+        }
+
         try {
             pacjentService.dodajPacjenta(p.getPesel(), p.getImie(), p.getNazwisko(), p.getAdresZamieszkania(), p.getTelefonKontaktowy());
             return "redirect:/pacjenci";

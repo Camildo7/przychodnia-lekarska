@@ -3,63 +3,46 @@
 <head th:replace="~{layout :: header}"></head>
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
-
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Dodaj / Edytuj Sprzęt</h4>
+    <div class="card shadow col-md-6 mx-auto">
+        <div class="card-header bg-success text-white">Specjalizacja</div>
+        <div class="card-body">
+            <form action="/admin/specjalizacje/zapisz" method="post" th:object="${specjalizacja}">
+
+                <input type="hidden" name="isEdit" th:value="${isEdit}">
+
+                <div class="mb-3">
+                    <label>Nazwa Specjalizacji (ID) *</label>
+
+                    <input type="text" th:field="*{nazwaSpecjalizacji}" class="form-control"
+                           th:readonly="${isEdit}"
+                           th:classappend="${#fields.hasErrors('nazwaSpecjalizacji')} ? 'is-invalid' : ''"
+                           required>
+
+                    <div class="invalid-feedback" th:errors="*{nazwaSpecjalizacji}">Błąd nazwy</div>
+
+                    <div class="form-text" th:if="${isEdit}">
+                        Nazwy nie można zmienić.
+                    </div>
                 </div>
-                <div class="card-body">
 
-                    <form action="/wyposazenie/zapisz" method="post" th:object="${wyposazenie}">
+                <div class="mb-3">
+                    <label>Opis *</label>
+                    <textarea th:field="*{opis}" class="form-control" rows="3"
+                              th:classappend="${#fields.hasErrors('opis')} ? 'is-invalid' : ''"
+                              required></textarea>
 
-                        <div class="mb-3">
-                            <label class="form-label">Kod Inwentarzowy *</label>
-                            <input type="text" th:field="*{kodInwentarzowy}" class="form-control"
-                                   placeholder="np. USG-2026-01"
-                                   th:readonly="${wyposazenie.kodInwentarzowy != null}" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Nazwa Sprzętu *</label>
-                            <input type="text" th:field="*{nazwaSprzetu}" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Przypisany do Gabinetu *</label>
-                            <select th:field="*{gabinet}" class="form-select" required>
-                                <option value="" disabled selected>-- Wybierz gabinet --</option>
-                                <option th:each="g : ${gabinety}"
-                                        th:value="${g.numerGabinetu}"
-                                        th:text="'Gabinet ' + ${g.numerGabinetu} + ' - ' + ${g.opisFunkcji}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Data Zakupu *</label>
-                                <input type="date" th:field="*{dataZakupu}" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Data Przeglądu</label>
-                                <input type="date" th:field="*{dataPrzegladu}" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-2 mt-3">
-                            <button type="submit" class="btn btn-primary">Zapisz w ewidencji</button>
-                            <a href="/wyposazenie" class="btn btn-outline-secondary">Anuluj</a>
-                        </div>
-                    </form>
+                    <div class="invalid-feedback" th:errors="*{opis}">Błąd opisu</div>
                 </div>
-            </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Zapisz</button>
+                    <a href="/admin/specjalizacje" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
 <div th:replace="~{layout :: scripts}"></div>
 </body>
 </html>

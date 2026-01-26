@@ -1,7 +1,9 @@
 package pl.przychodnia.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Gabinet;
 import pl.przychodnia.app.entity.Specjalizacja;
@@ -42,7 +44,17 @@ public class ZarzadzanieController {
     }
 
     @PostMapping("/gabinety/zapisz")
-    public String zapiszGabinet(Gabinet g) {
+    public String zapiszGabinet(@Valid @ModelAttribute("gabinet") Gabinet g,
+                                BindingResult result,
+                                Model model) {
+
+        // Gabinety mają ID generowane automatycznie, więc nie ma ryzyka nadpisania przy tworzeniu.
+        // Standardowa walidacja wystarczy.
+
+        if (result.hasErrors()) {
+            return "gabinety/formularz";
+        }
+
         gabinetRepo.save(g);
         return "redirect:/admin/gabinety";
     }
@@ -68,6 +80,7 @@ public class ZarzadzanieController {
     @GetMapping("/specjalizacje/nowa")
     public String nowaSpecjalizacja(Model model) {
         model.addAttribute("specjalizacja", new Specjalizacja());
+        model.addAttribute("isEdit", false);
         return "specjalizacje/formularz";
     }
 
@@ -75,11 +88,27 @@ public class ZarzadzanieController {
     public String edytujSpecjalizacje(@PathVariable String id, Model model) {
         Specjalizacja s = specRepo.findById(id).orElseThrow();
         model.addAttribute("specjalizacja", s);
+        model.addAttribute("isEdit", true);
         return "specjalizacje/formularz";
     }
 
     @PostMapping("/specjalizacje/zapisz")
-    public String zapiszSpecjalizacje(Specjalizacja s) {
+    public String zapiszSpecjalizacje(@Valid @ModelAttribute("specjalizacja") Specjalizacja s,
+                                      BindingResult result,
+                                      // 3. Pobieramy flagę isEdit
+                                      @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
+                                      Model model) {
+
+        // 4. Zabezpieczenie przed duplikatem ID
+        if (!isEdit && specRepo.existsById(s.getNazwaSpecjalizacji())) {
+            result.rejectValue("nazwaSpecjalizacji", "error.specjalizacja", "Taka specjalizacja już istnieje.");
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("isEdit", isEdit);
+            return "specjalizacje/formularz";
+        }
+
         specRepo.save(s);
         return "redirect:/admin/specjalizacje";
     }

@@ -7,33 +7,53 @@
     <div class="card shadow col-md-8 mx-auto">
         <div class="card-header bg-primary text-white">Dane Lekarza</div>
         <div class="card-body">
+
             <form action="/lekarze/zapisz" method="post" th:object="${lekarz}">
+
+                <input type="hidden" name="isEdit" th:value="${isEdit}">
 
                 <div class="mb-3">
                     <label>Numer PWZ *</label>
+
                     <input type="text" th:field="*{numerPwz}" class="form-control"
-                           th:readonly="${lekarz.numerPwz != null}" required maxlength="7">
+                           th:readonly="${isEdit}"
+                           th:classappend="${#fields.hasErrors('numerPwz')} ? 'is-invalid' : ''"
+                           required maxlength="7">
+
+                    <div class="invalid-feedback" th:errors="*{numerPwz}">Błąd PWZ</div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label>Imię *</label>
-                        <input type="text" th:field="*{imie}" class="form-control" required>
+                        <input type="text" th:field="*{imie}" class="form-control"
+                               th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''"
+                               required>
+                        <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Nazwisko *</label>
-                        <input type="text" th:field="*{nazwisko}" class="form-control" required>
+                        <input type="text" th:field="*{nazwisko}" class="form-control"
+                               th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''"
+                               required>
+                        <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label>Data Zatrudnienia *</label>
-                    <input type="date" th:field="*{dataZatrudnienia}" class="form-control" required>
+                    <input type="date" th:field="*{dataZatrudnienia}" class="form-control"
+                           th:classappend="${#fields.hasErrors('dataZatrudnienia')} ? 'is-invalid' : ''"
+                           required max="9999-12-31">
+
+                    <div class="invalid-feedback" th:errors="*{dataZatrudnienia}">Błąd daty</div>
                 </div>
 
                 <div class="mb-3">
                     <label>Telefon</label>
-                    <input type="text" th:field="*{telefonSluzbowy}" class="form-control">
+                    <input type="text" th:field="*{telefonSluzbowy}" class="form-control"
+                           th:classappend="${#fields.hasErrors('telefonSluzbowy')} ? 'is-invalid' : ''">
+                    <div class="invalid-feedback" th:errors="*{telefonSluzbowy}">Błąd telefonu</div>
                 </div>
 
                 <div class="mb-3">
@@ -46,6 +66,7 @@
                             <label class="form-check-label" th:text="${s.nazwaSpecjalizacji}"></label>
                         </div>
                     </div>
+                    <div class="text-danger" th:if="${#fields.hasErrors('specjalizacje')}" th:errors="*{specjalizacje}"></div>
                 </div>
 
                 <button type="submit" class="btn btn-success w-100">Zapisz</button>

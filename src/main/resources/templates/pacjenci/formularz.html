@@ -7,33 +7,50 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">Dodaj Nowego Pacjenta</div>
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">Dodaj Nowego Pacjenta</div>
                 <div class="card-body">
 
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-                    <form action="/pacjenci/dodaj" method="post">
+                    <form action="/pacjenci/dodaj" method="post" th:object="${pacjent}">
+
                         <div class="mb-3">
                             <label>PESEL *</label>
-                            <input type="text" name="pesel" class="form-control" maxlength="11" required>
+                            <input type="text" th:field="*{pesel}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('pesel')} ? 'is-invalid' : ''"
+                                   maxlength="11">
+                            <div class="invalid-feedback" th:errors="*{pesel}">Błąd PESEL</div>
                         </div>
+
                         <div class="mb-3">
                             <label>Imię *</label>
-                            <input type="text" name="imie" class="form-control" required>
+                            <input type="text" th:field="*{imie}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''">
+                            <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
                         </div>
+
                         <div class="mb-3">
                             <label>Nazwisko *</label>
-                            <input type="text" name="nazwisko" class="form-control" required>
+                            <input type="text" th:field="*{nazwisko}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''">
+                            <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
                         </div>
+
                         <div class="mb-3">
                             <label>Adres *</label>
-                            <input type="text" name="adresZamieszkania" class="form-control" required>
+                            <input type="text" th:field="*{adresZamieszkania}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('adresZamieszkania')} ? 'is-invalid' : ''">
+                            <div class="invalid-feedback" th:errors="*{adresZamieszkania}">Błąd adresu</div>
                         </div>
+
                         <div class="mb-3">
                             <label>Telefon *</label>
-                            <input type="text" name="telefonKontaktowy" class="form-control" required>
+                            <input type="text" th:field="*{telefonKontaktowy}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('telefonKontaktowy')} ? 'is-invalid' : ''">
+                            <div class="invalid-feedback" th:errors="*{telefonKontaktowy}">Błąd telefonu</div>
                         </div>
+
                         <button type="submit" class="btn btn-primary w-100">Zapisz (Procedura)</button>
                     </form>
                 </div>

@@ -14,30 +14,47 @@
                 <div class="card-body">
                     <form action="/leki/zapisz" method="post" th:object="${lek}">
 
+                        <input type="hidden" name="isEdit" th:value="${isEdit}">
+
                         <div class="mb-3">
                             <label>Kod EAN *</label>
                             <input type="text" th:field="*{kodEan}" class="form-control"
-                                   th:readonly="${lek.kodEan != null}" required maxlength="13">
+                                   th:readonly="${isEdit}"
+                                   th:classappend="${#fields.hasErrors('kodEan')} ? 'is-invalid' : ''"
+                                   required maxlength="13">
+                            <div class="invalid-feedback" th:errors="*{kodEan}">Błąd EAN</div>
                         </div>
 
                         <div class="mb-3">
                             <label>Nazwa Handlowa *</label>
-                            <input type="text" th:field="*{nazwaHandlowa}" class="form-control" required>
+                            <input type="text" th:field="*{nazwaHandlowa}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('nazwaHandlowa')} ? 'is-invalid' : ''"
+                                   required>
+                            <div class="invalid-feedback" th:errors="*{nazwaHandlowa}">Błąd nazwy</div>
                         </div>
 
                         <div class="mb-3">
                             <label>Substancja Czynna *</label>
-                            <input type="text" th:field="*{substancjaCzynna}" class="form-control" required>
+                            <input type="text" th:field="*{substancjaCzynna}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('substancjaCzynna')} ? 'is-invalid' : ''"
+                                   required>
+                            <div class="invalid-feedback" th:errors="*{substancjaCzynna}">Błąd substancji</div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label>Stan Magazynowy *</label>
-                                <input type="number" th:field="*{stanMagazynowy}" class="form-control" required>
+                                <input type="number" th:field="*{stanMagazynowy}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('stanMagazynowy')} ? 'is-invalid' : ''"
+                                       required>
+                                <div class="invalid-feedback" th:errors="*{stanMagazynowy}">Błąd stanu</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label>Jednostka (np. szt, op) *</label>
-                                <input type="text" th:field="*{jednostkaMiary}" class="form-control" required>
+                                <input type="text" th:field="*{jednostkaMiary}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('jednostkaMiary')} ? 'is-invalid' : ''"
+                                       required>
+                                <div class="invalid-feedback" th:errors="*{jednostkaMiary}">Błąd jednostki</div>
                             </div>
                         </div>
 
