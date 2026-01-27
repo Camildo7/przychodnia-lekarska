@@ -5,38 +5,34 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 
 <div class="container">
-    <div class="d-flex justify-content-between mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Szczegóły Wizyty nr <span th:text="${w.numerWizyty}"></span></h2>
         <a href="/kalendarz" class="btn btn-outline-secondary">← Wróć do kalendarza</a>
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-5">
             <div class="card shadow mb-4">
-                <div class="card-header bg-secondary text-white">Dane Wizyty</div>
+                <div class="card-header bg-success text-white">Dane Wizyty</div>
                 <div class="card-body">
                     <form action="/wizyta/zapisz" method="post">
                         <input type="hidden" name="numerWizyty" th:value="${w.numerWizyty}">
 
                         <div class="mb-3">
-                            <label>Pacjent:</label>
-                            <input type="text" class="form-control" th:value="${w.pacjent.nazwisko} + ' ' + ${w.pacjent.imie}" disabled>
+                            <label class="fw-bold">Pacjent:</label>
+                            <input type="text" class="form-control" th:value="${w.pacjent.nazwisko} + ' ' + ${w.pacjent.imie} + ' (' + ${w.pacjent.pesel} + ')'" disabled>
                         </div>
 
                         <div class="mb-3">
-                            <label>Data i Czas:</label>
+                            <label class="fw-bold">Data i Czas:</label>
                             <input type="datetime-local" name="dataIGodzina" class="form-control"
-                                   th:value="${w.dataIGodzina}" required>
+                                   th:value="${w.dataIGodzina}" required
+                                   th:readonly="${w.czyOdbyta == 'T'}">
                         </div>
 
                         <div class="mb-3">
-                            <label>Czas trwania:</label>
-                            <input type="text" class="form-control" value="30 minut (Standard)" disabled>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Lekarz:</label>
-                            <select name="lekarz" class="form-select">
+                            <label class="fw-bold">Lekarz:</label>
+                            <select name="lekarz" class="form-select" th:disabled="${w.czyOdbyta == 'T'}">
                                 <option th:each="l : ${lekarze}" th:value="${l.numerPwz}"
                                         th:text="${l.nazwisko} + ' ' + ${l.imie}"
                                         th:selected="${l.numerPwz == w.lekarz.numerPwz}"></option>
@@ -44,51 +40,61 @@
                         </div>
 
                         <div class="mb-3">
-                            <label>Gabinet:</label>
-                            <select name="gabinet" class="form-select">
+                            <label class="fw-bold">Gabinet:</label>
+                            <select name="gabinet" class="form-select" th:disabled="${w.czyOdbyta == 'T'}">
                                 <option th:each="g : ${gabinety}" th:value="${g.numerGabinetu}"
-                                        th:text="'Gabinet ' + ${g.numerGabinetu}"
+                                        th:text="'Gabinet ' + ${g.numerGabinetu} + ' (Piętro ' + ${g.pietro} + ')'"
                                         th:selected="${w.gabinet != null && w.gabinet.numerGabinetu == g.numerGabinetu}"></option>
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-warning w-100"
-                                th:disabled="${w.czyOdbyta == 'T'}">Zapisz Zmiany</button>
+                        <div class="d-grid" th:if="${w.czyOdbyta == 'N'}">
+                            <button type="submit" class="btn btn-warning">Zapisz Zmiany Danych</button>
+                        </div>
+                        <div th:if="${w.czyOdbyta == 'T'}" class="alert alert-success text-center mb-0">
+                            Wizyta została zakończona. Edycja zablokowana.
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-7">
 
-            <div class="card shadow border-success" th:if="${w.czyOdbyta == 'T'}">
-                <div class="card-header bg-success text-white">Wizyta Zakończona</div>
+            <div class="card shadow border-success mb-4" th:if="${w.czyOdbyta == 'T'}">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Podsumowanie Medyczne</h5>
+                </div>
                 <div class="card-body">
-                    <h5>Zalecenia:</h5>
-                    <p class="fst-italic" th:text="${w.zalecenia}"></p>
-                    <hr>
-                    <h5>Zdiagnozowane choroby:</h5>
-                    <ul>
-                        <li th:each="c : ${w.choroby}" th:text="${c.nazwaChoroby}"></li>
-                        <li th:if="${#lists.isEmpty(w.choroby)}" class="text-muted">Brak przypisanych chorób.</li>
+                    <h6 class="fw-bold text-success">Zalecenia lekarskie:</h6>
+                    <p class="fst-italic border p-2 bg-light rounded" th:text="${w.zalecenia}"></p>
+
+                    <h6 class="fw-bold text-success mt-3">Zdiagnozowane jednostki chorobowe (ICD-10):</h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" th:each="c : ${w.choroby}">
+                            <span class="fw-bold" th:text="${c.kodIcd10}"></span> - <span th:text="${c.nazwaChoroby}"></span>
+                        </li>
+                        <li th:if="${#lists.isEmpty(w.choroby)}" class="list-group-item text-muted">Brak przypisanych kodów chorób.</li>
                     </ul>
                 </div>
             </div>
 
-            <div class="card shadow border-primary" th:if="${w.czyOdbyta == 'N'}">
-                <div class="card-header bg-primary text-white">Przebieg Wizyty</div>
+            <div class="card shadow border-primary mb-4" th:if="${w.czyOdbyta == 'N'}">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Przebieg Wizyty</h5>
+                </div>
                 <div class="card-body">
                     <form action="/wizyta/zakoncz-pelna" method="post">
                         <input type="hidden" name="idWizyty" th:value="${w.numerWizyty}">
 
                         <div class="mb-3">
                             <label class="fw-bold">Zalecenia lekarskie:</label>
-                            <textarea name="zalecenia" class="form-control" rows="4" placeholder="Wpisz zalecenia dla pacjenta..." required></textarea>
+                            <textarea name="zalecenia" class="form-control" rows="4" placeholder="Wpisz wywiad, badanie i zalecenia..." required></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label class="fw-bold">Diagnoza (Zaznacz choroby):</label>
-                            <div class="border p-2 bg-light" style="max-height: 200px; overflow-y: auto;">
+                            <label class="fw-bold">Diagnoza (ICD-10):</label>
+                            <div class="border p-2 bg-light rounded" style="max-height: 200px; overflow-y: auto;">
                                 <div th:each="c : ${choroby}" class="form-check">
                                     <input class="form-check-input" type="checkbox" name="kodyChorob"
                                            th:value="${c.kodIcd10}" th:id="'c_'+${c.kodIcd10}">
@@ -99,15 +105,31 @@
                             <div class="form-text">Możesz zaznaczyć wiele chorób.</div>
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100 btn-lg">Zakończ Wizytę</button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">Zakończ Wizytę</button>
+                        </div>
                     </form>
                 </div>
             </div>
 
-            <div class="mt-3 text-center">
-                <a th:href="@{/recepty/nowa(idWizyty=${w.numerWizyty})}" class="btn btn-outline-info w-100">Wystaw Receptę do tej wizyty</a>
-                <a th:href="@{/skierowania/nowe(idWizyty=${w.numerWizyty})}" class="btn btn-outline-primary w-50">Wystaw Skierowanie</a>
+            <div class="card shadow-sm">
+                <div class="card-header bg-light fw-bold">Dokumenty</div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <a th:href="@{/recepty/nowa(idWizyty=${w.numerWizyty})}" class="btn btn-outline-success w-100 py-3">
+                                Wystaw Receptę
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a th:href="@{/skierowania/nowe(idWizyty=${w.numerWizyty})}" class="btn btn-outline-primary w-100 py-3">
+                                Wystaw Skierowanie
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 </div>

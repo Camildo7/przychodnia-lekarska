@@ -8,11 +8,11 @@ import pl.przychodnia.app.entity.PozycjaRecepty;
 import pl.przychodnia.app.entity.PozycjaReceptyId;
 import pl.przychodnia.app.entity.Recepta;
 import pl.przychodnia.app.entity.ReceptaId;
+import pl.przychodnia.app.entity.Wizyta;
 import pl.przychodnia.app.repository.*;
 import pl.przychodnia.app.service.ReceptaService;
 
 import java.time.LocalDate;
-// UWAGA: UUID już niepotrzebne
 
 @Controller
 @RequestMapping("/recepty")
@@ -45,8 +45,15 @@ public class ReceptaController {
 
     // --- TWORZENIE NAGŁÓWKA ---
     @GetMapping("/nowa")
-    public String formularz(Model model) {
-        model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
+    public String formularz(@RequestParam(required = false) Long idWizyty, Model model) {
+        if (idWizyty != null) {
+            // SCENARIUSZ 1: Wchodzimy z konkretnej wizyty -> przekazujemy tylko ten obiekt
+            Wizyta wizyta = wizytaRepo.findById(idWizyty).orElseThrow();
+            model.addAttribute("wybranaWizyta", wizyta);
+        } else {
+            // SCENARIUSZ 2: Wchodzimy z menu "Recepty" -> ładujemy listę do wyboru
+            model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
+        }
         return "recepty/nowa";
     }
 

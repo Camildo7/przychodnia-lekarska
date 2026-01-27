@@ -13,12 +13,24 @@
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
                     <form action="/recepty/utworz" method="post">
-                        <div class="mb-3">
+
+                        <div class="mb-3" th:if="${wybranaWizyta != null}">
+                            <label class="form-label">Dotyczy wizyty:</label>
+                            <input type="hidden" name="idWizyty" th:value="${wybranaWizyta.numerWizyty}">
+                            <div class="alert alert-secondary">
+                                <strong th:text="${#temporals.format(wybranaWizyta.dataIGodzina, 'dd-MM-yyyy HH:mm')}"></strong><br>
+                                Pacjent: <span th:text="${wybranaWizyta.pacjent.nazwisko} + ' ' + ${wybranaWizyta.pacjent.imie}"></span><br>
+                                Lekarz: <span th:text="${wybranaWizyta.lekarz.nazwisko}"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" th:if="${wybranaWizyta == null}">
                             <label>Wybierz wizytę (podstawa wystawienia):</label>
                             <select name="idWizyty" class="form-select" required>
+                                <option value="" disabled selected>-- Wybierz wizytę --</option>
                                 <option th:each="w : ${wizyty}"
                                         th:value="${w.numerWizyty}"
-                                        th:text="${w.dataIGodzina} + ' - ' + ${w.pacjent.nazwisko} + ' (' + ${w.lekarz.nazwisko} + ')'">
+                                        th:text="${#temporals.format(w.dataIGodzina, 'yyyy-MM-dd HH:mm')} + ' - ' + ${w.pacjent.nazwisko} + ' (' + ${w.lekarz.nazwisko} + ')'">
                                 </option>
                             </select>
                             <div class="form-text">Recepta zostanie przypisana do pacjenta i lekarza z wybranej wizyty.</div>
@@ -26,12 +38,12 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Kod Dostępu (4 cyfry):</label>
-                            <input type="text" name="kodDokumentu" class="form-control"
+                            <input type="text" name="kodDokumentu" class="form-control form-control-lg"
                                    placeholder="np. 1234"
                                    maxlength="4"
                                    pattern="\d{4}"
                                    title="Wpisz dokładnie 4 cyfry"
-                                   required>
+                                   required autofocus>
                             <div class="form-text">Kod musi być unikalny dla tego pacjenta.</div>
                         </div>
 
