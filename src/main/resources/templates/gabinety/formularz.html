@@ -5,30 +5,25 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 <div class="container">
     <div class="card shadow col-md-6 mx-auto">
-        <div class="card-header bg-primary text-white">Gabinet</div>
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Dane Gabinetu</h4>
+        </div>
         <div class="card-body">
             <form action="/admin/gabinety/zapisz" method="post" th:object="${gabinet}">
                 <input type="hidden" th:field="*{numerGabinetu}">
 
                 <div class="mb-3">
                     <label>Piętro *</label>
-                    <input type="number" th:field="*{pietro}" class="form-control"
-                           th:classappend="${#fields.hasErrors('pietro')} ? 'is-invalid' : ''"
-                           required>
-                    <div class="invalid-feedback" th:errors="*{pietro}">Błąd piętra</div>
+                    <input type="number" th:field="*{pietro}" class="form-control" required>
                 </div>
-
                 <div class="mb-3">
                     <label>Opis Funkcji *</label>
-                    <input type="text" th:field="*{opisFunkcji}" class="form-control"
-                           th:classappend="${#fields.hasErrors('opisFunkcji')} ? 'is-invalid' : ''"
-                           required>
-                    <div class="invalid-feedback" th:errors="*{opisFunkcji}">Błąd opisu</div>
+                    <input type="text" th:field="*{opisFunkcji}" class="form-control" placeholder="np. Zabiegowy" required>
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success">Zapisz</button>
-                    <a href="/admin/gabinety" class="btn btn-outline-secondary">Anuluj</a>
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz Gabinet</button>
+                    <a href="/admin/gabinety" class="btn btn-outline-secondary btn-lg">Anuluj</a>
                 </div>
             </form>
         </div>

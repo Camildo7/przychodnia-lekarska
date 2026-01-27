@@ -5,7 +5,9 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 <div class="container">
     <div class="card shadow col-md-8 mx-auto">
-        <div class="card-header bg-primary text-white">Dane Lekarza</div>
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0" th:text="${isEdit ? 'Edycja Lekarza' : 'Nowy Lekarz'}">Dane Lekarza</h4>
+        </div>
         <div class="card-body">
 
             <form action="/lekarze/zapisz" method="post" th:object="${lekarz}">
@@ -14,12 +16,10 @@
 
                 <div class="mb-3">
                     <label>Numer PWZ *</label>
-
                     <input type="text" th:field="*{numerPwz}" class="form-control"
                            th:readonly="${isEdit}"
                            th:classappend="${#fields.hasErrors('numerPwz')} ? 'is-invalid' : ''"
-                           required maxlength="7">
-
+                           required maxlength="7" placeholder="np. 1234567">
                     <div class="invalid-feedback" th:errors="*{numerPwz}">Błąd PWZ</div>
                 </div>
 
@@ -28,14 +28,14 @@
                         <label>Imię *</label>
                         <input type="text" th:field="*{imie}" class="form-control"
                                th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''"
-                               required>
+                               required placeholder="np. Jan">
                         <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Nazwisko *</label>
                         <input type="text" th:field="*{nazwisko}" class="form-control"
                                th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''"
-                               required>
+                               required placeholder="np. Kowalski">
                         <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
                     </div>
                 </div>
@@ -45,31 +45,43 @@
                     <input type="date" th:field="*{dataZatrudnienia}" class="form-control"
                            th:classappend="${#fields.hasErrors('dataZatrudnienia')} ? 'is-invalid' : ''"
                            required max="9999-12-31">
-
                     <div class="invalid-feedback" th:errors="*{dataZatrudnienia}">Błąd daty</div>
                 </div>
 
                 <div class="mb-3">
-                    <label>Telefon</label>
+                    <label>Telefon Służbowy *</label>
                     <input type="text" th:field="*{telefonSluzbowy}" class="form-control"
+                           placeholder="+48 600 100 200"
+                           maxlength="15"
                            th:classappend="${#fields.hasErrors('telefonSluzbowy')} ? 'is-invalid' : ''">
-                    <div class="invalid-feedback" th:errors="*{telefonSluzbowy}">Błąd telefonu</div>
+
+                    <div class="invalid-feedback" th:errors="*{telefonSluzbowy}">
+                        Wymagany format: +48 xxx xxx xxx
+                    </div>
+                    <div class="form-text text-muted">
+                        Wpisz numer z kierunkowym i spacjami, np.: <strong>+48 600 123 456</strong>
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-bold">Specjalizacje:</label>
-                    <div class="border p-2" style="max-height: 150px; overflow-y: auto;">
+                    <div class="border p-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
                         <div th:each="s : ${dostepneSpecjalizacje}" class="form-check">
                             <input type="checkbox" class="form-check-input"
                                    th:field="*{specjalizacje}"
-                                   th:value="${s.nazwaSpecjalizacji}">
-                            <label class="form-check-label" th:text="${s.nazwaSpecjalizacji}"></label>
+                                   th:value="${s.nazwaSpecjalizacji}"
+                                   th:id="${'spec_' + s.nazwaSpecjalizacji}">
+                            <label class="form-check-label" th:for="${'spec_' + s.nazwaSpecjalizacji}"
+                                   th:text="${s.nazwaSpecjalizacji}"></label>
                         </div>
                     </div>
-                    <div class="text-danger" th:if="${#fields.hasErrors('specjalizacje')}" th:errors="*{specjalizacje}"></div>
+                    <div class="text-danger mt-1 small" th:if="${#fields.hasErrors('specjalizacje')}" th:errors="*{specjalizacje}"></div>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100">Zapisz</button>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz Lekarza</button>
+                    <a href="/lekarze" class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                </div>
             </form>
         </div>
     </div>

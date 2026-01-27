@@ -4,23 +4,56 @@
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
 <div class="container">
-    <div class="d-flex justify-content-between mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Rejestr Recept</h1>
-        <a href="/recepty/nowa" class="btn btn-primary">+ Nowa Recepta</a>
+        <a href="/recepty/nowa" class="btn btn-success">+ Wystaw Receptę</a>
     </div>
-    <div class="card">
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form action="/recepty" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="szukaj" class="form-control"
+                   placeholder="Szukaj recepty (kod, pacjent, lekarz lub data)..."
+                   th:value="${param.szukaj}">
+            <button class="btn btn-outline-primary" type="submit">Szukaj</button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
         <div class="card-body">
-            <table class="table">
-                <thead><tr><th>Kod</th><th>Data</th><th>Pacjent</th><th>Lekarz</th><th>Akcja</th></tr></thead>
+            <div th:if="${#lists.isEmpty(recepty)}" class="text-center py-4 text-muted">
+                Brak recept spełniających kryteria.
+            </div>
+
+            <table class="table table-hover" th:if="${!#lists.isEmpty(recepty)}">
+                <thead class="table-light">
+                <tr>
+                    <th>Kod Recepty</th>
+                    <th>Pacjent</th>
+                    <th>Lekarz</th>
+                    <th>Data Wystawienia</th>
+                    <th>Akcje</th>
+                </tr>
+                </thead>
                 <tbody>
                 <tr th:each="r : ${recepty}">
-                    <td th:text="${r.kodDokumentu}"></td>
-                    <td th:text="${r.dataWystawienia}"></td>
-                    <td th:text="${r.pacjent.nazwisko}"></td>
-                    <td th:text="${r.lekarz.nazwisko}"></td>
+                    <td th:text="${r.kodDokumentu}" class="fw-bold"></td>
                     <td>
-                        <a th:href="@{/recepty/szczegoly(kod=${r.kodDokumentu}, pesel=${r.pacjent.pesel})}"
-                           class="btn btn-sm btn-info">Szczegóły / Leki</a>
+                        <div th:text="${r.pacjent.nazwisko} + ' ' + ${r.pacjent.imie}"></div>
+                        <small class="text-muted" th:text="${r.pacjent.pesel}"></small>
+                    </td>
+                    <td th:text="${r.lekarz.nazwisko} + ' ' + ${r.lekarz.imie}"></td>
+                    <td th:text="${r.dataWystawienia}"></td>
+                    <td>
+                        <div class="btn-group">
+                            <a th:href="@{/recepty/szczegoly(kod=${r.kodDokumentu}, pesel=${r.pacjent.pesel})}"
+                               class="btn btn-sm btn-info text-white">Szczegóły</a>
+                            <a th:href="@{/recepty/usun(kod=${r.kodDokumentu}, pesel=${r.pacjent.pesel})}"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Czy na pewno usunąć całą receptę i wszystkie jej pozycje?')">Usuń</a>
+                        </div>
                     </td>
                 </tr>
                 </tbody>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="card shadow col-md-6 mx-auto">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0">Edycja Pozycji Recepty</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title mb-3" th:text="${pozycja.lek.nazwaHandlowa}"></h5>
+
+            <form action="/recepty/zapisz-pozycje" method="post">
+                <input type="hidden" name="kod" th:value="${pozycja.kodDokumentu}">
+                <input type="hidden" name="pesel" th:value="${pozycja.pesel}">
+                <input type="hidden" name="ean" th:value="${pozycja.lek.kodEan}">
+
+                <div class="mb-3">
+                    <label>Ilość opakowań:</label>
+                    <input type="number" name="ilosc" class="form-control" th:value="${pozycja.iloscOpakowan}" min="1" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Dawkowanie:</label>
+                    <input type="text" name="dawkowanie" class="form-control" th:value="${pozycja.dawkowanie}" required>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz zmiany</button>
+                    <a th:href="@{/recepty/szczegoly(kod=${pozycja.kodDokumentu}, pesel=${pozycja.pesel})}"
+                       class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

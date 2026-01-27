@@ -28,11 +28,7 @@ public class PacjentController {
     public String lista(@RequestParam(required = false) String szukaj, Model model) {
         List<Pacjent> pacjenci;
         if (szukaj != null && !szukaj.isEmpty()) {
-            // Wymaga metody findByNazwiskoContainingIgnoreCase w repozytorium!
-            // Jeśli jej nie masz, dodaj ją w PacjentRepository
-            pacjenci = pacjentRepository.findAll().stream()
-                    .filter(p -> p.getNazwisko().toLowerCase().contains(szukaj.toLowerCase()))
-                    .toList();
+            pacjenci = pacjentRepository.findByNazwiskoContainingIgnoreCase(szukaj);
         } else {
             pacjenci = pacjentRepository.findAll();
         }
@@ -40,42 +36,93 @@ public class PacjentController {
         return "pacjenci/lista";
     }
 
+    // Formularz dodawania
     @GetMapping("/nowy")
     public String formularz(Model model) {
         model.addAttribute("pacjent", new Pacjent());
+        model.addAttribute("isEdit", false);
         return "pacjenci/formularz";
     }
 
-    @GetMapping("/historia/{pesel}")
-    public String historia(@PathVariable String pesel, Model model) {
-        var historia = pacjentService.pobierzHistorie(pesel);
-        var pacjent = pacjentRepository.findById(pesel).orElseThrow();
-
-        model.addAttribute("historia", historia);
-        model.addAttribute("pacjent", pacjent);
-        return "pacjenci/historia";
+    // Formularz edycji
+    @GetMapping("/edytuj/{pesel}")
+    public String edytuj(@PathVariable String pesel, Model model) {
+        Pacjent p = pacjentRepository.findById(pesel)
+                .orElseThrow(() -> new IllegalArgumentException("Nieprawidłowy numer PESEL: " + pesel));
+        model.addAttribute("pacjent", p);
+        model.addAttribute("isEdit", true);
+        return "pacjenci/formularz";
     }
 
-    // Obsługa dodawania (wywołanie procedury)
-    @PostMapping("/dodaj")
-    public String dodaj(@Valid @ModelAttribute("pacjent") Pacjent p,
-                        BindingResult result,
-                        Model model) {
+    // Historia (bez zmian)
+    @GetMapping("/historia/{pesel}")
+    public String historia(@PathVariable String pesel, Model model) {
+        try {
+            var historia = pacjentService.pobierzHistorie(pesel);
+            var pacjent = pacjentRepository.findById(pesel).orElseThrow();
+            model.addAttribute("historia", historia);
+            model.addAttribute("pacjent", pacjent);
+            return "pacjenci/historia";
+        } catch (Exception e) {
+            return "redirect:/pacjenci";
+        }
+    }
 
+    // Zapis (Dodawanie lub Edycja) z Walidacją
+    @PostMapping("/zapisz")
+    public String zapisz(@Valid @ModelAttribute("pacjent") Pacjent p,
+                         BindingResult result,
+                         @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
+                         Model model) {
+
+        // 1. Walidacja unikalności PESEL (tylko przy dodawaniu nowego)
+        if (!isEdit && pacjentRepository.existsById(p.getPesel())) {
+            result.rejectValue("pesel", "error.pacjent", "Pacjent o podanym numerze PESEL już istnieje.");
+        }
+
+        // 2. Jeśli są błędy walidacji, wróć do formularza
         if (result.hasErrors()) {
+            model.addAttribute("isEdit", isEdit);
             return "pacjenci/formularz";
         }
 
         try {
-            pacjentService.dodajPacjenta(p.getPesel(), p.getImie(), p.getNazwisko(), p.getAdresZamieszkania(), p.getTelefonKontaktowy());
-            return "redirect:/pacjenci";
-        } catch (Exception e) {
-            String error = "Nie udało się dodać pacjenta.";
-            if (e.getMessage().contains("ORA-00001")) { // Naruszenie klucza głównego (PESEL)
-                error = "Pacjent o podanym numerze PESEL już istnieje w bazie!";
+            if (isEdit) {
+                // Edycja: Używamy standardowego JPA (save aktualizuje rekord)
+                pacjentRepository.save(p);
+            } else {
+                // Dodawanie: Używamy PROCEDURY SKŁADOWANEJ (zgodnie z wymogiem projektu)
+                pacjentService.dodajPacjenta(
+                        p.getPesel(),
+                        p.getImie(),
+                        p.getNazwisko(),
+                        p.getAdresZamieszkania(),
+                        p.getTelefonKontaktowy()
+                );
+
+                // Hack: Procedura w bazie nie obsługuje pola Email, więc jeśli został podany,
+                // musimy go zapisać oddzielnym strzałem przez JPA.
+                if (p.getEmail() != null && !p.getEmail().isEmpty()) {
+                    pacjentRepository.save(p);
+                }
             }
-            model.addAttribute("error", error);
+            return "redirect:/pacjenci";
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Błąd zapisu bazy danych: " + e.getMessage());
+            model.addAttribute("isEdit", isEdit);
             return "pacjenci/formularz";
         }
+    }
+
+    // Usuwanie
+    @GetMapping("/usun/{pesel}")
+    public String usun(@PathVariable String pesel) {
+        try {
+            pacjentRepository.deleteById(pesel);
+        } catch (Exception e) {
+            return "redirect:/pacjenci?error=Pacjent posiada historie wizyt i nie moze zostac usuniety";
+        }
+        return "redirect:/pacjenci";
     }
 }

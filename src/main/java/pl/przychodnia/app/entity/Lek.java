@@ -12,7 +12,8 @@ public class Lek {
     @Id
     @Column(name = "KOD_EAN", length = 13)
     @NotBlank(message = "Kod EAN jest wymagany")
-    @Size(min = 8, max = 13, message = "EAN musi mieć od 8 do 13 znaków")
+    // ZMIANA: Wymuszamy dokładnie 13 cyfr
+    @Pattern(regexp = "\\d{13}", message = "Kod EAN musi składać się z dokładnie 13 cyfr")
     private String kodEan;
 
     @Column(name = "NAZWA_HANDLOWA", nullable = false)
@@ -32,7 +33,7 @@ public class Lek {
     private Integer stanMagazynowy;
 
     @Column(name = "JEDNOSTKA_MIARY", nullable = false)
-    @NotBlank
-    @Size(max = 20)
+    @NotBlank(message = "Jednostka miary jest wymagana")
+    @Size(max = 20, message = "Max 20 znaków")
     private String jednostkaMiary;
 }

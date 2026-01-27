@@ -5,18 +5,26 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 
 <div class="container">
-    <div class="card mb-4">
-        <div class="card-header bg-light">
-            <strong>Recepta: <span th:text="${recepta.kodDokumentu}"></span></strong>
+    <div class="card mb-4 shadow-sm border-success">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <span>Recepta: <strong th:text="${recepta.kodDokumentu}"></strong></span>
+            <a th:href="@{/recepty/edytuj(kod=${recepta.kodDokumentu}, pesel=${recepta.pacjent.pesel})}"
+               class="btn btn-sm btn-light text-success fw-bold">Edytuj datę</a>
         </div>
         <div class="card-body row">
             <div class="col-md-4">
-                <p>Pacjent: <strong th:text="${recepta.pacjent.nazwisko} + ' ' + ${recepta.pacjent.imie}"></strong></p>
+                <p class="mb-1 text-muted">Pacjent</p>
+                <h5 th:text="${recepta.pacjent.nazwisko} + ' ' + ${recepta.pacjent.imie}"></h5>
                 <p>PESEL: <span th:text="${recepta.pacjent.pesel}"></span></p>
             </div>
             <div class="col-md-4">
-                <p>Lekarz: <strong th:text="${recepta.lekarz.nazwisko}"></strong></p>
-                <p>Data wystawienia: <span th:text="${recepta.dataWystawienia}"></span></p>
+                <p class="mb-1 text-muted">Lekarz</p>
+                <h5 th:text="${recepta.lekarz.nazwisko} + ' ' + ${recepta.lekarz.imie}"></h5>
+            </div>
+            <div class="col-md-4">
+                <p class="mb-1 text-muted">Ważność</p>
+                <p>Wystawiono: <strong th:text="${recepta.dataWystawienia}"></strong></p>
+                <p>Ważna do: <strong th:text="${recepta.dataWaznosci}" class="text-danger"></strong></p>
             </div>
         </div>
     </div>
@@ -34,11 +42,11 @@
                         <input type="hidden" name="pesel" th:value="${recepta.pacjent.pesel}">
 
                         <div class="mb-3">
-                            <label>Lek:</label>
+                            <label>Lek (Stan w nawiasie):</label>
                             <select name="kodLeku" class="form-select" required>
                                 <option th:each="l : ${leki}"
                                         th:value="${l.kodEan}"
-                                        th:text="${l.nazwaHandlowa} + ' (Stan: ' + ${l.stanMagazynowy} + ')'">
+                                        th:text="${l.nazwaHandlowa} + ' (' + ${l.stanMagazynowy} + ' ' + ${l.jednostkaMiary} + ')'">
                                 </option>
                             </select>
                         </div>
@@ -57,27 +65,44 @@
         </div>
 
         <div class="col-md-8">
-            <h3>Lista leków na recepcie</h3>
-            <table class="table table-bordered">
-                <thead class="table-light">
-                <tr>
-                    <th>Nazwa Leku</th>
-                    <th>Ilość</th>
-                    <th>Dawkowanie</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="p : ${pozycje}">
-                    <td th:text="${p.lek.nazwaHandlowa}"></td>
-                    <td th:text="${p.iloscOpakowan}"></td>
-                    <td th:text="${p.dawkowanie}"></td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(pozycje)}">
-                    <td colspan="3" class="text-center text-muted">Brak leków na tej recepcie.</td>
-                </tr>
-                </tbody>
-            </table>
-            <a href="/recepty" class="btn btn-outline-secondary mt-3">Wróć do listy recept</a>
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">Lista leków na recepcie</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Nazwa Leku</th>
+                            <th>Ilość</th>
+                            <th>Dawkowanie</th>
+                            <th class="text-end">Akcje</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${pozycje}">
+                            <td th:text="${p.lek.nazwaHandlowa}"></td>
+                            <td th:text="${p.iloscOpakowan}"></td>
+                            <td th:text="${p.dawkowanie}"></td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a th:href="@{/recepty/edytuj-pozycje(kod=${recepta.kodDokumentu}, pesel=${recepta.pacjent.pesel}, ean=${p.lek.kodEan})}"
+                                       class="btn btn-sm btn-warning">Edytuj</a>
+
+                                    <a th:href="@{/recepty/usun-pozycje(kod=${recepta.kodDokumentu}, pesel=${recepta.pacjent.pesel}, ean=${p.lek.kodEan})}"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Usunąć ten lek?')">X</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(pozycje)}">
+                            <td colspan="4" class="text-center text-muted py-4">Brak leków na tej recepcie.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-3 text-end">
+                <a href="/recepty" class="btn btn-outline-secondary btn-lg">Wróć do listy recept</a>
+            </div>
         </div>
     </div>
 </div>

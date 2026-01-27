@@ -4,12 +4,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pl.przychodnia.app.entity.PozycjaRecepty;
+import pl.przychodnia.app.entity.PozycjaReceptyId;
 import pl.przychodnia.app.entity.Recepta;
 import pl.przychodnia.app.entity.ReceptaId;
 import pl.przychodnia.app.repository.*;
 import pl.przychodnia.app.service.ReceptaService;
 
-import java.util.UUID;
+import java.time.LocalDate;
+// UWAGA: UUID już niepotrzebne
 
 @Controller
 @RequestMapping("/recepty")
@@ -29,40 +32,60 @@ public class ReceptaController {
         this.receptaService = rs;
     }
 
-    // Lista recept
+    // --- LISTA ---
     @GetMapping
-    public String lista(Model model) {
-        model.addAttribute("recepty", receptaRepo.findAll());
+    public String lista(@RequestParam(required = false) String szukaj, Model model) {
+        if (szukaj != null && !szukaj.isEmpty()) {
+            model.addAttribute("recepty", receptaRepo.szukajRecept(szukaj));
+        } else {
+            model.addAttribute("recepty", receptaRepo.findAll());
+        }
         return "recepty/lista";
     }
 
-    // Formularz nowej recepty (Nagłówek)
+    // --- TWORZENIE NAGŁÓWKA ---
     @GetMapping("/nowa")
     public String formularz(Model model) {
-        // Receptę wystawiamy na podstawie wizyty - tam mamy już lekarza i pacjenta
         model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
         return "recepty/nowa";
     }
 
     @PostMapping("/utworz")
-    public String utworz(@RequestParam Long idWizyty, RedirectAttributes ra) {
+    public String utworz(@RequestParam Long idWizyty,
+                         @RequestParam String kodDokumentu, // Pobieramy kod z inputa
+                         Model model, // Używamy Model zamiast RedirectAttributes w przypadku błędu, żeby łatwo wrócić
+                         RedirectAttributes ra) {
         try {
             var wizyta = wizytaRepo.findById(idWizyty).orElseThrow();
-            // Generujemy unikalny kod dokumentu
-            String kodDok = "REC/" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            String pesel = wizyta.getPacjent().getPesel();
 
-            receptaService.utworzRecepte(kodDok, wizyta.getPacjent().getPesel(), wizyta.getLekarz().getNumerPwz(), idWizyty);
+            // 1. Walidacja formatu (4 cyfry)
+            if (!kodDokumentu.matches("\\d{4}")) {
+                throw new IllegalArgumentException("Kod recepty musi składać się dokładnie z 4 cyfr!");
+            }
 
-            ra.addAttribute("kod", kodDok);
-            ra.addAttribute("pesel", wizyta.getPacjent().getPesel());
+            // 2. Walidacja unikalności DLA TEGO PACJENTA
+            if (receptaRepo.existsByKodDokumentuAndPacjent_Pesel(kodDokumentu, pesel)) {
+                throw new IllegalArgumentException("Ten pacjent (PESEL: " + pesel + ") posiada już receptę o kodzie " + kodDokumentu);
+            }
+
+            // 3. Wywołanie procedury
+            receptaService.utworzRecepte(kodDokumentu, pesel, wizyta.getLekarz().getNumerPwz(), idWizyty);
+
+            ra.addAttribute("kod", kodDokumentu);
+            ra.addAttribute("pesel", pesel);
             return "redirect:/recepty/szczegoly";
+
         } catch (Exception e) {
-            ra.addFlashAttribute("error", "Błąd tworzenia recepty: " + e.getMessage());
-            return "redirect:/recepty/nowa";
+            // W razie błędu wracamy do formularza z komunikatem
+            model.addAttribute("error", e.getMessage());
+            // Musimy ponownie załadować listę wizyt, bo wracamy do widoku "nowa"
+            model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
+            return "recepty/nowa";
         }
     }
 
-    // Widok Master-Detail (Recepta + Pozycje + Dodawanie leku)
+    // --- SZCZEGÓŁY / MASTER-DETAIL ---
     @GetMapping("/szczegoly")
     public String szczegoly(@RequestParam String kod, @RequestParam String pesel, Model model) {
         ReceptaId id = new ReceptaId(kod, pesel);
@@ -70,33 +93,98 @@ public class ReceptaController {
 
         model.addAttribute("recepta", recepta);
         model.addAttribute("pozycje", pozycjaRepo.findByKodDokumentuAndPesel(kod, pesel));
-        model.addAttribute("leki", lekRepo.findAll()); // Do dropdowna przy dodawaniu pozycji
-
+        model.addAttribute("leki", lekRepo.findAll());
         return "recepty/szczegoly";
     }
 
+    // --- DODAWANIE POZYCJI ---
     @PostMapping("/dodaj-pozycje")
-    public String dodajPozycje(@RequestParam String kodDok,
-                               @RequestParam String pesel,
-                               @RequestParam String kodLeku,
-                               @RequestParam int ilosc,
-                               @RequestParam String dawkowanie,
-                               RedirectAttributes ra) {
+    public String dodajPozycje(@RequestParam String kodDok, @RequestParam String pesel,
+                               @RequestParam String kodLeku, @RequestParam int ilosc,
+                               @RequestParam String dawkowanie, RedirectAttributes ra) {
         try {
             receptaService.dodajPozycje(kodDok, pesel, kodLeku, ilosc, dawkowanie);
-            ra.addFlashAttribute("success", "Dodano lek do recepty.");
+            ra.addFlashAttribute("success", "Dodano lek.");
         } catch (Exception e) {
             String msg = e.getMessage();
-            String userMsg = "Błąd systemu.";
-
-            // Obsługa użytkownika naiwnego - błąd z procedury -20011
             if (msg != null && msg.contains("ORA-20011")) {
-                userMsg = "Brak wystarczającej ilości leku w magazynie! Zmniejsz ilość lub zamów towar.";
+                ra.addFlashAttribute("error", "Brak wystarczającej ilości leku w magazynie!");
+            } else {
+                ra.addFlashAttribute("error", "Błąd dodawania pozycji.");
             }
-            ra.addFlashAttribute("error", userMsg);
         }
-
         ra.addAttribute("kod", kodDok);
+        ra.addAttribute("pesel", pesel);
+        return "redirect:/recepty/szczegoly";
+    }
+
+    // --- USUWANIE CAŁEJ RECEPTY ---
+    @GetMapping("/usun")
+    public String usunRecepte(@RequestParam String kod, @RequestParam String pesel, RedirectAttributes ra) {
+        try {
+            receptaService.usunRecepte(kod, pesel);
+            ra.addFlashAttribute("success", "Recepta została usunięta.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Nie można usunąć recepty.");
+        }
+        return "redirect:/recepty";
+    }
+
+    // --- USUWANIE POZYCJI ---
+    @GetMapping("/usun-pozycje")
+    public String usunPozycje(@RequestParam String kod, @RequestParam String pesel, @RequestParam String ean, RedirectAttributes ra) {
+        PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
+        pozycjaRepo.deleteById(id);
+
+        ra.addAttribute("kod", kod);
+        ra.addAttribute("pesel", pesel);
+        ra.addFlashAttribute("success", "Usunięto lek z recepty.");
+        return "redirect:/recepty/szczegoly";
+    }
+
+    // --- EDYCJA NAGŁÓWKA ---
+    @GetMapping("/edytuj")
+    public String edytujRecepte(@RequestParam String kod, @RequestParam String pesel, Model model) {
+        try {
+            ReceptaId id = new ReceptaId(kod, pesel);
+            Recepta recepta = receptaRepo.findById(id).orElseThrow();
+            model.addAttribute("recepta", recepta);
+            return "recepty/edytuj";
+        } catch (Exception e) {
+            return "redirect:/recepty?error=Błąd odczytu recepty";
+        }
+    }
+
+    @PostMapping("/zapisz")
+    public String zapiszRecepte(@RequestParam String kodDokumentu,
+                                @RequestParam String pesel,
+                                @RequestParam String dataWaznosci) {
+        ReceptaId id = new ReceptaId(kodDokumentu, pesel);
+        Recepta recepta = receptaRepo.findById(id).orElseThrow();
+        recepta.setDataWaznosci(LocalDate.parse(dataWaznosci));
+        receptaRepo.save(recepta);
+        return "redirect:/recepty/szczegoly?kod=" + kodDokumentu + "&pesel=" + pesel;
+    }
+
+    // --- EDYCJA POZYCJI ---
+    @GetMapping("/edytuj-pozycje")
+    public String edytujPozycje(@RequestParam String kod, @RequestParam String pesel, @RequestParam String ean, Model model) {
+        PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
+        PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow();
+        model.addAttribute("pozycja", pozycja);
+        return "recepty/edytuj_pozycje";
+    }
+
+    @PostMapping("/zapisz-pozycje")
+    public String zapiszPozycje(@RequestParam String kod, @RequestParam String pesel, @RequestParam String ean,
+                                @RequestParam Integer ilosc, @RequestParam String dawkowanie, RedirectAttributes ra) {
+        PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
+        PozycjaRecepty p = pozycjaRepo.findById(id).orElseThrow();
+        p.setIloscOpakowan(ilosc);
+        p.setDawkowanie(dawkowanie);
+        pozycjaRepo.save(p);
+
+        ra.addAttribute("kod", kod);
         ra.addAttribute("pesel", pesel);
         return "redirect:/recepty/szczegoly";
     }

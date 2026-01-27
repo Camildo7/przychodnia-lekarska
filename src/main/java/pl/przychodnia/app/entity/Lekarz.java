@@ -2,6 +2,7 @@ package pl.przychodnia.app.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat; // Pamiętaj o imporcie!
 import lombok.Data;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,10 +34,13 @@ public class Lekarz {
     @Column(name = "DATA_ZATRUDNIENIA")
     @NotNull(message = "Data zatrudnienia jest wymagana")
     @PastOrPresent(message = "Data nie może być z przyszłości")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataZatrudnienia;
 
     @Column(name = "TELEFON_SLUZBOWY")
-    @Size(max = 15, message = "Telefon max 15 znaków")
+    @NotBlank(message = "Telefon jest wymagany")
+    @Pattern(regexp = "^\\+\\d{2} \\d{3} \\d{3} \\d{3}$", message = "Wymagany format: +xx xxx xxx xxx")
+    @Size(min = 15, max = 15, message = "Numer musi mieć dokładnie 15 znaków")
     private String telefonSluzbowy;
 
     @ManyToMany

@@ -3,65 +3,70 @@
 <head th:replace="~{layout :: header}"></head>
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
-
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">Dane Leku</h4>
+    <div class="card shadow col-md-8 mx-auto">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0" th:text="${isEdit ? 'Edycja Leku' : 'Nowy Lek w Magazynie'}">Lek</h4>
+        </div>
+        <div class="card-body">
+
+            <form action="/leki/zapisz" method="post" th:object="${lek}">
+                <input type="hidden" name="isEdit" th:value="${isEdit}">
+
+                <div class="mb-3">
+                    <label>Kod EAN (13 cyfr) *</label>
+                    <input type="text" th:field="*{kodEan}" class="form-control"
+                           th:readonly="${isEdit}"
+                           th:classappend="${#fields.hasErrors('kodEan')} ? 'is-invalid' : ''"
+                           required maxlength="13" placeholder="np. 5900000123456">
+
+                    <div class="invalid-feedback" th:errors="*{kodEan}">Błąd EAN</div>
+                    <div class="form-text" th:if="${!isEdit}">Wpisz dokładnie 13 cyfr z opakowania.</div>
                 </div>
-                <div class="card-body">
-                    <form action="/leki/zapisz" method="post" th:object="${lek}">
 
-                        <input type="hidden" name="isEdit" th:value="${isEdit}">
-
-                        <div class="mb-3">
-                            <label>Kod EAN *</label>
-                            <input type="text" th:field="*{kodEan}" class="form-control"
-                                   th:readonly="${isEdit}"
-                                   th:classappend="${#fields.hasErrors('kodEan')} ? 'is-invalid' : ''"
-                                   required maxlength="13">
-                            <div class="invalid-feedback" th:errors="*{kodEan}">Błąd EAN</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Nazwa Handlowa *</label>
-                            <input type="text" th:field="*{nazwaHandlowa}" class="form-control"
-                                   th:classappend="${#fields.hasErrors('nazwaHandlowa')} ? 'is-invalid' : ''"
-                                   required>
-                            <div class="invalid-feedback" th:errors="*{nazwaHandlowa}">Błąd nazwy</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Substancja Czynna *</label>
-                            <input type="text" th:field="*{substancjaCzynna}" class="form-control"
-                                   th:classappend="${#fields.hasErrors('substancjaCzynna')} ? 'is-invalid' : ''"
-                                   required>
-                            <div class="invalid-feedback" th:errors="*{substancjaCzynna}">Błąd substancji</div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>Stan Magazynowy *</label>
-                                <input type="number" th:field="*{stanMagazynowy}" class="form-control"
-                                       th:classappend="${#fields.hasErrors('stanMagazynowy')} ? 'is-invalid' : ''"
-                                       required>
-                                <div class="invalid-feedback" th:errors="*{stanMagazynowy}">Błąd stanu</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Jednostka (np. szt, op) *</label>
-                                <input type="text" th:field="*{jednostkaMiary}" class="form-control"
-                                       th:classappend="${#fields.hasErrors('jednostkaMiary')} ? 'is-invalid' : ''"
-                                       required>
-                                <div class="invalid-feedback" th:errors="*{jednostkaMiary}">Błąd jednostki</div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100">Zapisz Lek</button>
-                    </form>
+                <div class="mb-3">
+                    <label>Nazwa Handlowa *</label>
+                    <input type="text" th:field="*{nazwaHandlowa}" class="form-control"
+                           th:classappend="${#fields.hasErrors('nazwaHandlowa')} ? 'is-invalid' : ''"
+                           required placeholder="np. Apap">
+                    <div class="invalid-feedback" th:errors="*{nazwaHandlowa}">Błąd nazwy</div>
                 </div>
-            </div>
+
+                <div class="mb-3">
+                    <label>Substancja Czynna *</label>
+                    <input type="text" th:field="*{substancjaCzynna}" class="form-control"
+                           th:classappend="${#fields.hasErrors('substancjaCzynna')} ? 'is-invalid' : ''"
+                           required placeholder="np. Paracetamol">
+                    <div class="invalid-feedback" th:errors="*{substancjaCzynna}">Błąd substancji</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Stan Magazynowy *</label>
+                        <input type="number" th:field="*{stanMagazynowy}" class="form-control"
+                               th:classappend="${#fields.hasErrors('stanMagazynowy')} ? 'is-invalid' : ''"
+                               required min="0">
+                        <div class="invalid-feedback" th:errors="*{stanMagazynowy}">Błąd stanu</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Jednostka Miary *</label>
+                        <select th:field="*{jednostkaMiary}" class="form-select"
+                                th:classappend="${#fields.hasErrors('jednostkaMiary')} ? 'is-invalid' : ''">
+                            <option value="szt.">sztuki (szt.)</option>
+                            <option value="op.">opakowania (op.)</option>
+                            <option value="ml">mililitry (ml)</option>
+                            <option value="mg">miligramy (mg)</option>
+                            <option value="tabl.">tabletki (tabl.)</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{jednostkaMiary}">Błąd jednostki</div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz Lek</button>
+                    <a href="/leki" class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -23,10 +23,13 @@ public class ZarzadzanieController {
     }
 
     // --- GABINETY ---
-
     @GetMapping("/gabinety")
-    public String listaGabinetow(Model model) {
-        model.addAttribute("gabinety", gabinetRepo.findAll());
+    public String listaGabinetow(@RequestParam(required = false) String szukaj, Model model) {
+        if (szukaj != null && !szukaj.isEmpty()) {
+            model.addAttribute("gabinety", gabinetRepo.findByOpisFunkcjiContainingIgnoreCase(szukaj));
+        } else {
+            model.addAttribute("gabinety", gabinetRepo.findAll());
+        }
         return "gabinety/lista";
     }
 
@@ -72,8 +75,12 @@ public class ZarzadzanieController {
     // --- SPECJALIZACJE ---
 
     @GetMapping("/specjalizacje")
-    public String listaSpecjalizacji(Model model) {
-        model.addAttribute("specjalizacje", specRepo.findAll());
+    public String listaSpecjalizacji(@RequestParam(required = false) String szukaj, Model model) {
+        if (szukaj != null && !szukaj.isEmpty()) {
+            model.addAttribute("specjalizacje", specRepo.findByNazwaSpecjalizacjiContainingIgnoreCase(szukaj));
+        } else {
+            model.addAttribute("specjalizacje", specRepo.findAll());
+        }
         return "specjalizacje/lista";
     }
 
@@ -122,4 +129,8 @@ public class ZarzadzanieController {
         }
         return "redirect:/admin/specjalizacje";
     }
+
+
+
+
 }

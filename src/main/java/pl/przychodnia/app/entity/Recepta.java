@@ -1,18 +1,19 @@
 package pl.przychodnia.app.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern; // Import
 import lombok.Data;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "RECEPTY")
-@IdClass(ReceptaId.class) // Wskazujemy klasę klucza złożonego
+@IdClass(ReceptaId.class)
 @Data
 public class Recepta {
 
     @Id
     @Column(name = "KOD_DOKUMENTU")
+    @Pattern(regexp = "\\d{4}", message = "Kod recepty musi składać się z 4 cyfr")
     private String kodDokumentu;
 
     @Id

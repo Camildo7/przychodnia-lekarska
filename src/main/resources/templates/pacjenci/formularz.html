@@ -3,61 +3,91 @@
 <head th:replace="~{layout :: header}"></head>
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
-
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">Dodaj Nowego Pacjenta</div>
-                <div class="card-body">
+    <div class="card shadow col-md-8 mx-auto">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0" th:text="${isEdit ? 'Edycja Pacjenta' : 'Nowy Pacjent'}">Dane Pacjenta</h4>
+        </div>
+        <div class="card-body">
 
-                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-                    <form action="/pacjenci/dodaj" method="post" th:object="${pacjent}">
+            <form action="/pacjenci/zapisz" method="post" th:object="${pacjent}">
 
-                        <div class="mb-3">
-                            <label>PESEL *</label>
-                            <input type="text" th:field="*{pesel}" class="form-control"
-                                   th:classappend="${#fields.hasErrors('pesel')} ? 'is-invalid' : ''"
-                                   maxlength="11">
-                            <div class="invalid-feedback" th:errors="*{pesel}">Błąd PESEL</div>
-                        </div>
+                <input type="hidden" name="isEdit" th:value="${isEdit}">
 
-                        <div class="mb-3">
-                            <label>Imię *</label>
-                            <input type="text" th:field="*{imie}" class="form-control"
-                                   th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''">
-                            <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Nazwisko *</label>
-                            <input type="text" th:field="*{nazwisko}" class="form-control"
-                                   th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''">
-                            <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Adres *</label>
-                            <input type="text" th:field="*{adresZamieszkania}" class="form-control"
-                                   th:classappend="${#fields.hasErrors('adresZamieszkania')} ? 'is-invalid' : ''">
-                            <div class="invalid-feedback" th:errors="*{adresZamieszkania}">Błąd adresu</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Telefon *</label>
-                            <input type="text" th:field="*{telefonKontaktowy}" class="form-control"
-                                   th:classappend="${#fields.hasErrors('telefonKontaktowy')} ? 'is-invalid' : ''">
-                            <div class="invalid-feedback" th:errors="*{telefonKontaktowy}">Błąd telefonu</div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Zapisz (Procedura)</button>
-                    </form>
+                <div class="mb-3">
+                    <label>PESEL *</label>
+                    <input type="text" th:field="*{pesel}" class="form-control"
+                           th:readonly="${isEdit}"
+                           th:classappend="${#fields.hasErrors('pesel')} ? 'is-invalid' : ''"
+                           required maxlength="11" placeholder="11 cyfr">
+                    <div class="invalid-feedback" th:errors="*{pesel}">Błąd PESEL</div>
                 </div>
-            </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Imię *</label>
+                        <input type="text" th:field="*{imie}" class="form-control"
+                               th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''" required>
+                        <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Nazwisko *</label>
+                        <input type="text" th:field="*{nazwisko}" class="form-control"
+                               th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''" required>
+                        <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label>Adres Zamieszkania *</label>
+                    <input type="text" th:field="*{adresZamieszkania}" class="form-control"
+                           th:classappend="${#fields.hasErrors('adresZamieszkania')} ? 'is-invalid' : ''" required>
+                    <div class="invalid-feedback" th:errors="*{adresZamieszkania}">Błąd adresu</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Telefon *</label>
+                        <div class="input-group has-validation">
+                            <span class="input-group-text" id="phone-icon">📞</span>
+                            <input type="text" th:field="*{telefonKontaktowy}" class="form-control"
+                                   id="phoneInput"
+                                   placeholder="+48 123 456 789"
+                                   maxlength="15"
+                                   th:classappend="${#fields.hasErrors('telefonKontaktowy')} ? 'is-invalid' : ''"
+                                   required>
+                            <div class="invalid-feedback" th:errors="*{telefonKontaktowy}">
+                                Format: +48 123 456 789
+                            </div>
+                        </div>
+                        <div class="form-text">Wpisz w formacie: +48 123 456 789</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Email</label>
+                        <input type="email" th:field="*{email}" class="form-control"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:errors="*{email}">Błąd email</div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz Pacjenta</button>
+                    <a href="/pacjenci" class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                </div>
+
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+    const phoneInput = document.getElementById('phoneInput');
+    // Pozostawiamy logikę placeholdera bez automatycznego formatowania,
+    // aby nie przeszkadzać w walidacji "ręcznej".
+</script>
+
 <div th:replace="~{layout :: scripts}"></div>
 </body>
 </html>

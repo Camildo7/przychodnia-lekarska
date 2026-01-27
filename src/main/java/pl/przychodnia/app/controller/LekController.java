@@ -29,20 +29,20 @@ public class LekController {
         return "leki/lista";
     }
 
-    // Formularz dodawania
+    // Formularz dodawania (NOWY)
     @GetMapping("/nowy")
     public String formularz(Model model) {
         model.addAttribute("lek", new Lek());
-        model.addAttribute("isEdit", false); // Tryb tworzenia
+        model.addAttribute("isEdit", false); // TO WAŻNE: Pole EAN będzie aktywne
         return "leki/formularz";
     }
 
-    // Edycja leku (pobranie danych do formularza)
+    // Formularz edycji (EDYTUJ)
     @GetMapping("/edytuj/{ean}")
     public String edytuj(@PathVariable String ean, Model model) {
-        Lek lek = lekRepo.findById(ean).orElseThrow(() -> new IllegalArgumentException("Brak leku"));
+        Lek lek = lekRepo.findById(ean).orElseThrow(() -> new IllegalArgumentException("Brak leku o podanym EAN"));
         model.addAttribute("lek", lek);
-        model.addAttribute("isEdit", true); // Tryb edycji
+        model.addAttribute("isEdit", true); // TO WAŻNE: Pole EAN będzie zablokowane (readonly)
         return "leki/formularz";
     }
 
@@ -52,13 +52,14 @@ public class LekController {
                          @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
                          Model model) {
 
-        // 1. Ochrona przed nadpisaniem EAN
+        // 1. Ochrona przed duplikatem EAN (tylko przy tworzeniu nowego)
         if (!isEdit && lekRepo.existsById(lek.getKodEan())) {
-            result.rejectValue("kodEan", "error.lek", "Lek o podanym kodzie EAN już istnieje.");
+            result.rejectValue("kodEan", "error.lek", "Lek o podanym kodzie EAN już istnieje w bazie.");
         }
 
+        // 2. Obsługa błędów walidacji (np. EAN ma 12 cyfr zamiast 13)
         if (result.hasErrors()) {
-            model.addAttribute("isEdit", isEdit);
+            model.addAttribute("isEdit", isEdit); // Odsyłamy flagę, żeby formularz wiedział jak wyświetlić pole
             return "leki/formularz";
         }
 
@@ -72,7 +73,8 @@ public class LekController {
         try {
             lekRepo.deleteById(ean);
         } catch (Exception e) {
-            model.addAttribute("error", "Nie można usunąć leku (jest na receptach).");
+            // Obsługa błędu klucza obcego (jeśli lek jest na recepcie)
+            model.addAttribute("error", "Nie można usunąć leku, ponieważ został już przypisany do recepty.");
             model.addAttribute("leki", lekRepo.findAll());
             return "leki/lista";
         }

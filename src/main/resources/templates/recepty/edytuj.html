@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="card shadow col-md-6 mx-auto">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Edycja Danych Recepty</h4>
+        </div>
+        <div class="card-body">
+            <form action="/recepty/zapisz" method="post">
+                <input type="hidden" name="kodDokumentu" th:value="${recepta.kodDokumentu}">
+                <input type="hidden" name="pesel" th:value="${recepta.pacjent.pesel}">
+
+                <div class="mb-3">
+                    <label>Pacjent (tylko odczyt):</label>
+                    <input type="text" class="form-control" th:value="${recepta.pacjent.nazwisko} + ' ' + ${recepta.pacjent.imie}" disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label>Lekarz (tylko odczyt):</label>
+                    <input type="text" class="form-control" th:value="${recepta.lekarz.nazwisko} + ' ' + ${recepta.lekarz.imie}" disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label>Data Ważności:</label>
+                    <input type="date" name="dataWaznosci" class="form-control"
+                           th:value="${recepta.dataWaznosci}" required>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz zmiany</button>
+                    <a th:href="@{/recepty/szczegoly(kod=${recepta.kodDokumentu}, pesel=${recepta.pacjent.pesel})}"
+                       class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

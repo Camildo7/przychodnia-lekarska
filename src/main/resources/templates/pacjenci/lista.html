@@ -10,6 +10,10 @@
         <a href="/pacjenci/nowy" class="btn btn-success">+ Dodaj Pacjenta</a>
     </div>
 
+    <div th:if="${param.error}" class="alert alert-danger">
+        <span th:text="${param.error}">Wystąpił błąd.</span>
+    </div>
+
     <form action="/pacjenci" method="get" class="mb-4">
         <div class="input-group">
             <input type="text" name="szukaj" class="form-control" placeholder="Wpisz nazwisko pacjenta..." th:value="${param.szukaj}">
@@ -17,25 +21,40 @@
         </div>
     </form>
 
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-body">
-            <table class="table">
-                <thead>
+            <table class="table table-hover">
+                <thead class="table-light">
                 <tr>
                     <th>PESEL</th>
                     <th>Imię i Nazwisko</th>
-                    <th>Adres</th>
-                    <th>Telefon</th>
+                    <th>Adres / Kontakt</th>
                     <th>Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="p : ${pacjenci}">
-                    <td th:text="${p.pesel}"></td>
+                    <td th:text="${p.pesel}" class="fw-bold"></td>
                     <td th:text="${p.nazwisko} + ' ' + ${p.imie}"></td>
-                    <td th:text="${p.adresZamieszkania}"></td>
-                    <td th:text="${p.telefonKontaktowy}"></td>
-                    <td><a th:href="@{/pacjenci/historia/{id}(id=${p.pesel})}" class="btn btn-sm btn-info">Historia Chorób</a></td>
+                    <td>
+                        <div th:text="${p.adresZamieszkania}"></div>
+                        <small class="text-muted" th:text="'Tel: ' + ${p.telefonKontaktowy}"></small>
+                        <small class="text-muted" th:if="${p.email}" th:text="' | Email: ' + ${p.email}"></small>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a th:href="@{/pacjenci/historia/{id}(id=${p.pesel})}" class="btn btn-sm btn-info text-white">
+                                Historia
+                            </a>
+                            <a th:href="@{/pacjenci/edytuj/{id}(id=${p.pesel})}" class="btn btn-sm btn-warning">
+                                Edytuj
+                            </a>
+                            <a th:href="@{/pacjenci/usun/{id}(id=${p.pesel})}" class="btn btn-sm btn-danger"
+                               onclick="return confirm('Czy na pewno usunąć tego pacjenta?')">
+                                Usuń
+                            </a>
+                        </div>
+                    </td>
                 </tr>
                 </tbody>
             </table>

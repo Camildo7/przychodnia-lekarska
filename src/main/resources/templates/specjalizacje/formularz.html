@@ -5,36 +5,28 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 <div class="container">
     <div class="card shadow col-md-6 mx-auto">
-        <div class="card-header bg-success text-white">Specjalizacja</div>
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Specjalizacja</h4>
+        </div>
         <div class="card-body">
             <form action="/admin/specjalizacje/zapisz" method="post" th:object="${specjalizacja}">
+                <input type="hidden" name="isEdit" th:value="${isEdit}">
 
                 <div class="mb-3">
                     <label>Nazwa Specjalizacji (ID) *</label>
                     <input type="text" th:field="*{nazwaSpecjalizacji}" class="form-control"
-                           th:readonly="${specjalizacja.nazwaSpecjalizacji != null and !#strings.isEmpty(specjalizacja.nazwaSpecjalizacji)}"
-                           th:classappend="${#fields.hasErrors('nazwaSpecjalizacji')} ? 'is-invalid' : ''"
-                           required>
-
-                    <div class="invalid-feedback" th:errors="*{nazwaSpecjalizacji}">Błąd nazwy</div>
-
-                    <div class="form-text" th:if="${specjalizacja.nazwaSpecjalizacji != null and !#strings.isEmpty(specjalizacja.nazwaSpecjalizacji)}">
-                        Nazwy nie można zmienić.
-                    </div>
+                           th:readonly="${isEdit}" required placeholder="np. Chirurg">
+                    <div class="form-text" th:if="${isEdit}">Nazwy nie można zmienić.</div>
                 </div>
 
                 <div class="mb-3">
                     <label>Opis *</label>
-                    <textarea th:field="*{opis}" class="form-control" rows="3"
-                              th:classappend="${#fields.hasErrors('opis')} ? 'is-invalid' : ''"
-                              required></textarea>
-
-                    <div class="invalid-feedback" th:errors="*{opis}">Błąd opisu</div>
+                    <textarea th:field="*{opis}" class="form-control" rows="3" required></textarea>
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Zapisz</button>
-                    <a href="/admin/specjalizacje" class="btn btn-outline-secondary">Anuluj</a>
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz Specjalizację</button>
+                    <a href="/admin/specjalizacje" class="btn btn-outline-secondary btn-lg">Anuluj</a>
                 </div>
             </form>
         </div>

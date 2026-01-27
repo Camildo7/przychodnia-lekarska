@@ -4,27 +4,48 @@
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
 <div class="container">
-    <div class="d-flex justify-content-between mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Słownik Specjalizacji</h1>
-        <a href="/admin/specjalizacje/nowa" class="btn btn-primary">+ Dodaj Specjalizację</a>
+        <a href="/admin/specjalizacje/nowa" class="btn btn-success">+ Dodaj Specjalizację</a>
     </div>
 
-    <div th:if="${param.error}" class="alert alert-danger">Nie można usunąć (używana przez lekarza).</div>
+    <form action="/admin/specjalizacje" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj nazwy (np. Chirurg)..." th:value="${param.szukaj}">
+            <button class="btn btn-outline-primary" type="submit">Szukaj</button>
+        </div>
+    </form>
 
-    <table class="table table-striped bg-white shadow-sm">
-        <thead class="table-light"><tr><th>Nazwa</th><th>Opis</th><th>Akcja</th></tr></thead>
-        <tbody>
-        <tr th:each="s : ${specjalizacje}">
-            <td th:text="${s.nazwaSpecjalizacji}"></td>
-            <td th:text="${s.opis}"></td>
-            <td>
-                <a th:href="@{/admin/specjalizacje/edytuj/{id}(id=${s.nazwaSpecjalizacji})}" class="btn btn-sm btn-warning">Edytuj</a>
-                <a th:href="@{/admin/specjalizacje/usun/{id}(id=${s.nazwaSpecjalizacji})}"
-                   class="btn btn-sm btn-danger" onclick="return confirm('Usunąć?')">Usuń</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div th:if="${param.error}" class="alert alert-danger">
+        Nie można usunąć (specjalizacja przypisana do lekarza).
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th>Nazwa</th>
+                    <th>Opis</th>
+                    <th>Akcja</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${specjalizacje}">
+                    <td th:text="${s.nazwaSpecjalizacji}" class="fw-bold"></td>
+                    <td th:text="${s.opis}"></td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a th:href="@{/admin/specjalizacje/edytuj/{id}(id=${s.nazwaSpecjalizacji})}" class="btn btn-sm btn-warning">Edytuj</a>
+                            <a th:href="@{/admin/specjalizacje/usun/{id}(id=${s.nazwaSpecjalizacji})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('Usunąć?')">Usuń</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 <div th:replace="~{layout :: scripts}"></div>
 </body>

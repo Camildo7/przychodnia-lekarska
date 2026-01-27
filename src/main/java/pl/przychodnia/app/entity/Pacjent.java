@@ -32,8 +32,9 @@ public class Pacjent {
 
     @Column(name = "TELEFON_KONTAKTOWY")
     @NotBlank(message = "Telefon jest wymagany")
-    @Size(max = 15, message = "Telefon nie może być dłuższy niż 15 znaków")
-    @Pattern(regexp = "^[+]?\\d{9,15}$", message = "Niepoprawny format telefonu")
+    // Regex: Plus, 2 cyfry, spacja, 3 cyfry, spacja, 3 cyfry, spacja, 3 cyfry
+    @Pattern(regexp = "^\\+\\d{2} \\d{3} \\d{3} \\d{3}$", message = "Wymagany format: +xx xxx xxx xxx")
+    @Size(min = 15, max = 15, message = "Numer musi mieć dokładnie 15 znaków (wliczając spacje)")
     private String telefonKontaktowy;
 
     @Column(name = "EMAIL")

@@ -22,8 +22,12 @@ public class LekarzController {
     }
 
     @GetMapping
-    public String lista(Model model) {
-        model.addAttribute("lekarze", lekarzRepo.findAll());
+    public String lista(@RequestParam(required = false) String szukaj, Model model) {
+        if (szukaj != null && !szukaj.isEmpty()) {
+            model.addAttribute("lekarze", lekarzRepo.findByNazwiskoContainingIgnoreCase(szukaj));
+        } else {
+            model.addAttribute("lekarze", lekarzRepo.findAll());
+        }
         return "lekarze/lista";
     }
 
@@ -74,4 +78,6 @@ public class LekarzController {
         }
         return "redirect:/lekarze";
     }
+
+
 }

@@ -7,9 +7,11 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white">Wystawianie Recepty</div>
+                <div class="card-header bg-success text-white">Wystawianie Recepty</div>
                 <div class="card-body">
+
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
                     <form action="/recepty/utworz" method="post">
                         <div class="mb-3">
                             <label>Wybierz wizytę (podstawa wystawienia):</label>
@@ -21,7 +23,22 @@
                             </select>
                             <div class="form-text">Recepta zostanie przypisana do pacjenta i lekarza z wybranej wizyty.</div>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">Utwórz nagłówek recepty</button>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Kod Dostępu (4 cyfry):</label>
+                            <input type="text" name="kodDokumentu" class="form-control"
+                                   placeholder="np. 1234"
+                                   maxlength="4"
+                                   pattern="\d{4}"
+                                   title="Wpisz dokładnie 4 cyfry"
+                                   required>
+                            <div class="form-text">Kod musi być unikalny dla tego pacjenta.</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">Utwórz nagłówek recepty</button>
+                            <a href="/recepty" class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                        </div>
                     </form>
                 </div>
             </div>

@@ -22,8 +22,12 @@ public class WyposazenieController {
     }
 
     @GetMapping
-    public String lista(Model model) {
-        model.addAttribute("sprzety", wypoRepo.findAll());
+    public String lista(@RequestParam(required = false) String szukaj, Model model) {
+        if (szukaj != null && !szukaj.isEmpty()) {
+            model.addAttribute("sprzety", wypoRepo.findByNazwaSprzetuContainingIgnoreCase(szukaj));
+        } else {
+            model.addAttribute("sprzety", wypoRepo.findAll());
+        }
         return "wyposazenie/lista";
     }
 
@@ -71,4 +75,6 @@ public class WyposazenieController {
         wypoRepo.deleteById(kod);
         return "redirect:/wyposazenie";
     }
+
+
 }
