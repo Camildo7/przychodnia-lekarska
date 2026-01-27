@@ -9,6 +9,7 @@ import pl.przychodnia.app.entity.Gabinet;
 import pl.przychodnia.app.entity.Specjalizacja;
 import pl.przychodnia.app.repository.GabinetRepository;
 import pl.przychodnia.app.repository.SpecjalizacjaRepository;
+import org.springframework.data.domain.Sort;
 
 @Controller
 @RequestMapping("/admin")
@@ -24,12 +25,22 @@ public class ZarzadzanieController {
 
     // --- GABINETY ---
     @GetMapping("/gabinety")
-    public String listaGabinetow(@RequestParam(required = false) String szukaj, Model model) {
+    public String listaGabinetow(@RequestParam(required = false) String szukaj,
+                                 @RequestParam(defaultValue = "numerGabinetu") String sortField,
+                                 @RequestParam(defaultValue = "asc") String sortDir,
+                                 Model model) {
+
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("gabinety", gabinetRepo.findByOpisFunkcjiContainingIgnoreCase(szukaj));
+            model.addAttribute("gabinety", gabinetRepo.findByOpisFunkcjiContainingIgnoreCase(szukaj, sort));
         } else {
-            model.addAttribute("gabinety", gabinetRepo.findAll());
+            model.addAttribute("gabinety", gabinetRepo.findAll(sort));
         }
+
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
         return "gabinety/lista";
     }
 
@@ -75,12 +86,22 @@ public class ZarzadzanieController {
     // --- SPECJALIZACJE ---
 
     @GetMapping("/specjalizacje")
-    public String listaSpecjalizacji(@RequestParam(required = false) String szukaj, Model model) {
+    public String listaSpecjalizacji(@RequestParam(required = false) String szukaj,
+                                     @RequestParam(defaultValue = "nazwaSpecjalizacji") String sortField,
+                                     @RequestParam(defaultValue = "asc") String sortDir,
+                                     Model model) {
+
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("specjalizacje", specRepo.findByNazwaSpecjalizacjiContainingIgnoreCase(szukaj));
+            model.addAttribute("specjalizacje", specRepo.findByNazwaSpecjalizacjiContainingIgnoreCase(szukaj, sort));
         } else {
-            model.addAttribute("specjalizacje", specRepo.findAll());
+            model.addAttribute("specjalizacje", specRepo.findAll(sort));
         }
+
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
         return "specjalizacje/lista";
     }
 

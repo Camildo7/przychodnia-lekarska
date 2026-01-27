@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pl.przychodnia.app.entity.Lek;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 
 public interface LekRepository extends JpaRepository<Lek, String> {
 
@@ -13,5 +14,5 @@ public interface LekRepository extends JpaRepository<Lek, String> {
             "LOWER(l.nazwaHandlowa) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(l.substancjaCzynna) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "l.kodEan LIKE CONCAT('%', :szukaj, '%')")
-    List<Lek> szukajLekow(@Param("szukaj") String szukaj);
+    List<Lek> szukajLekow(@Param("szukaj") String szukaj, Sort sort);
 }

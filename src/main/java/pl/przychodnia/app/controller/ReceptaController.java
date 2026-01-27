@@ -11,6 +11,7 @@ import pl.przychodnia.app.entity.ReceptaId;
 import pl.przychodnia.app.entity.Wizyta;
 import pl.przychodnia.app.repository.*;
 import pl.przychodnia.app.service.ReceptaService;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 
@@ -34,12 +35,22 @@ public class ReceptaController {
 
     // --- LISTA ---
     @GetMapping
-    public String lista(@RequestParam(required = false) String szukaj, Model model) {
+    public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "dataWystawienia") String sortField,
+                        @RequestParam(defaultValue = "desc") String sortDir,
+                        Model model) {
+
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("recepty", receptaRepo.szukajRecept(szukaj));
+            model.addAttribute("recepty", receptaRepo.szukajRecept(szukaj, sort));
         } else {
-            model.addAttribute("recepty", receptaRepo.findAll());
+            model.addAttribute("recepty", receptaRepo.findAll(sort));
         }
+
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
         return "recepty/lista";
     }
 
@@ -47,11 +58,11 @@ public class ReceptaController {
     @GetMapping("/nowa")
     public String formularz(@RequestParam(required = false) Long idWizyty, Model model) {
         if (idWizyty != null) {
-            // SCENARIUSZ 1: Wchodzimy z konkretnej wizyty -> przekazujemy tylko ten obiekt
+            // połączenie z konkretną wizytą
             Wizyta wizyta = wizytaRepo.findById(idWizyty).orElseThrow();
             model.addAttribute("wybranaWizyta", wizyta);
         } else {
-            // SCENARIUSZ 2: Wchodzimy z menu "Recepty" -> ładujemy listę do wyboru
+            // lista wizyt do wyboru
             model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
         }
         return "recepty/nowa";

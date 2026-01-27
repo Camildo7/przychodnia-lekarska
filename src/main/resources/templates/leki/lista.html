@@ -27,10 +27,38 @@
             <table class="table table-hover">
                 <thead class="table-light">
                 <tr>
-                    <th>Kod EAN</th>
-                    <th>Nazwa Handlowa</th>
-                    <th>Substancja Czynna</th>
-                    <th>Stan Magazynowy</th>
+                    <th>
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='kodEan', sortDir=${sortField == 'kodEan' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            EAN
+                            <span th:if="${sortField == 'kodEan'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'kodEan'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='nazwaHandlowa', sortDir=${sortField == 'nazwaHandlowa' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Nazwa Handlowa
+                            <span th:if="${sortField == 'nazwaHandlowa'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'nazwaHandlowa'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='substancjaCzynna', sortDir=${sortField == 'substancjaCzynna' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Substancja
+                            <span th:if="${sortField == 'substancjaCzynna'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'substancjaCzynna'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='stanMagazynowy', sortDir=${sortField == 'stanMagazynowy' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Stan
+                            <span th:if="${sortField == 'stanMagazynowy'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'stanMagazynowy'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
                     <th>Akcje</th>
                 </tr>
                 </thead>

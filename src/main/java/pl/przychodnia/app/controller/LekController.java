@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Lek;
 import pl.przychodnia.app.repository.LekRepository;
+import org.springframework.data.domain.Sort;
 
 @Controller
 @RequestMapping("/leki")
@@ -20,14 +21,25 @@ public class LekController {
 
     // Lista leków + wyszukiwanie
     @GetMapping
-    public String lista(@RequestParam(required = false) String szukaj, Model model) {
+    public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "nazwaHandlowa") String sortField,
+                        @RequestParam(defaultValue = "asc") String sortDir,
+                        Model model) {
+
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("leki", lekRepo.szukajLekow(szukaj));
+            model.addAttribute("leki", lekRepo.szukajLekow(szukaj, sort));
         } else {
-            model.addAttribute("leki", lekRepo.findAll());
+            model.addAttribute("leki", lekRepo.findAll(sort));
         }
+
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
         return "leki/lista";
     }
+
     // Formularz dodawania (NOWY)
     @GetMapping("/nowy")
     public String formularz(Model model) {

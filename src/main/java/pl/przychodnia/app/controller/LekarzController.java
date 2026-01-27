@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Lekarz;
 import pl.przychodnia.app.repository.LekarzRepository;
 import pl.przychodnia.app.repository.SpecjalizacjaRepository;
+import org.springframework.data.domain.Sort;
 
 @Controller
 @RequestMapping("/lekarze")
@@ -22,12 +23,22 @@ public class LekarzController {
     }
 
     @GetMapping
-    public String lista(@RequestParam(required = false) String szukaj, Model model) {
+    public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "nazwisko") String sortField,
+                        @RequestParam(defaultValue = "asc") String sortDir,
+                        Model model) {
+
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("lekarze", lekarzRepo.findByNazwiskoContainingIgnoreCaseOrNumerPwzContaining(szukaj, szukaj));
+            model.addAttribute("lekarze", lekarzRepo.findByNazwiskoContainingIgnoreCaseOrNumerPwzContaining(szukaj, szukaj, sort));
         } else {
-            model.addAttribute("lekarze", lekarzRepo.findAll());
+            model.addAttribute("lekarze", lekarzRepo.findAll(sort));
         }
+
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
         return "lekarze/lista";
     }
 

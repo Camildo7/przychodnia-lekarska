@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pl.przychodnia.app.entity.Wyposazenie;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 
 public interface WyposazenieRepository extends JpaRepository<Wyposazenie, String> {
 
@@ -12,7 +13,6 @@ public interface WyposazenieRepository extends JpaRepository<Wyposazenie, String
     @Query("SELECT w FROM Wyposazenie w WHERE " +
             "LOWER(w.nazwaSprzetu) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(w.kodInwentarzowy) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
-            "LOWER(w.gabinet.opisFunkcji) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
-            "CAST(w.gabinet.numerGabinetu AS string) LIKE CONCAT('%', :szukaj, '%')")
-    List<Wyposazenie> szukajSprzetu(@Param("szukaj") String szukaj);
+            "LOWER(w.gabinet.opisFunkcji) LIKE LOWER(CONCAT('%', :szukaj, '%'))")
+    List<Wyposazenie> szukajSprzetu(@Param("szukaj") String szukaj, Sort sort);
 }

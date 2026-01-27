@@ -31,10 +31,38 @@
             <table class="table table-hover" th:if="${!#lists.isEmpty(recepty)}">
                 <thead class="table-light">
                 <tr>
-                    <th>Kod Recepty</th>
-                    <th>Pacjent</th>
-                    <th>Lekarz</th>
-                    <th>Data Wystawienia</th>
+                    <th>
+                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='kodDokumentu', sortDir=${sortField == 'kodDokumentu' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Kod
+                            <span th:if="${sortField == 'kodDokumentu'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'kodDokumentu'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='pacjent.nazwisko', sortDir=${sortField == 'pacjent.nazwisko' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Pacjent
+                            <span th:if="${sortField == 'pacjent.nazwisko'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'pacjent.nazwisko'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='lekarz.nazwisko', sortDir=${sortField == 'lekarz.nazwisko' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Lekarz
+                            <span th:if="${sortField == 'lekarz.nazwisko'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'lekarz.nazwisko'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='dataWystawienia', sortDir=${sortField == 'dataWystawienia' ? reverseSortDir : 'desc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Data
+                            <span th:if="${sortField == 'dataWystawienia'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'dataWystawienia'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
                     <th>Akcje</th>
                 </tr>
                 </thead>

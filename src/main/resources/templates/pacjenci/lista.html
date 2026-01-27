@@ -29,9 +29,23 @@
             <table class="table table-hover">
                 <thead class="table-light">
                 <tr>
-                    <th>PESEL</th>
-                    <th>Imię i Nazwisko</th>
-                    <th>Adres / Kontakt</th>
+                    <th>
+                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, sortField='pesel', sortDir=${sortField == 'pesel' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            PESEL
+                            <span th:if="${sortField == 'pesel'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'pesel'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, sortField='nazwisko', sortDir=${sortField == 'nazwisko' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Imię i Nazwisko
+                            <span th:if="${sortField == 'nazwisko'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'nazwisko'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>Dane kontaktowe</th>
                     <th>Akcje</th>
                 </tr>
                 </thead>

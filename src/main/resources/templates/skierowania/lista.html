@@ -6,13 +6,22 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Rejestr Skierowań</h1>
+        <a href="/skierowania/nowe" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Wystaw Skierowanie
+        </a>
     </div>
 
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
 
     <form action="/skierowania" method="get" class="mb-4">
         <div class="input-group">
-            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj (Kod, Pacjent, Cel)...">
+            <input type="text" name="szukaj" class="form-control"
+                   placeholder="Szukaj (Kod, Pacjent, Cel)..." th:value="${param.szukaj}">
+
+            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}"
+               th:href="@{/skierowania}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
+
             <button class="btn btn-outline-primary" type="submit">Szukaj</button>
         </div>
     </form>
@@ -22,20 +31,104 @@
             <table class="table table-hover">
                 <thead class="table-light">
                 <tr>
-                    <th>Kod</th>
-                    <th>Pacjent</th>
-                    <th>Cel badania</th>
-                    <th>Data</th>
-                    <th>Lekarz</th>
+                    <th>
+                        <a th:href="@{/skierowania(szukaj=${param.szukaj}, sortField='kodDokumentu', sortDir=${sortField == 'kodDokumentu' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po kodzie">
+                            Kod
+                            <span th:if="${sortField == 'kodDokumentu'}">
+                    <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                </span>
+                            <span th:unless="${sortField == 'kodDokumentu'}" class="text-muted opacity-25">
+                    <i class="bi bi-arrow-down-up"></i>
+                </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/skierowania(szukaj=${param.szukaj}, sortField='dataWystawienia', sortDir=${sortField == 'dataWystawienia' ? reverseSortDir : 'desc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po dacie">
+                            Data
+                            <span th:if="${sortField == 'dataWystawienia'}">
+                    <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                </span>
+                            <span th:unless="${sortField == 'dataWystawienia'}" class="text-muted opacity-25">
+                    <i class="bi bi-arrow-down-up"></i>
+                </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/skierowania(szukaj=${param.szukaj}, sortField='pacjent.nazwisko', sortDir=${sortField == 'pacjent.nazwisko' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po nazwisku pacjenta">
+                            Pacjent
+                            <span th:if="${sortField == 'pacjent.nazwisko'}">
+                    <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                </span>
+                            <span th:unless="${sortField == 'pacjent.nazwisko'}" class="text-muted opacity-25">
+                    <i class="bi bi-arrow-down-up"></i>
+                </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/skierowania(szukaj=${param.szukaj}, sortField='lekarz.nazwisko', sortDir=${sortField == 'lekarz.nazwisko' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po nazwisku lekarza">
+                            Lekarz
+                            <span th:if="${sortField == 'lekarz.nazwisko'}">
+                    <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                </span>
+                            <span th:unless="${sortField == 'lekarz.nazwisko'}" class="text-muted opacity-25">
+                    <i class="bi bi-arrow-down-up"></i>
+                </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/skierowania(szukaj=${param.szukaj}, sortField='celBadania', sortDir=${sortField == 'celBadania' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po celu badania">
+                            Cel Badania
+                            <span th:if="${sortField == 'celBadania'}">
+                    <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                </span>
+                            <span th:unless="${sortField == 'celBadania'}" class="text-muted opacity-25">
+                    <i class="bi bi-arrow-down-up"></i>
+                </span>
+                        </a>
+                    </th>
+
+                    <th class="text-end">Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="s : ${skierowania}">
                     <td th:text="${s.kodDokumentu}" class="fw-bold"></td>
-                    <td th:text="${s.pacjent.nazwisko} + ' ' + ${s.pacjent.imie}"></td>
-                    <td th:text="${s.celBadania}"></td>
                     <td th:text="${s.dataWystawienia}"></td>
+                    <td>
+                        <div th:text="${s.pacjent.nazwisko} + ' ' + ${s.pacjent.imie}"></div>
+                        <small class="text-muted" th:text="${s.pacjent.pesel}"></small>
+                    </td>
                     <td th:text="${s.lekarz.nazwisko}"></td>
+                    <td>
+                        <span class="badge bg-info text-dark" th:text="${s.celBadania}"></span>
+                        <div class="small text-muted" th:text="${s.rozpoznanieWstepne}"></div>
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group">
+                            <a th:href="@{/skierowania/edytuj(kod=${s.kodDokumentu}, pesel=${s.pacjent.pesel})}"
+                               class="btn btn-sm btn-warning">Edytuj</a>
+                            <a th:href="@{/skierowania/usun(kod=${s.kodDokumentu}, pesel=${s.pacjent.pesel})}"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Czy na pewno usunąć to skierowanie?')">Usuń</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(skierowania)}">
+                    <td colspan="6" class="text-center text-muted py-4">Brak wystawionych skierowań.</td>
                 </tr>
                 </tbody>
             </table>

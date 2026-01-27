@@ -28,9 +28,30 @@
             <table class="table table-hover">
                 <thead class="table-light">
                 <tr>
-                    <th>Numer</th>
-                    <th>Piętro</th>
-                    <th>Opis Funkcji</th>
+                    <th>
+                        <a th:href="@{/admin/gabinety(szukaj=${param.szukaj}, sortField='numerGabinetu', sortDir=${sortField == 'numerGabinetu' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Numer
+                            <span th:if="${sortField == 'numerGabinetu'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'numerGabinetu'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/admin/gabinety(szukaj=${param.szukaj}, sortField='pietro', sortDir=${sortField == 'pietro' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Piętro
+                            <span th:if="${sortField == 'pietro'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'pietro'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/admin/gabinety(szukaj=${param.szukaj}, sortField='opisFunkcji', sortDir=${sortField == 'opisFunkcji' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Opis Funkcji
+                            <span th:if="${sortField == 'opisFunkcji'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'opisFunkcji'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
                     <th>Akcja</th>
                 </tr>
                 </thead>

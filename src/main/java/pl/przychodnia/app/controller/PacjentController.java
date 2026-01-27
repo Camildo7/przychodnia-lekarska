@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Pacjent;
 import pl.przychodnia.app.repository.PacjentRepository;
 import pl.przychodnia.app.service.PacjentService;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -25,14 +26,22 @@ public class PacjentController {
 
     // Lista z wyszukiwaniem
     @GetMapping
-    public String lista(@RequestParam(required = false) String szukaj, Model model) {
-        List<Pacjent> pacjenci;
+    public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "nazwisko") String sortField,
+                        @RequestParam(defaultValue = "asc") String sortDir,
+                        Model model) {
+
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
         if (szukaj != null && !szukaj.isEmpty()) {
-            pacjenci = pacjentRepository.findByNazwiskoContainingIgnoreCaseOrPeselContaining(szukaj, szukaj);
+            model.addAttribute("pacjenci", pacjentRepository.findByNazwiskoContainingIgnoreCaseOrPeselContaining(szukaj, szukaj, sort));
         } else {
-            pacjenci = pacjentRepository.findAll();
+            model.addAttribute("pacjenci", pacjentRepository.findAll(sort));
         }
-        model.addAttribute("pacjenci", pacjenci);
+
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
         return "pacjenci/lista";
     }
 

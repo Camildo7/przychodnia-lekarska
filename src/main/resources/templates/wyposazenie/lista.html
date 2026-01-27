@@ -5,17 +5,22 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Ewidencja Wyposażenia</h1>
-        <a href="/wyposazenie/nowy" class="btn btn-success">+ Dodaj Sprzęt</a>
+        <h1>Wyposażenie Gabinetów</h1>
+        <a href="/wyposazenie/nowy" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Dodaj Sprzęt
+        </a>
     </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
 
     <form action="/wyposazenie" method="get" class="mb-4">
         <div class="input-group">
             <input type="text" name="szukaj" class="form-control"
-                   placeholder="Szukaj (Nazwa, Kod lub Lokalizacja)..."
-                   th:value="${param.szukaj}">
+                   placeholder="Szukaj (Nazwa, Kod, Gabinet)..." th:value="${param.szukaj}">
 
-            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}" th:href="@{/wyposazenie}" class="btn btn-outline-secondary" title="Wyczyść filtr"> &times; </a>
+            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}"
+               th:href="@{/wyposazenie}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
 
             <button class="btn btn-outline-primary" type="submit">Szukaj</button>
         </div>
@@ -26,11 +31,77 @@
             <table class="table table-hover">
                 <thead class="table-light">
                 <tr>
-                    <th>Kod Inwentarzowy</th>
-                    <th>Nazwa Sprzętu</th>
-                    <th>Lokalizacja (Gabinet)</th>
-                    <th>Data Zakupu</th>
-                    <th>Akcje</th>
+                    <th>
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='kodInwentarzowy', sortDir=${sortField == 'kodInwentarzowy' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po kodzie">
+                            Kod
+                            <span th:if="${sortField == 'kodInwentarzowy'}">
+                                <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                            </span>
+                            <span th:unless="${sortField == 'kodInwentarzowy'}" class="text-muted opacity-25">
+                                <i class="bi bi-arrow-down-up"></i>
+                            </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='nazwaSprzetu', sortDir=${sortField == 'nazwaSprzetu' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po nazwie">
+                            Nazwa
+                            <span th:if="${sortField == 'nazwaSprzetu'}">
+                                <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                            </span>
+                            <span th:unless="${sortField == 'nazwaSprzetu'}" class="text-muted opacity-25">
+                                <i class="bi bi-arrow-down-up"></i>
+                            </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='gabinet.numerGabinetu', sortDir=${sortField == 'gabinet.numerGabinetu' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po numerze gabinetu">
+                            Gabinet
+                            <span th:if="${sortField == 'gabinet.numerGabinetu'}">
+                                <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                            </span>
+                            <span th:unless="${sortField == 'gabinet.numerGabinetu'}" class="text-muted opacity-25">
+                                <i class="bi bi-arrow-down-up"></i>
+                            </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='dataZakupu', sortDir=${sortField == 'dataZakupu' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po dacie zakupu">
+                            Data Zakupu
+                            <span th:if="${sortField == 'dataZakupu'}">
+                                <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                            </span>
+                            <span th:unless="${sortField == 'dataZakupu'}" class="text-muted opacity-25">
+                                <i class="bi bi-arrow-down-up"></i>
+                            </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='dataPrzegladu', sortDir=${sortField == 'dataPrzegladu' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
+                           title="Sortuj po dacie przeglądu">
+                            Data Przeglądu
+                            <span th:if="${sortField == 'dataPrzegladu'}">
+                                <i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                            </span>
+                            <span th:unless="${sortField == 'dataPrzegladu'}" class="text-muted opacity-25">
+                                <i class="bi bi-arrow-down-up"></i>
+                            </span>
+                        </a>
+                    </th>
+
+                    <th class="text-end">Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -38,18 +109,32 @@
                     <td th:text="${w.kodInwentarzowy}" class="fw-bold"></td>
                     <td th:text="${w.nazwaSprzetu}"></td>
                     <td>
-                        <span th:if="${w.gabinet != null}" th:text="'Gabinet ' + ${w.gabinet.numerGabinetu}"></span>
-                        <span th:if="${w.gabinet == null}" class="text-muted">Magazyn</span>
+                        <span class="badge bg-secondary"
+                              th:text="'Gab. ' + ${w.gabinet.numerGabinetu}"></span>
+                        <small class="text-muted ms-1" th:text="${w.gabinet.opisFunkcji}"></small>
                     </td>
                     <td th:text="${w.dataZakupu}"></td>
+
                     <td>
-                        <div class="btn-group" role="group">
-                            <a th:href="@{/wyposazenie/edytuj/{id}(id=${w.kodInwentarzowy})}" class="btn btn-sm btn-warning">Edytuj</a>
-                            <a th:href="@{/wyposazenie/usun/{kod}(kod=${w.kodInwentarzowy})}"
+                        <span th:if="${w.dataPrzegladu != null}"
+                              th:text="${w.dataPrzegladu}"
+                              th:class="${w.dataPrzegladu.isBefore(T(java.time.LocalDate).now()) ? 'text-danger fw-bold' : ''}">
+                        </span>
+                        <span th:if="${w.dataPrzegladu == null}" class="text-muted">-</span>
+                    </td>
+
+                    <td class="text-end">
+                        <div class="btn-group">
+                            <a th:href="@{/wyposazenie/edytuj/{id}(id=${w.kodInwentarzowy})}"
+                               class="btn btn-sm btn-warning">Edytuj</a>
+                            <a th:href="@{/wyposazenie/usun/{id}(id=${w.kodInwentarzowy})}"
                                class="btn btn-sm btn-danger"
-                               onclick="return confirm('Usunąć ten sprzęt z ewidencji?')">Usuń</a>
+                               onclick="return confirm('Czy na pewno usunąć ten sprzęt?')">Usuń</a>
                         </div>
                     </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(sprzety)}">
+                    <td colspan="6" class="text-center text-muted py-4">Brak sprzętu w bazie.</td>
                 </tr>
                 </tbody>
             </table>
