@@ -13,7 +13,7 @@ import pl.przychodnia.app.service.ChorobaService;
 import java.util.List;
 
 @Controller
-@RequestMapping("/admin/choroby") // Zmiana ścieżki na /admin/choroby dla porządku
+@RequestMapping("/admin/choroby")
 public class ChorobaController {
 
     private final ChorobaService chorobaService;
