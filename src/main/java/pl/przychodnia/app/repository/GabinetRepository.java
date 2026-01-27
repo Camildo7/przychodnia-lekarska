@@ -5,6 +5,6 @@ import java.util.List;
 import org.springframework.data.domain.Sort;
 
 public interface GabinetRepository extends JpaRepository<Gabinet, Long> {
-    // Szukanie po opisie funkcji (np. "Zabiegowy")
+    // sszukanie po opisie funkcji
     List<Gabinet> findByOpisFunkcjiContainingIgnoreCase(String opis, Sort sort);
 }

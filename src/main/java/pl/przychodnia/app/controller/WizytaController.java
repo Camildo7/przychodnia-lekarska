@@ -19,7 +19,7 @@ public class WizytaController {
     private final LekarzRepository lekarzRepo;
     private final PacjentRepository pacjentRepo;
     private final GabinetRepository gabinetRepo;
-    private final ChorobaRepository chorobaRepo; // Nowe repo
+    private final ChorobaRepository chorobaRepo;
     private final WizytaService wizytaService;
 
     public WizytaController(WizytaRepository w, LekarzRepository l, PacjentRepository p,

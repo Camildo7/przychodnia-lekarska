@@ -56,7 +56,6 @@ public class PacjentService {
             List<Object[]> results = query.getResultList();
             List<HistoriaWizytDTO> historia = new ArrayList<>();
 
-            // Formatery daty
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
@@ -64,7 +63,6 @@ public class PacjentService {
                 Object rawDate = row[0];
                 String dataStr = "Brak daty";
 
-                // PANCERNA KONWERSJA DATY
                 if (rawDate != null) {
                     try {
                         if (rawDate instanceof Timestamp) {
@@ -86,7 +84,7 @@ public class PacjentService {
                 }
 
                 historia.add(new HistoriaWizytDTO(
-                        dataStr,            // Teraz przekazujemy gotowy String
+                        dataStr,
                         (String) row[1],    // Lekarz
                         (String) row[2],    // Choroba
                         (String) row[3]     // Zalecenia
@@ -97,7 +95,7 @@ public class PacjentService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new ArrayList<>(); // Zwróć pustą listę zamiast błędu 500
+            return new ArrayList<>();
         }
     }
 }

@@ -14,7 +14,6 @@ public class PozycjaRecepty {
     @JoinColumn(name = "KOD_LEKU")
     private Lek lek;
 
-    // Te pola są częścią klucza głównego ORAZ klucza obcego do Recepty
     @Id
     @Column(name = "RECEPTA_PESEL")
     private String pesel;

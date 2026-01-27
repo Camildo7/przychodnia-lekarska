@@ -10,7 +10,6 @@ public interface PozycjaReceptyRepository extends JpaRepository<PozycjaRecepty, 
 
     List<PozycjaRecepty> findByKodDokumentuAndPesel(String kodDokumentu, String pesel);
 
-    // Metoda do usuwania wszystkich leków z recepty (kaskadowe usuwanie)
     @Transactional
     void deleteAllByKodDokumentuAndPesel(String kodDokumentu, String pesel);
 }

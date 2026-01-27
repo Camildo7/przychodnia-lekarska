@@ -10,5 +10,5 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ReceptaId implements Serializable {
     private String kodDokumentu;
-    private String pacjent; // Nazwa pola musi pasować do nazwy pola @Id w encji Recepta
+    private String pacjent;
 }

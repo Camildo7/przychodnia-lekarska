@@ -12,7 +12,6 @@ public class Lek {
     @Id
     @Column(name = "KOD_EAN", length = 13)
     @NotBlank(message = "Kod EAN jest wymagany")
-    // ZMIANA: Wymuszamy dokładnie 13 cyfr
     @Pattern(regexp = "\\d{13}", message = "Kod EAN musi składać się z dokładnie 13 cyfr")
     private String kodEan;
 

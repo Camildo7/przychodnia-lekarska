@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface ReceptaRepository extends JpaRepository<Recepta, ReceptaId> {
 
-    // Inteligentne wyszukiwanie (bez zmian)
     @Query("SELECT r FROM Recepta r WHERE " +
             "LOWER(r.kodDokumentu) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(r.pacjent.nazwisko) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +

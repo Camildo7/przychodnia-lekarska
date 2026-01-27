@@ -10,5 +10,5 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SkierowanieId implements Serializable {
     private String kodDokumentu;
-    private String pacjent; // Nazwa musi pasować do pola w encji Skierowanie
+    private String pacjent;
 }

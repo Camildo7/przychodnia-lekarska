@@ -37,7 +37,6 @@ public class Wizyta {
     @JoinColumn(name = "NUMER_GABINETU")
     private Gabinet gabinet;
 
-    // Relacja Wiele-do-Wielu (Tabela łącząca CHOROBY_PODCZAS_WIZYT)
     @ManyToMany
     @JoinTable(
             name = "CHOROBY_PODCZAS_WIZYT",

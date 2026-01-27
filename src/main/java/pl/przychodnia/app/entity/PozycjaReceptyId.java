@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PozycjaReceptyId implements Serializable {
-    private String lek;     // Pasuje do relacji w PozycjaRecepty
-    private String pesel;   // Część klucza obcego do Recepty
-    private String kodDokumentu; // Część klucza obcego do Recepty
+    private String lek;
+    private String pesel;
+    private String kodDokumentu;
 }
