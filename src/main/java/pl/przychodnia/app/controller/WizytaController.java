@@ -75,7 +75,8 @@ public class WizytaController {
     @PostMapping("/wizyta/zakoncz-pelna")
     public String zakonczPelna(@RequestParam Long idWizyty,
                                @RequestParam String zalecenia,
-                               @RequestParam(required = false) List<String> kodyChorob) {
+                               // ZMIANA: Dodano (name = "choroby"), aby połączyć formularz z kodem
+                               @RequestParam(name = "choroby", required = false) List<String> kodyChorob) {
 
         // 1. Procedura (ustawia status 'T' i zalecenia)
         wizytaService.zakonczWizyte(idWizyty, zalecenia);
