@@ -104,7 +104,7 @@
                     <h5 class="mb-0">Przebieg Wizyty</h5>
                 </div>
                 <div class="card-body">
-                    <form action="/wizyta/zakoncz-pelna" method="post">
+                    <form action="/wizyta/zakoncz-pelna" method="post" th:object="${w}">
                         <input type="hidden" name="idWizyty" th:value="${w.numerWizyty}">
 
                         <div class="mb-3">
@@ -158,6 +158,7 @@
                         <div class="col-md-6">
                             <a th:href="@{/recepty/nowa(idWizyty=${w.numerWizyty})}" class="btn btn-outline-success w-100 py-3">
                                 Wystaw Receptę
+                            </a>
                             </a>
                         </div>
                         <div class="col-md-6">
