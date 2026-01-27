@@ -22,10 +22,11 @@
                         <div class="mb-3">
                             <label class="form-label">Pacjent:</label>
                             <select name="pesel" class="form-select" required>
-                                <option value="" disabled selected>-- Wybierz pacjenta --</option>
+                                <option value="" disabled th:selected="${wybranyPesel == null}">-- Wybierz pacjenta --</option>
                                 <option th:each="p : ${pacjenci}"
                                         th:value="${p.pesel}"
-                                        th:text="${p.nazwisko} + ' ' + ${p.imie} + ' (PESEL: ' + ${p.pesel} + ')'"></option>
+                                        th:text="${p.nazwisko} + ' ' + ${p.imie} + ' (PESEL: ' + ${p.pesel} + ')'"
+                                        th:selected="${p.pesel == wybranyPesel}"></option>
                             </select>
                             <div class="form-text"><a href="/pacjenci/nowy">Nie ma pacjenta na liście? Dodaj go tutaj.</a></div>
                         </div>
@@ -33,26 +34,29 @@
                         <div class="mb-3">
                             <label class="form-label">Lekarz:</label>
                             <select name="lekarzPwz" class="form-select" required>
-                                <option value="" disabled selected>-- Wybierz lekarza --</option>
+                                <option value="" disabled th:selected="${wybranyLekarz == null}">-- Wybierz lekarza --</option>
                                 <option th:each="l : ${lekarze}"
                                         th:value="${l.numerPwz}"
-                                        th:text="${l.nazwisko} + ' ' + ${l.imie}"></option>
+                                        th:text="${l.nazwisko} + ' ' + ${l.imie}"
+                                        th:selected="${l.numerPwz == wybranyLekarz}"></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Gabinet:</label>
                             <select name="idGabinetu" class="form-select" required>
-                                <option value="" disabled selected>-- Wybierz gabinet --</option>
+                                <option value="" disabled th:selected="${wybranyGabinet == null}">-- Wybierz gabinet --</option>
                                 <option th:each="g : ${gabinety}"
                                         th:value="${g.numerGabinetu}"
-                                        th:text="'Gabinet ' + ${g.numerGabinetu} + ' (' + ${g.opisFunkcji} + ')'"></option>
+                                        th:text="'Gabinet ' + ${g.numerGabinetu} + ' (' + ${g.opisFunkcji} + ')'"
+                                        th:selected="${g.numerGabinetu == wybranyGabinet}"></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Data i godzina:</label>
-                            <input type="datetime-local" name="data" class="form-control" required>
+                            <input type="datetime-local" name="data" class="form-control"
+                                   th:value="${wybranaData}" required>
                         </div>
 
                         <div class="d-grid gap-2">
