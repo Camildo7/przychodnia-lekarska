@@ -55,18 +55,19 @@ public class WizytaController {
     // --- EDYCJA PARAMETRÓW ---
     @PostMapping("/wizyta/zapisz")
     public String zapiszZmiany(@RequestParam Long numerWizyty,
-                               @RequestParam String dataIGodzina, // String z inputa
-                               @RequestParam String lekarz,       // PWZ
-                               @RequestParam Long gabinet) {
+                               @RequestParam String dataIGodzina,
+                               @RequestParam String lekarz,
+                               @RequestParam Long gabinet,
+                               RedirectAttributes ra) {
+        try {
+            wizytaService.edytujWizyte(numerWizyty, dataIGodzina, lekarz, gabinet);
 
-        Wizyta w_db = wizytaRepo.findById(numerWizyty).orElseThrow();
+            ra.addFlashAttribute("success", "Dane wizyty zostały zaktualizowane.");
 
-        // Aktualizacja danych
-        w_db.setDataIGodzina(LocalDateTime.parse(dataIGodzina));
-        w_db.setLekarz(lekarzRepo.findById(lekarz).orElseThrow());
-        w_db.setGabinet(gabinetRepo.findById(gabinet).orElseThrow());
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Nie udało się zapisać zmian: " + e.getMessage());
+        }
 
-        wizytaRepo.save(w_db); // Hibernate sam zrobi UPDATE
         return "redirect:/wizyta/" + numerWizyty;
     }
 
@@ -105,14 +106,27 @@ public class WizytaController {
     }
 
     @PostMapping("/nowa")
-    public String utworzWizyte(@RequestParam String pesel, @RequestParam String lekarzPwz,
-                               @RequestParam Long idGabinetu, @RequestParam String data, Model model) {
+    public String utworzWizyte(@RequestParam String pesel,
+                               @RequestParam String lekarzPwz,
+                               @RequestParam Long idGabinetu,
+                               @RequestParam String data,
+                               Model model) {
         try {
             wizytaService.zarejestrujWizyte(lekarzPwz, pesel, idGabinetu, LocalDateTime.parse(data));
             return "redirect:/kalendarz";
         } catch (Exception e) {
             model.addAttribute("error", "Błąd: " + e.getMessage());
-            return formularzWizyty(model);
+
+            model.addAttribute("wybranyPesel", pesel);
+            model.addAttribute("wybranyLekarz", lekarzPwz);
+            model.addAttribute("wybranyGabinet", idGabinetu);
+            model.addAttribute("wybranaData", data);
+
+            model.addAttribute("lekarze", lekarzRepo.findAll());
+            model.addAttribute("pacjenci", pacjentRepo.findAll());
+            model.addAttribute("gabinety", gabinetRepo.findAll());
+
+            return "nowa_wizyta";
         }
     }
 }
