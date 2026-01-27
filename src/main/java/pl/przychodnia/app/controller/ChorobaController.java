@@ -1,0 +1,74 @@
+package pl.przychodnia.app.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pl.przychodnia.app.entity.Choroba;
+import pl.przychodnia.app.service.ChorobaService;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/admin/choroby") // Zmiana ścieżki na /admin/choroby dla porządku
+public class ChorobaController {
+
+    private final ChorobaService chorobaService;
+
+    public ChorobaController(ChorobaService chorobaService) {
+        this.chorobaService = chorobaService;
+    }
+
+    @GetMapping
+    public String listaChorob(Model model,
+                              @RequestParam(required = false) String szukaj,
+                              @RequestParam(defaultValue = "kodIcd10") String sortField,
+                              @RequestParam(defaultValue = "asc") String sortDir) {
+
+        List<Choroba> choroby = chorobaService.pobierzWszystkie(szukaj, sortField, sortDir);
+
+        model.addAttribute("choroby", choroby);
+        model.addAttribute("szukaj", szukaj);
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+
+        return "choroby/lista";
+    }
+
+    @GetMapping("/nowa")
+    public String nowaChoroba(Model model) {
+        model.addAttribute("choroba", new Choroba());
+        model.addAttribute("isEdit", false);
+        return "choroby/formularz";
+    }
+
+    @GetMapping("/edycja/{kod}")
+    public String edytujChorobe(@PathVariable String kod, Model model) {
+        model.addAttribute("choroba", chorobaService.pobierzPoKodzie(kod));
+        model.addAttribute("isEdit", true);
+        return "choroby/formularz";
+    }
+
+    @PostMapping("/zapisz")
+    public String zapiszChorobe(@ModelAttribute Choroba choroba, RedirectAttributes ra) {
+        try {
+            chorobaService.zapiszChorobe(choroba);
+            ra.addFlashAttribute("success", "Zapisano jednostkę chorobową.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Błąd zapisu: " + e.getMessage());
+        }
+        return "redirect:/admin/choroby";
+    }
+
+    @GetMapping("/usun/{kod}")
+    public String usunChorobe(@PathVariable String kod, RedirectAttributes ra) {
+        try {
+            chorobaService.usunChorobe(kod);
+            ra.addFlashAttribute("success", "Usunięto chorobę: " + kod);
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Nie można usunąć choroby (jest używana w historii wizyt).");
+        }
+        return "redirect:/admin/choroby";
+    }
+}

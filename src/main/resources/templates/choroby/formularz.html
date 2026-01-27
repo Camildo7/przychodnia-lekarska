@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="card shadow col-md-6 mx-auto">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0" th:text="${isEdit} ? 'Edycja Choroby' : 'Nowa Choroba'"></h4>
+        </div>
+        <div class="card-body">
+            <form action="/admin/choroby/zapisz" method="post" th:object="${choroba}">
+
+                <div class="mb-3">
+                    <label class="fw-bold">Kod ICD-10 *</label>
+                    <input type="text" th:field="*{kodIcd10}" class="form-control"
+                           th:readonly="${isEdit}"
+                           th:classappend="${isEdit} ? 'bg-light'"
+                           required maxlength="10" placeholder="np. J01">
+                    <div class="form-text" th:if="${isEdit}">Kodu ICD-10 nie można edytować.</div>
+                    <div class="form-text" th:unless="${isEdit}">Wpisz unikalny kod choroby.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold">Nazwa Choroby *</label>
+                    <input type="text" th:field="*{nazwaChoroby}" class="form-control"
+                           required placeholder="np. Ostre zapalenie gardła">
+                </div>
+
+                <div class="mb-3">
+                    <label>Opis Kliniczny</label>
+                    <textarea th:field="*{opisKliniczny}" class="form-control" rows="3"
+                              placeholder="Krótki opis objawów..."></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Zapisz Chorobę</button>
+                    <a href="/admin/choroby" class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

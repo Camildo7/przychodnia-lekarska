@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Słownik Chorób (ICD-10)</h1>
+        <a href="/admin/choroby/nowa" class="btn btn-success">+ Dodaj Chorobę</a>
+    </div>
+
+    <form action="/admin/choroby" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="szukaj" class="form-control"
+                   placeholder="Szukaj po kodzie, nazwie lub opisie..."
+                   th:value="${szukaj}">
+
+            <a th:if="${szukaj != null && !#strings.isEmpty(szukaj)}"
+               th:href="@{/admin/choroby}"
+               class="btn btn-outline-secondary d-flex align-items-center"
+               title="Wyczyść filtr">&times;</a>
+
+            <button class="btn btn-outline-primary" type="submit">Szukaj</button>
+        </div>
+    </form>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 15%">
+                            <a th:href="@{/admin/choroby(szukaj=${szukaj}, sortField='kodIcd10', sortDir=${sortField == 'kodIcd10' ? reverseSortDir : 'asc'})}"
+                               class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                                Kod
+                                <span th:if="${sortField == 'kodIcd10'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                                <span th:unless="${sortField == 'kodIcd10'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                            </a>
+                        </th>
+
+                        <th style="width: 35%">
+                            <a th:href="@{/admin/choroby(szukaj=${szukaj}, sortField='nazwaChoroby', sortDir=${sortField == 'nazwaChoroby' ? reverseSortDir : 'asc'})}"
+                               class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                                Nazwa Choroby
+                                <span th:if="${sortField == 'nazwaChoroby'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                                <span th:unless="${sortField == 'nazwaChoroby'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                            </a>
+                        </th>
+
+                        <th style="width: 35%">Opis Kliniczny</th>
+
+                        <th style="width: 15%">Akcja</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${choroby}">
+                        <td><span class="badge bg-primary" th:text="${c.kodIcd10}"></span></td>
+                        <td th:text="${c.nazwaChoroby}" class="fw-bold"></td>
+                        <td th:text="${c.opisKliniczny}" class="text-muted small"></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a th:href="@{/admin/choroby/edycja/{id}(id=${c.kodIcd10})}" class="btn btn-sm btn-warning">Edytuj</a>
+                                <a th:href="@{/admin/choroby/usun/{id}(id=${c.kodIcd10})}"
+                                   class="btn btn-sm btn-danger" onclick="return confirm('Czy na pewno usunąć tę chorobę?')">Usuń</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(choroby)}">
+                        <td colspan="4" class="text-center text-muted py-3">Brak wyników wyszukiwania.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
