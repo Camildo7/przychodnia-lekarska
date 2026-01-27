@@ -1,5 +1,8 @@
 package pl.przychodnia.app.controller;
 
+
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -51,12 +54,23 @@ public class ChorobaController {
     }
 
     @PostMapping("/zapisz")
-    public String zapiszChorobe(@ModelAttribute Choroba choroba, RedirectAttributes ra) {
+    public String zapiszChorobe(@Valid @ModelAttribute Choroba choroba,
+                                BindingResult result,
+                                @RequestParam(defaultValue = "false") boolean isEdit,
+                                Model model,
+                                RedirectAttributes ra) {
+
+        if (result.hasErrors()) {
+            model.addAttribute("isEdit", isEdit);
+            return "choroby/formularz";
+        }
+
         try {
             chorobaService.zapiszChorobe(choroba);
-            ra.addFlashAttribute("success", "Zapisano jednostkę chorobową.");
+            ra.addFlashAttribute("success", "Zapisano chorobę.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Błąd zapisu: " + e.getMessage());
+            return "redirect:/admin/choroby";
         }
         return "redirect:/admin/choroby";
     }

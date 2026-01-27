@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/wizyty")
-public class WizytaApiController {
+public class  WizytaApiController {
 
     private final WizytaRepository wizytaRepo;
 

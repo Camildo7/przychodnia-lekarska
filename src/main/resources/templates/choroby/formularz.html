@@ -11,20 +11,36 @@
         <div class="card-body">
             <form action="/admin/choroby/zapisz" method="post" th:object="${choroba}">
 
+                <input type="hidden" name="isEdit" th:value="${isEdit}">
+
                 <div class="mb-3">
                     <label class="fw-bold">Kod ICD-10 *</label>
-                    <input type="text" th:field="*{kodIcd10}" class="form-control"
+                    <input type="text" th:field="*{kodIcd10}"
+                           class="form-control"
+                           th:classappend="${(#fields.hasErrors('kodIcd10') ? 'is-invalid ' : '') + (isEdit ? 'bg-light' : '')}"
                            th:readonly="${isEdit}"
-                           th:classappend="${isEdit} ? 'bg-light'"
-                           required maxlength="10" placeholder="np. J01">
+                           required
+                           minlength="3"
+                           maxlength="7"
+                           placeholder="np. J01">
+
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('kodIcd10')}" th:errors="*{kodIcd10}">
+                        Błąd walidacji kodu.
+                    </div>
+
                     <div class="form-text" th:if="${isEdit}">Kodu ICD-10 nie można edytować.</div>
-                    <div class="form-text" th:unless="${isEdit}">Wpisz unikalny kod choroby.</div>
+                    <div class="form-text" th:unless="${isEdit}">Kod musi mieć od 3 do 7 znaków (np. J01, A15.3).</div>
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-bold">Nazwa Choroby *</label>
-                    <input type="text" th:field="*{nazwaChoroby}" class="form-control"
+                    <input type="text" th:field="*{nazwaChoroby}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('nazwaChoroby')} ? 'is-invalid' : ''"
                            required placeholder="np. Ostre zapalenie gardła">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nazwaChoroby')}" th:errors="*{nazwaChoroby}">
+                        Nazwa jest wymagana.
+                    </div>
                 </div>
 
                 <div class="mb-3">
