@@ -64,17 +64,44 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="fw-bold">Specjalizacje:</label>
-                    <div class="border p-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
-                        <div th:each="s : ${dostepneSpecjalizacje}" class="form-check">
-                            <input type="checkbox" class="form-check-input"
+                    <label class="form-label fw-bold">Specjalizacje:</label>
+
+                    <div class="input-group mb-2">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" id="specSearchInput" class="form-control form-control-sm"
+                               placeholder="Wpisz, aby filtrować listę...">
+                    </div>
+
+                    <div class="border rounded p-2" style="max-height: 140px; overflow-y: auto; background-color: #fdfdfd;">
+
+                        <div th:each="s : ${dostepneSpecjalizacje}" class="form-check border-bottom py-2 spec-row">
+                            <input type="checkbox" class="form-check-input mt-1"
                                    th:field="*{specjalizacje}"
                                    th:value="${s.nazwaSpecjalizacji}"
                                    th:id="${'spec_' + s.nazwaSpecjalizacji}">
-                            <label class="form-check-label" th:for="${'spec_' + s.nazwaSpecjalizacji}"
-                                   th:text="${s.nazwaSpecjalizacji}"></label>
+
+                            <label class="form-check-label w-100 cursor-pointer spec-label lh-sm"
+                                   th:for="${'spec_' + s.nazwaSpecjalizacji}"
+                                   style="cursor: pointer;">
+
+                                <span class="fw-bold text-dark" th:text="${s.nazwaSpecjalizacji}"></span>
+
+                                <span th:if="${s.opis != null && !#strings.isEmpty(s.opis)}"
+                                      class="text-muted small ms-1 fst-italic">
+                                    <br class="d-sm-none"> <span th:text="'— ' + ${s.opis}"></span>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div id="noResultsMsg" class="text-muted text-center small fst-italic mt-2" style="display: none;">
+                            Brak pasujących specjalizacji.
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(dostepneSpecjalizacje)}" class="text-muted text-center small fst-italic">
+                            Brak zdefiniowanych specjalizacji w bazie.
                         </div>
                     </div>
+
                     <div class="text-danger mt-1 small" th:if="${#fields.hasErrors('specjalizacje')}" th:errors="*{specjalizacje}"></div>
                 </div>
 
@@ -88,4 +115,36 @@
 </div>
 <div th:replace="~{layout :: scripts}"></div>
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById('specSearchInput');
+        const specRows = document.querySelectorAll('.spec-row');
+        const noResultsMsg = document.getElementById('noResultsMsg');
+
+        searchInput.addEventListener('keyup', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            let hasVisibleItems = false;
+
+            specRows.forEach(row => {
+                // Pobieramy tekst z labela wewnątrz wiersza
+                const labelText = row.querySelector('.spec-label').innerText.toLowerCase();
+
+                // Sprawdzamy czy tekst zawiera szukaną frazę
+                if (labelText.includes(searchText)) {
+                    row.style.display = ""; // Pokaż (domyślny styl)
+                    hasVisibleItems = true;
+                } else {
+                    row.style.display = "none"; // Ukryj
+                }
+            });
+
+            // Pokaż komunikat "Brak wyników", jeśli wszystko zostało ukryte
+            if (!hasVisibleItems && specRows.length > 0) {
+                noResultsMsg.style.display = "block";
+            } else {
+                noResultsMsg.style.display = "none";
+            }
+        });
+    });
+</script>
 </html>

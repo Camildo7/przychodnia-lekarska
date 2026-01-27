@@ -5,107 +5,85 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow mt-4">
+    <div class="card shadow col-md-6 col-lg-5 mx-auto mt-4">
 
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">
-                        <i class="bi bi-file-earmark-medical me-2"></i>
-                        <span th:text="${isEdit ? 'Edycja Skierowania' : 'Nowe Skierowanie'}"></span>
-                    </h4>
-                </div>
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0" th:text="${isEdit ? 'Edycja Skierowania' : 'Nowe Skierowanie'}"></h4>
+        </div>
 
-                <div class="card-body">
+        <div class="card-body">
 
-                    <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
-                        <div th:text="${error}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <form th:action="@{/skierowania/zapisz}" th:object="${skierowanie}" method="post">
+                <input type="hidden" name="isEdit" th:value="${isEdit}">
+                <input type="hidden" th:field="*{pacjent.pesel}">
+                <input type="hidden" th:field="*{lekarz.numerPwz}">
+                <input type="hidden" th:field="*{wizyta.numerWizyty}">
+                <input type="hidden" th:field="*{dataWystawienia}">
+
+                <div class="row mb-4 bg-light p-3 border rounded mx-0 text-center">
+
+                    <div class="col-4 border-end px-1">
+                        <label class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Wizyta</label>
+                        <div class="fw-bold text-dark mt-1"
+                             th:text="${#temporals.format(skierowanie.wizyta.dataIGodzina, 'dd.MM.yyyy')}">
+                        </div>
+                        <small class="text-muted" th:text="${#temporals.format(skierowanie.wizyta.dataIGodzina, 'HH:mm')}"></small>
                     </div>
 
-                    <form th:action="@{/skierowania/zapisz}" th:object="${skierowanie}" method="post">
-
-                        <input type="hidden" name="isEdit" th:value="${isEdit}">
-                        <input type="hidden" th:field="*{pacjent.pesel}">
-                        <input type="hidden" th:field="*{lekarz.numerPwz}">
-                        <input type="hidden" th:field="*{wizyta.numerWizyty}">
-                        <input type="hidden" th:field="*{dataWystawienia}">
-
-                        <div class="p-3 mb-4 bg-light border rounded">
-                            <div class="row text-center">
-                                <div class="col-6 border-end">
-                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Pacjent</small>
-                                    <div class="mt-1 fw-bold text-dark"
-                                         th:text="${skierowanie.pacjent.nazwisko} + ' ' + ${skierowanie.pacjent.imie}">
-                                    </div>
-                                    <small class="text-muted" th:text="${skierowanie.pacjent.pesel}"></small>
-                                </div>
-                                <div class="col-6">
-                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Lekarz Kierujący</small>
-                                    <div class="mt-1 fw-bold text-dark"
-                                         th:text="${skierowanie.lekarz.nazwisko} + ' ' + ${skierowanie.lekarz.imie}">
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="col-4 border-end px-1">
+                        <label class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Pacjent</label>
+                        <div class="fw-bold text-dark mt-1"
+                             th:text="${skierowanie.pacjent.nazwisko} + ' ' + ${#strings.substring(skierowanie.pacjent.imie,0,1)} + '.'">
                         </div>
+                        <small class="text-muted" th:text="${skierowanie.pacjent.pesel}"></small>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Kod dokumentu (Nr skierowania):</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-qr-code"></i></span>
-                                <input type="text" th:field="*{kodDokumentu}" class="form-control"
-                                       th:readonly="${isEdit}"
-                                       th:classappend="${#fields.hasErrors('kodDokumentu')} ? 'is-invalid'"
-                                       placeholder="Max 20 znaków..."
-                                       maxlength="20"
-                                       required>
-
-                                <div class="invalid-feedback" th:errors="*{kodDokumentu}">Błąd kodu</div>
-                            </div>
-                            <div class="form-text text-muted" th:if="${!isEdit}">Musi być unikalny dla tego pacjenta. Max 20 znaków.</div>
+                    <div class="col-4 px-1">
+                        <label class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Lekarz</label>
+                        <div class="fw-bold text-dark mt-1"
+                             th:text="${skierowanie.lekarz.nazwisko}">
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Cel badania / Poradnia:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-search-heart"></i></span>
-                                <input type="text" th:field="*{celBadania}" class="form-control"
-                                       th:classappend="${#fields.hasErrors('celBadania')} ? 'is-invalid'"
-                                       placeholder="np. Poradnia Kardiologiczna"
-                                       maxlength="255"
-                                       required>
-                                <div class="invalid-feedback" th:errors="*{celBadania}">Pole wymagane (max 255 znaków)</div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Rozpoznanie wstępne (opcjonalne):</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-file-medical"></i></span>
-                                <textarea th:field="*{rozpoznanieWstepne}" class="form-control" rows="3"
-                                          th:classappend="${#fields.hasErrors('rozpoznanieWstepne')} ? 'is-invalid'"
-                                          placeholder="Dodatkowe uwagi kliniczne..."
-                                          maxlength="255"></textarea>
-                                <div class="invalid-feedback" th:errors="*{rozpoznanieWstepne}">Tekst za długi (max 255 znaków)</div>
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="bi bi-check-circle-fill"></i> Zatwierdź i Wystaw
-                            </button>
-
-                            <a th:if="${isEdit}" href="/skierowania" class="btn btn-outline-secondary btn-lg">
-                                <i class="bi bi-x-lg"></i> Anuluj
-                            </a>
-                            <a th:if="${!isEdit}" th:href="@{/wizyta/{id}(id=${skierowanie.wizyta.numerWizyty})}"
-                               class="btn btn-outline-secondary btn-lg">
-                                <i class="bi bi-x-lg"></i> Anuluj
-                            </a>
-                        </div>
-                    </form>
+                        <small class="text-muted">Kierujący</small>
+                    </div>
                 </div>
-            </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Kod dokumentu (Nr skierowania) *</label>
+                    <input type="text" th:field="*{kodDokumentu}" class="form-control"
+                           th:readonly="${isEdit}"
+                           th:classappend="${#fields.hasErrors('kodDokumentu')} ? 'is-invalid'"
+                           placeholder="Wpisz numer..." maxlength="4" required>
+
+                    <div class="invalid-feedback" th:errors="*{kodDokumentu}">Błąd kodu</div>
+                    <div class="form-text small" th:if="${!isEdit}">Kod musi być unikalny dla pacjenta.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Cel badania / Poradnia *</label>
+                    <input type="text" th:field="*{celBadania}" class="form-control"
+                           th:classappend="${#fields.hasErrors('celBadania')} ? 'is-invalid'"
+                           placeholder="np. RTG Klatki piersiowej" maxlength="255" required>
+                    <div class="invalid-feedback" th:errors="*{celBadania}">Pole wymagane</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Rozpoznanie wstępne (opcjonalne)</label>
+                    <textarea th:field="*{rozpoznanieWstepne}" class="form-control" rows="3"
+                              th:classappend="${#fields.hasErrors('rozpoznanieWstepne')} ? 'is-invalid'"
+                              placeholder="Dodatkowe uwagi..." maxlength="255"></textarea>
+                    <div class="invalid-feedback" th:errors="*{rozpoznanieWstepne}">Błąd danych</div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Zatwierdź i Wystaw</button>
+
+                    <a th:if="${isEdit}" href="/skierowania" class="btn btn-outline-secondary">Anuluj</a>
+                    <a th:if="${!isEdit}" th:href="@{/wizyta/{id}(id=${skierowanie.wizyta.numerWizyty})}"
+                       class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>

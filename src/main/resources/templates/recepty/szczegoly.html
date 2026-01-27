@@ -21,6 +21,24 @@
                 <p class="mb-1 text-muted">Lekarz</p>
                 <h5 th:text="${recepta.lekarz.nazwisko} + ' ' + ${recepta.lekarz.imie}"></h5>
             </div>
+            <div class="col-md-3">
+                <p class="mb-1 text-muted">Powiązana Wizyta</p>
+
+                <div th:if="${recepta.wizyta != null}">
+                    <h5 th:text="${#temporals.format(recepta.wizyta.dataIGodzina, 'dd.MM.yyyy')}"></h5>
+                    <p>
+                        <a th:href="@{/wizyta/{id}(id=${recepta.wizyta.numerWizyty})}"
+                           class="text-decoration-none fw-bold">
+                            Przejdź do wizyty <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </p>
+                </div>
+
+                <div th:unless="${recepta.wizyta != null}">
+                    <h5 class="text-muted">-</h5>
+                    <p class="small text-muted fst-italic">Brak powiązania</p>
+                </div>
+            </div>
             <div class="col-md-4">
                 <p class="mb-1 text-muted">Ważność</p>
                 <p>Wystawiono: <strong th:text="${recepta.dataWystawienia}"></strong></p>

@@ -91,17 +91,16 @@ public class SkierowanieController {
                          Model model,
                          RedirectAttributes ra) {
 
-        // sprawdzenie unikalności kodu dokumentu dla pacjenta
         if (!isEdit && skierowanieRepo.existsByKodDokumentuAndPacjent_Pesel(s.getKodDokumentu(), s.getPacjent().getPesel())) {
             result.rejectValue("kodDokumentu", "error.skierowanie",
-                    "Ten kod dokumentu (" + s.getKodDokumentu() + ") jest już zajęty dla tego pacjenta.");
+                    "Ten kod dokumentu jest już zajęty dla tego pacjenta.");
         }
 
         if (result.hasErrors()) {
-
             if (s.getWizyta() != null && s.getWizyta().getNumerWizyty() != null) {
                 Wizyta w = wizytaRepo.findById(s.getWizyta().getNumerWizyty()).orElse(null);
                 if (w != null) {
+                    s.setWizyta(w); // Przywraca datę wizyty do nagłówka
                     s.setPacjent(w.getPacjent());
                     s.setLekarz(w.getLekarz());
                 }
@@ -118,12 +117,12 @@ public class SkierowanieController {
             if (s.getWizyta() != null && s.getWizyta().getNumerWizyty() != null) {
                 Wizyta w = wizytaRepo.findById(s.getWizyta().getNumerWizyty()).orElse(null);
                 if (w != null) {
+                    s.setWizyta(w);
                     s.setPacjent(w.getPacjent());
                     s.setLekarz(w.getLekarz());
                 }
             }
-
-            model.addAttribute("error", "Błąd zapisu: " + e.getMessage());
+            model.addAttribute("error", "Błąd zapisu do bazy: " + e.getMessage());
             model.addAttribute("isEdit", isEdit);
             return "skierowania/formularz";
         }

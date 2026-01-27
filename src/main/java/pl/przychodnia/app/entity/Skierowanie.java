@@ -15,7 +15,7 @@ public class Skierowanie {
     @Column(name = "KOD_DOKUMENTU", length = 20)
     @NotBlank(message = "Kod dokumentu jest wymagany")
     @Size(max = 20, message = "Kod dokumentu nie może przekraczać 20 znaków")
-    @Pattern(regexp = "^[a-zA-Z0-9/\\-]+$", message = "Kod zawiera niedozwolone znaki")
+    @Pattern(regexp = "\\d{4}", message = "Kod musi składać się z dokładnie 4 cyfr")
     private String kodDokumentu;
 
     @Id

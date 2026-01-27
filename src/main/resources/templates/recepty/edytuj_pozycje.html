@@ -10,7 +10,7 @@
             <div class="card shadow mt-4">
                 <div class="card-header bg-success text-white">
                     <h4 class="mb-0">
-                        <i class="bi bi-pencil-square me-2"></i>Edycja leku na recepcie
+                        Edycja leku na recepcie
                     </h4>
                 </div>
 
@@ -53,14 +53,12 @@
 
                         <div class="mb-3">
                             <label class="form-label text-muted">Wybrany lek:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-capsule text-secondary"></i></span>
-                                <input type="text" class="form-control bg-white fw-bold"
-                                       th:value="${pozycja.lek.nazwaHandlowa} + ' (' + ${pozycja.lek.substancjaCzynna} + ')'"
-                                       disabled style="border-left: 0;">
-                            </div>
+                            <input type="text" class="form-control fw-bold bg-light"
+                                   th:value="${pozycja.lek.nazwaHandlowa} + ' (' + ${pozycja.lek.substancjaCzynna} + ')'"
+                                   readonly
+                                   tabindex="-1"
+                                   style="box-shadow: none !important; border-color: #dee2e6 !important; outline: none !important; cursor: default;">
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nowa ilość opakowań:</label>
                             <div class="input-group">
@@ -79,7 +77,6 @@
                         <div class="mb-3">
                             <label class="form-label">Dawkowanie:</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-prescription2"></i></span>
                                 <input type="text" name="dawkowanie" class="form-control"
                                        th:value="${pozycja.dawkowanie}"
                                        placeholder="np. 1x1 rano" required>
@@ -87,12 +84,10 @@
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="bi bi-check-lg"></i> Zapisz zmiany
+                            <button type="submit" class="btn btn-success btn-lg">Zapisz zmiany
                             </button>
                             <a th:href="@{/recepty/szczegoly(kod=${pozycja.kodDokumentu}, pesel=${pozycja.pesel})}"
-                               class="btn btn-outline-secondary btn-lg">
-                                <i class="bi bi-x-lg"></i> Anuluj
+                               class="btn btn-outline-secondary btn-lg">Anuluj
                             </a>
                         </div>
                     </form>
