@@ -28,7 +28,7 @@ public class PacjentController {
     public String lista(@RequestParam(required = false) String szukaj, Model model) {
         List<Pacjent> pacjenci;
         if (szukaj != null && !szukaj.isEmpty()) {
-            pacjenci = pacjentRepository.findByNazwiskoContainingIgnoreCase(szukaj);
+            pacjenci = pacjentRepository.findByNazwiskoContainingIgnoreCaseOrPeselContaining(szukaj, szukaj);
         } else {
             pacjenci = pacjentRepository.findAll();
         }
@@ -80,7 +80,7 @@ public class PacjentController {
             result.rejectValue("pesel", "error.pacjent", "Pacjent o podanym numerze PESEL już istnieje.");
         }
 
-        // 2. Jeśli są błędy walidacji, wróć do formularza
+        // 2. Jeśli są błędy (np. cyfry w imieniu, zły telefon, duplikat PESEL), wracamy do formularza
         if (result.hasErrors()) {
             model.addAttribute("isEdit", isEdit);
             return "pacjenci/formularz";
@@ -88,10 +88,10 @@ public class PacjentController {
 
         try {
             if (isEdit) {
-                // Edycja: Używamy standardowego JPA (save aktualizuje rekord)
+                // Edycja: JPA
                 pacjentRepository.save(p);
             } else {
-                // Dodawanie: Używamy PROCEDURY SKŁADOWANEJ (zgodnie z wymogiem projektu)
+                // Procedura
                 pacjentService.dodajPacjenta(
                         p.getPesel(),
                         p.getImie(),
@@ -99,9 +99,7 @@ public class PacjentController {
                         p.getAdresZamieszkania(),
                         p.getTelefonKontaktowy()
                 );
-
-                // Hack: Procedura w bazie nie obsługuje pola Email, więc jeśli został podany,
-                // musimy go zapisać oddzielnym strzałem przez JPA.
+                // Uzupełnienie emaila
                 if (p.getEmail() != null && !p.getEmail().isEmpty()) {
                     pacjentRepository.save(p);
                 }
@@ -115,7 +113,6 @@ public class PacjentController {
         }
     }
 
-    // Usuwanie
     @GetMapping("/usun/{pesel}")
     public String usun(@PathVariable String pesel) {
         try {

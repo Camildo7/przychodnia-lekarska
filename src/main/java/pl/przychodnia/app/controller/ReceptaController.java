@@ -109,7 +109,11 @@ public class ReceptaController {
             String msg = e.getMessage();
             if (msg != null && msg.contains("ORA-20011")) {
                 ra.addFlashAttribute("error", "Brak wystarczającej ilości leku w magazynie!");
-            } else {
+            }
+            else if (msg != null && msg.contains("ORA-00001")) {
+                ra.addFlashAttribute("error", "Ten lek znajduje się już na recepcie!");
+            }
+            else {
                 ra.addFlashAttribute("error", "Błąd dodawania pozycji.");
             }
         }
@@ -132,13 +136,19 @@ public class ReceptaController {
 
     // --- USUWANIE POZYCJI ---
     @GetMapping("/usun-pozycje")
-    public String usunPozycje(@RequestParam String kod, @RequestParam String pesel, @RequestParam String ean, RedirectAttributes ra) {
-        PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
-        pozycjaRepo.deleteById(id);
+    public String usunPozycje(@RequestParam String kod,
+                              @RequestParam String pesel,
+                              @RequestParam String ean,
+                              RedirectAttributes ra) {
 
+        // usunięcie pozycji z recepty z przywróceniem stanu magazynowego leku
+        receptaService.usunPozycjeZPrzywroceniemStanu(ean, pesel, kod);
+
+        // przekierowanie z komunikatem
         ra.addAttribute("kod", kod);
         ra.addAttribute("pesel", pesel);
-        ra.addFlashAttribute("success", "Usunięto lek z recepty.");
+        ra.addFlashAttribute("success", "Usunięto lek z recepty (stan magazynowy został przywrócony).");
+
         return "redirect:/recepty/szczegoly";
     }
 
@@ -158,34 +168,89 @@ public class ReceptaController {
     @PostMapping("/zapisz")
     public String zapiszRecepte(@RequestParam String kodDokumentu,
                                 @RequestParam String pesel,
-                                @RequestParam String dataWaznosci) {
+                                @RequestParam String dataWaznosci,
+                                Model model) {
+
         ReceptaId id = new ReceptaId(kodDokumentu, pesel);
         Recepta recepta = receptaRepo.findById(id).orElseThrow();
-        recepta.setDataWaznosci(LocalDate.parse(dataWaznosci));
+
+        LocalDate nowaDataWaznosci = LocalDate.parse(dataWaznosci);
+
+        // walidacja czy dara ważności nie jest wcześniejsza niż data wystawienia
+        if (nowaDataWaznosci.isBefore(recepta.getDataWystawienia())) {
+
+            model.addAttribute("error", "Data ważności (" + nowaDataWaznosci + ") " +
+                    "nie może być wcześniejsza niż data wystawienia (" + recepta.getDataWystawienia() + ").");
+
+            model.addAttribute("recepta", recepta);
+
+            return "recepty/edytuj";
+        }
+
+        recepta.setDataWaznosci(nowaDataWaznosci);
         receptaRepo.save(recepta);
+
         return "redirect:/recepty/szczegoly?kod=" + kodDokumentu + "&pesel=" + pesel;
     }
 
-    // --- EDYCJA POZYCJI ---
+
+
+    // --- EDYCJA POZYCJI (Widok formularza) ---
     @GetMapping("/edytuj-pozycje")
-    public String edytujPozycje(@RequestParam String kod, @RequestParam String pesel, @RequestParam String ean, Model model) {
+    public String edytujPozycje(@RequestParam String kod,
+                                @RequestParam String pesel,
+                                @RequestParam String ean,
+                                Model model) {
         PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
         PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow();
+
+        // LOGIKA LIMITU:
+        // To co jest w magazynie + To co "trzymamy" w tej pozycji
+        int stanMagazynowy = pozycja.getLek().getStanMagazynowy();
+        int aktualniePrzypisane = pozycja.getIloscOpakowan();
+        int maxIlosc = stanMagazynowy + aktualniePrzypisane;
+
         model.addAttribute("pozycja", pozycja);
+        model.addAttribute("maxIlosc", maxIlosc);
+        model.addAttribute("stanMagazynowy", stanMagazynowy); // Do wyświetlenia informacji
+
         return "recepty/edytuj_pozycje";
     }
 
+    // --- ZAPIS POZYCJI (Przetwarzanie formularza) ---
     @PostMapping("/zapisz-pozycje")
-    public String zapiszPozycje(@RequestParam String kod, @RequestParam String pesel, @RequestParam String ean,
-                                @RequestParam Integer ilosc, @RequestParam String dawkowanie, RedirectAttributes ra) {
-        PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
-        PozycjaRecepty p = pozycjaRepo.findById(id).orElseThrow();
-        p.setIloscOpakowan(ilosc);
-        p.setDawkowanie(dawkowanie);
-        pozycjaRepo.save(p);
+    public String zapiszPozycje(@RequestParam String kod,
+                                @RequestParam String pesel,
+                                @RequestParam String ean,
+                                @RequestParam Integer ilosc,
+                                @RequestParam String dawkowanie,
+                                RedirectAttributes ra,
+                                Model model) {
+        try {
+            // Próba zapisu przez serwis
+            receptaService.edytujPozycjeZWalidacjaStanu(ean, pesel, kod, ilosc, dawkowanie);
 
-        ra.addAttribute("kod", kod);
-        ra.addAttribute("pesel", pesel);
-        return "redirect:/recepty/szczegoly";
+            ra.addAttribute("kod", kod);
+            ra.addAttribute("pesel", pesel);
+            ra.addFlashAttribute("success", "Zaktualizowano pozycję.");
+            return "redirect:/recepty/szczegoly";
+
+        } catch (IllegalArgumentException e) {
+            // W razie błędu (ktoś próbował obejść zabezpieczenia):
+            model.addAttribute("error", e.getMessage());
+
+            // Musimy ponownie załadować dane do widoku, żeby formularz nie był pusty
+            PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
+            PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow();
+
+            int stanMagazynowy = pozycja.getLek().getStanMagazynowy();
+            int maxIlosc = stanMagazynowy + pozycja.getIloscOpakowan();
+
+            model.addAttribute("pozycja", pozycja);
+            model.addAttribute("maxIlosc", maxIlosc);
+            model.addAttribute("stanMagazynowy", stanMagazynowy);
+
+            return "recepty/edytuj_pozycje";
+        }
     }
 }

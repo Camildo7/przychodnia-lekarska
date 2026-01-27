@@ -18,11 +18,13 @@ public class Pacjent {
     @Column(name = "IMIE")
     @NotBlank(message = "Imię jest wymagane")
     @Size(max = 50, message = "Imię nie może być dłuższe niż 50 znaków")
+    @Pattern(regexp = "^[A-ZŚŁŻŹĆŃÓĘĄa-zśłżźćńóęą\\s\\-]+$", message = "Imię nie może zawierać cyfr")
     private String imie;
 
     @Column(name = "NAZWISKO")
     @NotBlank(message = "Nazwisko jest wymagane")
     @Size(max = 50, message = "Nazwisko nie może być dłuższe niż 50 znaków")
+    @Pattern(regexp = "^[A-ZŚŁŻŹĆŃÓĘĄa-zśłżźćńóęą\\s\\-]+$", message = "Nazwisko nie może zawierać cyfr")
     private String nazwisko;
 
     @Column(name = "ADRES_ZAMIESZKANIA")
@@ -34,7 +36,7 @@ public class Pacjent {
     @NotBlank(message = "Telefon jest wymagany")
     // Regex: Plus, 2 cyfry, spacja, 3 cyfry, spacja, 3 cyfry, spacja, 3 cyfry
     @Pattern(regexp = "^\\+\\d{2} \\d{3} \\d{3} \\d{3}$", message = "Wymagany format: +xx xxx xxx xxx")
-    @Size(min = 15, max = 15, message = "Numer musi mieć dokładnie 15 znaków (wliczając spacje)")
+    @Size(min = 15, max = 15, message = "Numer musi mieć dokładnie 15 znaków")
     private String telefonKontaktowy;
 
     @Column(name = "EMAIL")

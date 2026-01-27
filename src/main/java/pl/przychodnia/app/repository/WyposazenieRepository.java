@@ -1,9 +1,18 @@
 package pl.przychodnia.app.repository;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import pl.przychodnia.app.entity.Wyposazenie;
 import java.util.List;
 
 public interface WyposazenieRepository extends JpaRepository<Wyposazenie, String> {
-    // Szukanie po nazwie sprzętu
-    List<Wyposazenie> findByNazwaSprzetuContainingIgnoreCase(String nazwa);
+
+    // szukanie wyposażenia po nazwie, kodzie inwentarzowym lub gabinecie
+    @Query("SELECT w FROM Wyposazenie w WHERE " +
+            "LOWER(w.nazwaSprzetu) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
+            "LOWER(w.kodInwentarzowy) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
+            "LOWER(w.gabinet.opisFunkcji) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
+            "CAST(w.gabinet.numerGabinetu AS string) LIKE CONCAT('%', :szukaj, '%')")
+    List<Wyposazenie> szukajSprzetu(@Param("szukaj") String szukaj);
 }

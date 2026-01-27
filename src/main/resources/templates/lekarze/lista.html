@@ -11,7 +11,10 @@
 
     <form action="/lekarze" method="get" class="mb-4">
         <div class="input-group">
-            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj po nazwisku..." th:value="${param.szukaj}">
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj lekarza (Nazwisko lub PWZ)..." th:value="${param.szukaj}">
+
+            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}" th:href="@{/lekarze}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
+
             <button class="btn btn-outline-primary" type="submit">Szukaj</button>
         </div>
     </form>
@@ -35,7 +38,7 @@
                 <tbody>
                 <tr th:each="l : ${lekarze}">
                     <td th:text="${l.numerPwz}" class="fw-bold"></td>
-                    <td th:text="${l.nazwisko} + ' ' + ${l.imie}"></td>
+                    <td th:text="${l.imie} + ' ' + ${l.nazwisko}"></td>
                     <td>
                         <span th:each="s : ${l.specjalizacje}" th:text="${s.nazwaSpecjalizacji}"
                               class="badge bg-info text-dark me-1"></span>

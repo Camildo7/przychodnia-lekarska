@@ -4,5 +4,7 @@ import pl.przychodnia.app.entity.Lekarz;
 import java.util.List;
 
 public interface LekarzRepository extends JpaRepository<Lekarz, String> {
-    List<Lekarz> findByNazwiskoContainingIgnoreCase(String nazwisko);
+
+    // szuka lekarzy po nazwisku lub numerze PWZ
+    List<Lekarz> findByNazwiskoContainingIgnoreCaseOrNumerPwzContaining(String nazwisko, String pwz);
 }

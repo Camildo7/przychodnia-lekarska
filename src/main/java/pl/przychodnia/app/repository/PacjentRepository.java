@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface PacjentRepository extends JpaRepository<Pacjent, String> {
 
-    // Tej metody brakowało, a kontroler próbuje jej użyć do wyszukiwarki:
-    List<Pacjent> findByNazwiskoContainingIgnoreCase(String nazwisko);
+    List<Pacjent> findByNazwiskoContainingIgnoreCaseOrPeselContaining(String nazwisko, String pesel);
 }

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Rejestr Skierowań</h1>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <form action="/skierowania" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj (Kod, Pacjent, Cel)...">
+            <button class="btn btn-outline-primary" type="submit">Szukaj</button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th>Kod</th>
+                    <th>Pacjent</th>
+                    <th>Cel badania</th>
+                    <th>Data</th>
+                    <th>Lekarz</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${skierowania}">
+                    <td th:text="${s.kodDokumentu}" class="fw-bold"></td>
+                    <td th:text="${s.pacjent.nazwisko} + ' ' + ${s.pacjent.imie}"></td>
+                    <td th:text="${s.celBadania}"></td>
+                    <td th:text="${s.dataWystawienia}"></td>
+                    <td th:text="${s.lekarz.nazwisko}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

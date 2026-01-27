@@ -6,9 +6,15 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.przychodnia.app.entity.Lek;
+import pl.przychodnia.app.entity.PozycjaRecepty;
+import pl.przychodnia.app.entity.PozycjaReceptyId;
 import pl.przychodnia.app.entity.ReceptaId;
+import pl.przychodnia.app.repository.LekRepository;
 import pl.przychodnia.app.repository.PozycjaReceptyRepository;
 import pl.przychodnia.app.repository.ReceptaRepository;
+
+import java.util.List;
 
 @Service
 public class ReceptaService {
@@ -18,10 +24,12 @@ public class ReceptaService {
 
     private final PozycjaReceptyRepository pozycjaRepo;
     private final ReceptaRepository receptaRepo;
+    private final LekRepository lekRepo;
 
-    public ReceptaService(PozycjaReceptyRepository pozycjaRepo, ReceptaRepository receptaRepo) {
+    public ReceptaService(PozycjaReceptyRepository pozycjaRepo, ReceptaRepository receptaRepo, LekRepository lekRepo) {
         this.pozycjaRepo = pozycjaRepo;
         this.receptaRepo = receptaRepo;
+        this.lekRepo = lekRepo;
     }
 
     @Transactional
@@ -58,12 +66,63 @@ public class ReceptaService {
         query.execute();
     }
 
-    // Nowa metoda: Bezpieczne usuwanie całej recepty
+    // usuniecie pozycji z recepty z przywróceniem stanu magazynowego leku
+    @Transactional
+    public void usunPozycjeZPrzywroceniemStanu(String ean, String pesel, String kodDokumentu) {
+        PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kodDokumentu);
+        PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pozycji"));
+
+        Lek lek = pozycja.getLek();
+        lek.setStanMagazynowy(lek.getStanMagazynowy() + pozycja.getIloscOpakowan());
+        lekRepo.save(lek);
+
+        pozycjaRepo.delete(pozycja);
+    }
+
+    // zwrot wszystkich leków i usunięcie recepty
     @Transactional
     public void usunRecepte(String kod, String pesel) {
-        // 1. Usuń pozycje (leki)
-        pozycjaRepo.deleteAllByKodDokumentuAndPesel(kod, pesel);
-        // 2. Usuń nagłówek
+        List<PozycjaRecepty> pozycje = pozycjaRepo.findByKodDokumentuAndPesel(kod, pesel);
+
+        for (PozycjaRecepty p : pozycje) {
+            Lek lek = p.getLek();
+            lek.setStanMagazynowy(lek.getStanMagazynowy() + p.getIloscOpakowan());
+            lekRepo.save(lek);
+        }
+
+        pozycjaRepo.deleteAll(pozycje);
+
         receptaRepo.deleteById(new ReceptaId(kod, pesel));
     }
+
+    @Transactional
+    public void edytujPozycjeZWalidacjaStanu(String ean, String pesel, String kod, int nowaIlosc, String noweDawkowanie) {
+        PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
+        PozycjaRecepty pozycja = pozycjaRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pozycji recepty."));
+
+        Lek lek = pozycja.getLek();
+        int staraIlosc = pozycja.getIloscOpakowan();
+        int roznica = nowaIlosc - staraIlosc;
+
+        // Jeśli chcemy WIĘCEJ leków niż mieliśmy, musimy sprawdzić czy są w magazynie
+        if (roznica > 0) {
+            if (lek.getStanMagazynowy() < roznica) {
+                throw new IllegalArgumentException("Brak wystarczającej ilości leku w magazynie. " +
+                        "Dostępne dodatkowo: " + lek.getStanMagazynowy() + " szt.");
+            }
+        }
+
+        // Aktualizujemy stan magazynowy:
+        // - Jeśli różnica dodatnia (dobieramy leki) -> odejmujemy ze stanu
+        // - Jeśli różnica ujemna (oddajemy leki) -> dodajemy do stanu (odejmowanie ujemnej to dodawanie)
+        lek.setStanMagazynowy(lek.getStanMagazynowy() - roznica);
+        lekRepo.save(lek);
+
+        // Aktualizujemy pozycję na recepcie
+        pozycja.setIloscOpakowan(nowaIlosc);
+        pozycja.setDawkowanie(noweDawkowanie);
+        pozycjaRepo.save(pozycja);
+    }
+
 }

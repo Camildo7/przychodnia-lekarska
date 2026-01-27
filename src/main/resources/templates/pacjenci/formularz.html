@@ -23,6 +23,7 @@
                            th:classappend="${#fields.hasErrors('pesel')} ? 'is-invalid' : ''"
                            required maxlength="11" placeholder="11 cyfr">
                     <div class="invalid-feedback" th:errors="*{pesel}">Błąd PESEL</div>
+                    <div class="form-text" th:if="${isEdit}">Numeru PESEL nie można edytować.</div>
                 </div>
 
                 <div class="row">
@@ -51,7 +52,7 @@
                     <div class="col-md-6 mb-3">
                         <label>Telefon *</label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text" id="phone-icon">📞</span>
+                            <span class="input-group-text">📞</span>
                             <input type="text" th:field="*{telefonKontaktowy}" class="form-control"
                                    id="phoneInput"
                                    placeholder="+48 123 456 789"
@@ -62,7 +63,7 @@
                                 Format: +48 123 456 789
                             </div>
                         </div>
-                        <div class="form-text">Wpisz w formacie: +48 123 456 789</div>
+                        <div class="form-text">Wymagany format: +48 123 456 789 (ze spacjami)</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Email</label>
@@ -81,12 +82,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    const phoneInput = document.getElementById('phoneInput');
-    // Pozostawiamy logikę placeholdera bez automatycznego formatowania,
-    // aby nie przeszkadzać w walidacji "ręcznej".
-</script>
 
 <div th:replace="~{layout :: scripts}"></div>
 </body>

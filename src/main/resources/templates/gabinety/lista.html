@@ -11,7 +11,10 @@
 
     <form action="/admin/gabinety" method="get" class="mb-4">
         <div class="input-group">
-            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj po opisie (np. Zabiegowy)..." th:value="${param.szukaj}">
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj gabinetu (Opis funkcji)..." th:value="${param.szukaj}">
+
+            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}" th:href="@{/admin/gabinety}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
+
             <button class="btn btn-outline-primary" type="submit">Szukaj</button>
         </div>
     </form>

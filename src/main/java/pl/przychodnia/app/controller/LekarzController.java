@@ -24,7 +24,7 @@ public class LekarzController {
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj, Model model) {
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("lekarze", lekarzRepo.findByNazwiskoContainingIgnoreCase(szukaj));
+            model.addAttribute("lekarze", lekarzRepo.findByNazwiskoContainingIgnoreCaseOrNumerPwzContaining(szukaj, szukaj));
         } else {
             model.addAttribute("lekarze", lekarzRepo.findAll());
         }

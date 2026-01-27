@@ -22,13 +22,12 @@ public class LekController {
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj, Model model) {
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("leki", lekRepo.findByNazwaHandlowaContainingIgnoreCase(szukaj));
+            model.addAttribute("leki", lekRepo.szukajLekow(szukaj));
         } else {
             model.addAttribute("leki", lekRepo.findAll());
         }
         return "leki/lista";
     }
-
     // Formularz dodawania (NOWY)
     @GetMapping("/nowy")
     public String formularz(Model model) {

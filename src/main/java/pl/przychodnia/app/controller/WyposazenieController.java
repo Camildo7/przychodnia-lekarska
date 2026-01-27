@@ -24,7 +24,7 @@ public class WyposazenieController {
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj, Model model) {
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("sprzety", wypoRepo.findByNazwaSprzetuContainingIgnoreCase(szukaj));
+            model.addAttribute("sprzety", wypoRepo.szukajSprzetu(szukaj));
         } else {
             model.addAttribute("sprzety", wypoRepo.findAll());
         }
@@ -42,7 +42,8 @@ public class WyposazenieController {
     // DODANA METODA EDYCJI
     @GetMapping("/edytuj/{id}")
     public String edytuj(@PathVariable String id, Model model) {
-        Wyposazenie w = wypoRepo.findById(id).orElseThrow();
+        Wyposazenie w = wypoRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Błędny kod sprzętu: " + id));
         model.addAttribute("wyposazenie", w);
         model.addAttribute("gabinety", gabinetRepo.findAll());
         model.addAttribute("isEdit", true);
@@ -57,24 +58,34 @@ public class WyposazenieController {
 
         // 4. Walidacja DUPLIKATU ID:
         if (!isEdit && wypoRepo.existsById(w.getKodInwentarzowy())) {
-            result.rejectValue("kodInwentarzowy", "error.wyposazenie", "Kod inwentarzowy już istnieje.");
+            result.rejectValue("kodInwentarzowy", "error.wyposazenie", "Sprzęt o takim kodzie już istnieje.");
         }
 
+        // 2. Jeśli są błędy walidacji -> wracamy do formularza
         if (result.hasErrors()) {
             model.addAttribute("gabinety", gabinetRepo.findAll());
             model.addAttribute("isEdit", isEdit);
             return "wyposazenie/formularz";
         }
 
-        wypoRepo.save(w);
-        return "redirect:/wyposazenie";
+        try {
+            wypoRepo.save(w);
+            return "redirect:/wyposazenie";
+        } catch (Exception e) {
+            model.addAttribute("error", "Błąd zapisu bazy danych: " + e.getMessage());
+            model.addAttribute("gabinety", gabinetRepo.findAll());
+            model.addAttribute("isEdit", isEdit);
+            return "wyposazenie/formularz";
+        }
     }
 
     @GetMapping("/usun/{kod}")
     public String usun(@PathVariable String kod) {
-        wypoRepo.deleteById(kod);
+        try {
+            wypoRepo.deleteById(kod);
+        } catch (Exception e) {
+            return "redirect:/wyposazenie?error=Nie mozna usunac sprzetu";
+        }
         return "redirect:/wyposazenie";
     }
-
-
 }

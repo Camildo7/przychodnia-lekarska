@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="card shadow col-md-6 mx-auto mt-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-file-earmark-medical me-2"></i>Nowe Skierowanie</h4>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/skierowania/zapisz}" th:object="${skierowanie}" method="post">
+                <input type="hidden" th:field="*{pacjent.pesel}">
+                <input type="hidden" th:field="*{lekarz.numerPwz}">
+                <input type="hidden" th:field="*{wizyta.numerWizyty}">
+                <input type="hidden" th:field="*{dataWystawienia}">
+
+                <div class="mb-3">
+                    <label class="form-label">Pacjent:</label>
+                    <input type="text" class="form-control bg-light" th:value="${skierowanie.pacjent.nazwisko} + ' ' + ${skierowanie.pacjent.imie}" disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Kod dokumentu (np. nr skierowania):</label>
+                    <input type="text" th:field="*{kodDokumentu}" class="form-control" th:classappend="${#fields.hasErrors('kodDokumentu')} ? 'is-invalid'" required>
+                    <div class="invalid-feedback" th:errors="*{kodDokumentu}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Cel badania / Typ skierowania:</label>
+                    <input type="text" th:field="*{celBadania}" class="form-control" placeholder="np. Badanie krwi, RTG klatki piersiowej" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Rozpoznanie wstępne:</label>
+                    <textarea th:field="*{rozpoznanieWstepne}" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Zatwierdź i Wystaw</button>
+                    <a th:href="@{/wizyta/{id}(id=${skierowanie.wizyta.numerWizyty})}" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

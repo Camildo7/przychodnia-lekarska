@@ -14,7 +14,10 @@
 
     <form action="/leki" method="get" class="mb-4">
         <div class="input-group">
-            <input type="text" name="szukaj" class="form-control" placeholder="Nazwa leku..." th:value="${param.szukaj}">
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj leku (Nazwa, Substancja lub EAN)..." th:value="${param.szukaj}">
+
+            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}" th:href="@{/leki}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
+
             <button class="btn btn-outline-primary" type="submit">Szukaj</button>
         </div>
     </form>
