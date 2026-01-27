@@ -18,7 +18,7 @@
                 <div class="card-body">
 
                     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong>Błąd zapisu!</strong> <span th:text="${error}"></span>
+                        Błąd: <span th:text="${error}"></span>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
 
@@ -64,6 +64,15 @@
                         </div>
                         <div th:if="${w.czyOdbyta == 'T'}" class="alert alert-success text-center mb-0">
                             Wizyta została zakończona. Edycja zablokowana.
+                        </div>
+
+                        <hr class="my-3">
+                        <div class="d-grid">
+                            <a th:href="@{/wizyta/usun/{id}(id=${w.numerWizyty})}"
+                               class="btn btn-outline-danger"
+                               onclick="return confirm('Czy na pewno chcesz trwale usunąć tę wizytę? Tej operacji nie można cofnąć!')">
+                                Usuń Wizytę
+                            </a>
                         </div>
                     </form>
                 </div>

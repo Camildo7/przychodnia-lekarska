@@ -112,4 +112,9 @@ public class WizytaService {
 
         wizytaRepo.save(wizyta);
     }
+
+    @Transactional
+    public void usunWizyte(Long idWizyty) {
+        wizytaRepo.deleteById(idWizyty);
+    }
 }

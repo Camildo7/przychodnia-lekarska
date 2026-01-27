@@ -129,4 +129,16 @@ public class WizytaController {
             return "nowa_wizyta";
         }
     }
+
+    @GetMapping("/wizyta/usun/{id}")
+    public String usunWizyte(@PathVariable Long id, RedirectAttributes ra) {
+        try {
+            wizytaService.usunWizyte(id);
+            ra.addFlashAttribute("success", "Wizyta została pomyślnie usunięta.");
+            return "redirect:/kalendarz";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Nie można usunąć wizyty! Jest do niej przypisane skierowanie lub recepta.");
+            return "redirect:/wizyta/" + id;
+        }
+    }
 }
