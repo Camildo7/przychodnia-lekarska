@@ -3,6 +3,7 @@ package pl.przychodnia.app.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import pl.przychodnia.app.validation.MaxBytes;
 
 @Entity
 @Table(name = "LEKI")
@@ -18,11 +19,13 @@ public class Lek {
     @Column(name = "NAZWA_HANDLOWA", nullable = false)
     @NotBlank(message = "Nazwa leku jest wymagana")
     @Size(max = 100, message = "Nazwa max 100 znaków")
+    @MaxBytes(value = 100, message = "Nazwa handlowa za długa (max 100 znaków - polskie znaki liczone x2)")
     private String nazwaHandlowa;
 
     @Column(name = "SUBSTANCJA_CZYNNA", nullable = false)
     @NotBlank(message = "Substancja czynna jest wymagana")
     @Size(max = 100, message = "Max 100 znaków")
+    @MaxBytes(value = 100, message = "Nazwa substancji czynnej za długa (max 100 znaków - polskie znaki liczone x2)")
     private String substancjaCzynna;
 
     @Column(name = "STAN_MAGAZYNOWY", nullable = false)

@@ -3,6 +3,7 @@ package pl.przychodnia.app.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import pl.przychodnia.app.validation.MaxBytes;
 
 @Entity
 @Table(name = "GABINETY")
@@ -21,5 +22,6 @@ public class Gabinet {
 
     @Column(name = "OPIS_FUNKCJI")
     @Size(max = 255, message = "Opis za długi (max 255 znaków)")
+    @MaxBytes(value = 255, message = "Opis funkcji za długi (max 255 znaków - polskie znaki liczone x2)")
     private String opisFunkcji;
 }

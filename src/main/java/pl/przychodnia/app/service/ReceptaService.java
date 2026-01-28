@@ -16,6 +16,8 @@ import pl.przychodnia.app.repository.ReceptaRepository;
 
 import java.util.List;
 
+import static java.lang.Math.min;
+
 @Service
 public class ReceptaService {
 
@@ -73,7 +75,7 @@ public class ReceptaService {
         PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pozycji"));
 
         Lek lek = pozycja.getLek();
-        lek.setStanMagazynowy(lek.getStanMagazynowy() + pozycja.getIloscOpakowan());
+        lek.setStanMagazynowy(min(lek.getStanMagazynowy() + pozycja.getIloscOpakowan(),999999));
         lekRepo.save(lek);
 
         pozycjaRepo.delete(pozycja);
@@ -86,7 +88,7 @@ public class ReceptaService {
 
         for (PozycjaRecepty p : pozycje) {
             Lek lek = p.getLek();
-            lek.setStanMagazynowy(lek.getStanMagazynowy() + p.getIloscOpakowan());
+            lek.setStanMagazynowy(min(lek.getStanMagazynowy() + p.getIloscOpakowan(),999999));
             lekRepo.save(lek);
         }
 
@@ -105,7 +107,6 @@ public class ReceptaService {
         int staraIlosc = pozycja.getIloscOpakowan();
         int roznica = nowaIlosc - staraIlosc;
 
-        // Jeśli chcemy WIĘCEJ leków niż mieliśmy, musimy sprawdzić czy są w magazynie
         if (roznica > 0) {
             if (lek.getStanMagazynowy() < roznica) {
                 throw new IllegalArgumentException("Brak wystarczającej ilości leku w magazynie. " +
@@ -113,9 +114,6 @@ public class ReceptaService {
             }
         }
 
-        // Aktualizujemy stan magazynowy:
-        // - Jeśli różnica dodatnia (dobieramy leki) -> odejmujemy ze stanu
-        // - Jeśli różnica ujemna (oddajemy leki) -> dodajemy do stanu (odejmowanie ujemnej to dodawanie)
         lek.setStanMagazynowy(lek.getStanMagazynowy() - roznica);
         lekRepo.save(lek);
 

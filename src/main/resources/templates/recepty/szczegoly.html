@@ -74,7 +74,7 @@
                         </div>
                         <div class="mb-3">
                             <label>Dawkowanie:</label>
-                            <input type="text" name="dawkowanie" class="form-control" placeholder="np. 1x dziennie" required>
+                            <input type="text" name="dawkowanie" class="form-control" placeholder="np. 1x dziennie" maxlength="100" required>
                         </div>
                         <button type="submit" class="btn btn-success w-100">Dodaj pozycję</button>
                     </form>
@@ -99,7 +99,7 @@
                         <tr th:each="p : ${pozycje}">
                             <td th:text="${p.lek.nazwaHandlowa}"></td>
                             <td th:text="${p.iloscOpakowan}"></td>
-                            <td th:text="${p.dawkowanie}"></td>
+                            <td th:text="${p.dawkowanie}" class="text-break" style="max-width: 250px;"></td>
                             <td class="text-end">
                                 <div class="btn-group">
                                     <a th:href="@{/recepty/edytuj-pozycje(kod=${recepta.kodDokumentu}, pesel=${recepta.pacjent.pesel}, ean=${p.lek.kodEan})}"

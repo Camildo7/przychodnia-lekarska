@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import lombok.Data;
+import pl.przychodnia.app.validation.MaxBytes;
+
 import java.time.LocalDate;
 
 @Entity
@@ -15,11 +17,13 @@ public class Wyposazenie {
     @Column(name = "KOD_INWENTARZOWY", length = 20)
     @NotBlank(message = "Kod inwentarzowy jest wymagany")
     @Size(max = 20, message = "Kod nie może być dłuższy niż 20 znaków")
+    @MaxBytes(value = 20, message = "Kod inwentarzowy za długi (max 20 znaków - polskie znaki liczone x2)")
     private String kodInwentarzowy;
 
     @Column(name = "NAZWA_SPRZETU", nullable = false)
     @NotBlank(message = "Nazwa sprzętu jest wymagana")
     @Size(max = 100, message = "Nazwa nie może być dłuższa niż 100 znaków")
+    @MaxBytes(value = 100, message = "Nazwa sprzętu za długa (max 100 znaków - polskie znaki liczone x2)")
     private String nazwaSprzetu;
 
     @Column(name = "DATA_ZAKUPU", nullable = false)

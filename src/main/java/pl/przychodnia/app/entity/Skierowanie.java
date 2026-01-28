@@ -3,6 +3,8 @@ package pl.przychodnia.app.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import pl.przychodnia.app.validation.MaxBytes;
+
 import java.time.LocalDate;
 
 @Entity
@@ -31,10 +33,12 @@ public class Skierowanie {
     @Column(name = "CEL_BADANIA", nullable = false, length = 255)
     @NotBlank(message = "Cel badania jest wymagany")
     @Size(max = 255, message = "Opis celu badania jest za długi (max 255 znaków)")
+    @MaxBytes(value = 255, message = "Cel badania za długi (max 255 znaków - polskie znaki liczone x2)")
     private String celBadania;
 
     @Column(name = "ROZPOZNANIE_WSTEPNE", length = 255)
     @Size(max = 255, message = "Opis rozpoznania jest za długi (max 255 znaków)")
+    @MaxBytes(value = 255, message = "Rozpoznanie wstępne za długie (max 255 znaków - polskie znaki liczone x2)")
     private String rozpoznanieWstepne;
 
     @ManyToOne

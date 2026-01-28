@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat; // Pamiętaj o imporcie!
 import lombok.Data;
+import pl.przychodnia.app.validation.MaxBytes;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +25,14 @@ public class Lekarz {
     @NotBlank(message = "Imię jest wymagane")
     @Size(max = 50, message = "Max 50 znaków")
     @Pattern(regexp = "^[A-ZŚŁŻŹĆŃÓĘĄa-zśłżźćńóęą\\s\\-]+$", message = "Imię nie może zawierać cyfr")
+    @MaxBytes(value = 50, message = "Imię za długie (max 50 znaków - polskie znaki liczone x2)")
     private String imie;
 
     @Column(name = "NAZWISKO")
     @NotBlank(message = "Nazwisko jest wymagane")
     @Size(max = 50, message = "Max 50 znaków")
     @Pattern(regexp = "^[A-ZŚŁŻŹĆŃÓĘĄa-zśłżźćńóęą\\s\\-]+$", message = "Nazwisko nie może zawierać cyfr")
+    @MaxBytes(value = 50, message = "Nazwisko za długie (max 50 znaków - polskie znaki liczone x2)")
     private String nazwisko;
 
     @Column(name = "DATA_ZATRUDNIENIA")
