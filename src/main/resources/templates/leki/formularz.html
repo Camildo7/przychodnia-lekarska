@@ -42,11 +42,19 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label>Stan Magazynowy *</label>
-                        <input type="number" th:field="*{stanMagazynowy}" class="form-control"
+                        <label class="form-label fw-bold">Ilość w magazynie *</label>
+                        <input type="number" th:field="*{stanMagazynowy}"
+                               class="form-control"
                                th:classappend="${#fields.hasErrors('stanMagazynowy')} ? 'is-invalid' : ''"
-                               required min="0">
-                        <div class="invalid-feedback" th:errors="*{stanMagazynowy}">Błąd stanu</div>
+                               min="0"
+                               max="999999"
+                               placeholder="0"
+                               oninput="if(this.value.length > 6) this.value = this.value.slice(0, 6);"
+                               required>
+
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('stanMagazynowy')}" th:errors="*{stanMagazynowy}">
+                            Błąd ilości.
+                        </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Jednostka Miary *</label>

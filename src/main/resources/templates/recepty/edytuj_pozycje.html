@@ -66,6 +66,7 @@
                                        th:value="${pozycja.iloscOpakowan}"
                                        min="1"
                                        th:max="${maxIlosc}"
+                                       oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);"
                                        required>
                                 <span class="input-group-text">szt.</span>
                             </div>

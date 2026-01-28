@@ -70,7 +70,7 @@
                         </div>
                         <div class="mb-3">
                             <label>Ilość:</label>
-                            <input type="number" name="ilosc" class="form-control" value="1" min="1" required>
+                            <input type="number" name="ilosc" class="form-control" value="1" min="1" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);" required>
                         </div>
                         <div class="mb-3">
                             <label>Dawkowanie:</label>
