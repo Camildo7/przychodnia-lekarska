@@ -51,10 +51,12 @@ public class SkierowanieController {
 
     // formularz tworzenia nowego skierowania
     @GetMapping("/nowe")
-    public String formularz(@RequestParam(required = false) Long idWizyty, Model model) {
+    public String formularz(@RequestParam(required = false) Long idWizyty,
+                            @RequestParam(defaultValue = "skierowania") String source,
+                            Model model) {
         if (idWizyty == null) {
             model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
-            return "skierowania/wybor_wizyty"; // Nowy widok (stworzymy go w kroku 2)
+            return "skierowania/wybor_wizyty";
         }
 
         Wizyta w = wizytaRepo.findById(idWizyty)
@@ -68,18 +70,25 @@ public class SkierowanieController {
 
         model.addAttribute("skierowanie", s);
         model.addAttribute("isEdit", false);
+        model.addAttribute("source", source);
         return "skierowania/formularz";
     }
 
     // formularz edycji istniejącego skierowania
     @GetMapping("/edytuj")
-    public String edytuj(@RequestParam String kod, @RequestParam String pesel, Model model) {
+    public String edytuj(@RequestParam String kod,
+                         @RequestParam String pesel,
+                         @RequestParam(defaultValue = "skierowania") String source,
+                         Model model) {
+
         SkierowanieId id = new SkierowanieId(kod, pesel);
         Skierowanie s = skierowanieRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono skierowania"));
 
         model.addAttribute("skierowanie", s);
-        model.addAttribute("isEdit", true); // Tryb edycji (blokuje klucze)
+        model.addAttribute("isEdit", true);
+        model.addAttribute("source", source);
+
         return "skierowania/formularz";
     }
 
@@ -88,6 +97,7 @@ public class SkierowanieController {
     public String zapisz(@Valid @ModelAttribute("skierowanie") Skierowanie s,
                          BindingResult result,
                          @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
+                         @RequestParam(defaultValue = "skierowania") String source,
                          Model model,
                          RedirectAttributes ra) {
 
@@ -100,19 +110,25 @@ public class SkierowanieController {
             if (s.getWizyta() != null && s.getWizyta().getNumerWizyty() != null) {
                 Wizyta w = wizytaRepo.findById(s.getWizyta().getNumerWizyty()).orElse(null);
                 if (w != null) {
-                    s.setWizyta(w); // Przywraca datę wizyty do nagłówka
+                    s.setWizyta(w);
                     s.setPacjent(w.getPacjent());
                     s.setLekarz(w.getLekarz());
                 }
             }
 
             model.addAttribute("isEdit", isEdit);
+            model.addAttribute("source", source);
             return "skierowania/formularz";
         }
 
         try {
             skierowanieRepo.save(s);
             ra.addFlashAttribute("success", "Pomyślnie zapisano skierowanie.");
+
+            if ("wizyta".equals(source) && s.getWizyta() != null && s.getWizyta().getNumerWizyty() != null) {
+                return "redirect:/wizyta/" + s.getWizyta().getNumerWizyty();
+            }
+
         } catch (Exception e) {
             if (s.getWizyta() != null && s.getWizyta().getNumerWizyty() != null) {
                 Wizyta w = wizytaRepo.findById(s.getWizyta().getNumerWizyty()).orElse(null);
@@ -124,6 +140,7 @@ public class SkierowanieController {
             }
             model.addAttribute("error", "Błąd zapisu do bazy: " + e.getMessage());
             model.addAttribute("isEdit", isEdit);
+            model.addAttribute("source", source);
             return "skierowania/formularz";
         }
 
@@ -131,11 +148,22 @@ public class SkierowanieController {
     }
 
     @GetMapping("/usun")
-    public String usun(@RequestParam String kod, @RequestParam String pesel, RedirectAttributes ra) {
+    public String usun(@RequestParam String kod,
+                       @RequestParam String pesel,
+                       @RequestParam(defaultValue = "skierowania") String source,
+                       RedirectAttributes ra) {
         try {
             SkierowanieId id = new SkierowanieId(kod, pesel);
+            Skierowanie s = skierowanieRepo.findById(id).orElse(null);
+            Long idWizyty = (s != null && s.getWizyta() != null) ? s.getWizyta().getNumerWizyty() : null;
+
             skierowanieRepo.deleteById(id);
             ra.addFlashAttribute("success", "Usunięto skierowanie.");
+
+            if ("wizyta".equals(source) && idWizyty != null) {
+                return "redirect:/wizyta/" + idWizyty;
+            }
+
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Nie można usunąć skierowania.");
         }

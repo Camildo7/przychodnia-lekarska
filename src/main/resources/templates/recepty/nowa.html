@@ -13,6 +13,7 @@
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
                     <form action="/recepty/utworz" method="post">
+                        <input type="hidden" name="source" th:value="${source}">
 
                         <div class="mb-3" th:if="${wybranaWizyta != null}">
                             <label class="form-label">Dotyczy wizyty:</label>
@@ -49,7 +50,13 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success btn-lg">Utwórz nagłówek recepty</button>
-                            <a href="/recepty" class="btn btn-outline-secondary btn-lg">Anuluj</a>
+                            <a th:if="${source == 'wizyta' && wybranaWizyta != null}"
+                               th:href="@{/wizyta/{id}(id=${wybranaWizyta.numerWizyty})}"
+                               class="btn btn-outline-secondary">Anuluj</a>
+
+                            <a th:if="${source != 'wizyta' || wybranaWizyta == null}"
+                               href="/recepty"
+                               class="btn btn-outline-secondary">Anuluj</a>
                         </div>
                     </form>
                 </div>

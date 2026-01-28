@@ -21,6 +21,7 @@
                 <input type="hidden" th:field="*{lekarz.numerPwz}">
                 <input type="hidden" th:field="*{wizyta.numerWizyty}">
                 <input type="hidden" th:field="*{dataWystawienia}">
+                <input type="hidden" name="source" th:value="${source}">
 
                 <div class="row mb-4 bg-light p-3 border rounded mx-0 text-center">
 
@@ -47,6 +48,17 @@
                         </div>
                         <small class="text-muted">Kierujący</small>
                     </div>
+                </div>
+
+                <div>
+                    <p>
+                        <a th:href="@{/wizyta/{id}(id=${skierowanie.wizyta.numerWizyty})}"
+                           class="d-block fw-bold text-primary text-decoration-none mt-1"
+                           title="Przejdź do szczegółów wizyty">
+                            <span th:text="'Przejdź do wizyty'"></span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </p>
                 </div>
 
                 <div class="mb-3">
@@ -77,10 +89,20 @@
                 </div>
 
                 <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-success btn-lg">Zatwierdź i Wystaw</button>
+                    <button type="submit" class="btn btn-success btn-lg"
+                            th:text="${isEdit ? 'Zapisz' : 'Zatwierdź i Wystaw'}">
+                        Zatwierdź i Wystaw
+                    </button>
 
-                    <a th:if="${isEdit}" href="/skierowania" class="btn btn-outline-secondary">Anuluj</a>
-                    <a th:if="${!isEdit}" th:href="@{/wizyta/{id}(id=${skierowanie.wizyta.numerWizyty})}"
+                    <a th:if="${isEdit && source != 'wizyta'}" href="/skierowania" class="btn btn-outline-secondary">Anuluj</a>
+                    <a th:if="${isEdit && source == 'wizyta'}" th:href="@{/wizyta/{id}(id=${skierowanie.wizyta.numerWizyty})}" class="btn btn-outline-secondary">Anuluj</a>
+
+                    <a th:if="${!isEdit && source == 'wizyta'}"
+                       th:href="@{/wizyta/{id}(id=${skierowanie.wizyta.numerWizyty})}"
+                       class="btn btn-outline-secondary">Anuluj</a>
+
+                    <a th:if="${!isEdit && source != 'wizyta'}"
+                       href="/skierowania"
                        class="btn btn-outline-secondary">Anuluj</a>
                 </div>
             </form>

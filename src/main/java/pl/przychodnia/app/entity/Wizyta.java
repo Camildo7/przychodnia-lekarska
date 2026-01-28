@@ -44,4 +44,10 @@ public class Wizyta {
             inverseJoinColumns = @JoinColumn(name = "KOD_ICD10")
     )
     private List<Choroba> choroby = new ArrayList<>();
+
+    @OneToMany(mappedBy = "wizyta")
+    private List<Recepta> recepty;
+
+    @OneToMany(mappedBy = "wizyta")
+    private List<Skierowanie> skierowania;
 }

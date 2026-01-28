@@ -4,7 +4,6 @@
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
 
-
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Szczegóły Wizyty nr <span th:text="${w.numerWizyty}"></span></h2>
@@ -26,12 +25,15 @@
                         <span th:text="${success}"></span>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+
                     <form action="/wizyta/zapisz" method="post">
                         <input type="hidden" name="numerWizyty" th:value="${w.numerWizyty}">
 
                         <div class="mb-3">
                             <label class="fw-bold">Pacjent:</label>
-                            <input type="text" class="form-control" th:value="${w.pacjent.nazwisko} + ' ' + ${w.pacjent.imie} + ' (' + ${w.pacjent.pesel} + ')'" disabled>
+                            <input type="text" class="form-control"
+                                   th:value="${w.pacjent.nazwisko} + ' ' + ${w.pacjent.imie} + ' (' + ${w.pacjent.pesel} + ')'"
+                                   disabled>
                         </div>
 
                         <div class="mb-3">
@@ -109,7 +111,7 @@
 
                         <div class="mb-3">
                             <label class="fw-bold">Zalecenia lekarskie:</label>
-                            <textarea name="zalecenia" class="form-control" rows="4" placeholder="Wpisz wywiad, badanie i zalecenia... (opcjonalnie)" ></textarea>
+                            <textarea name="zalecenia" class="form-control" rows="4" placeholder="Wpisz wywiad, badanie i zalecenia... (opcjonalnie)"></textarea>
                         </div>
 
                         <div class="mb-3">
@@ -122,7 +124,6 @@
                             </div>
 
                             <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto; background-color: #fdfdfd;">
-
                                 <div th:each="c : ${choroby}" class="form-check border-bottom py-2 icd-row">
                                     <input type="checkbox" class="form-check-input mt-1"
                                            th:field="*{choroby}"
@@ -136,7 +137,6 @@
                                         <span class="text-muted small ms-1" th:text="'— ' + ${c.nazwaChoroby}"></span>
                                     </label>
                                 </div>
-
                                 <div id="noIcdResults" class="text-muted text-center small fst-italic mt-2" style="display: none;">
                                     Nie znaleziono choroby pasującej do wyszukiwania.
                                 </div>
@@ -151,19 +151,98 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-light fw-bold">Dokumenty</div>
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Dokumenty</span>
+                    <span class="badge bg-secondary"
+                          th:text="${(w.recepty != null ? w.recepty.size() : 0) + (w.skierowania != null ? w.skierowania.size() : 0)}">
+                        0
+                    </span>
+                </div>
                 <div class="card-body">
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <a th:href="@{/recepty/nowa(idWizyty=${w.numerWizyty})}" class="btn btn-outline-success w-100 py-3">
-                                Wystaw Receptę
-                            </a>
+
+                    <ul class="nav nav-tabs nav-fill mb-3" id="docTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="recepty-tab" data-bs-toggle="tab" data-bs-target="#recepty" type="button">
+                                Recepty <span class="badge bg-light text-dark border ms-1" th:text="${w.recepty != null ? w.recepty.size() : 0}">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="skierowania-tab" data-bs-toggle="tab" data-bs-target="#skierowania" type="button">
+                                Skierowania <span class="badge bg-light text-dark border ms-1" th:text="${w.skierowania != null ? w.skierowania.size() : 0}">0</span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="docTabContent">
+
+                        <div class="tab-pane fade show active" id="recepty" role="tabpanel">
+                            <div th:if="${w.recepty != null && !w.recepty.isEmpty()}" class="list-group mb-3">
+
+                                <div th:each="r : ${w.recepty}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-0">
+
+                                    <a th:href="@{/recepty/szczegoly(kod=${r.kodDokumentu}, pesel=${r.pacjent.pesel}, source='wizyta')}"
+                                       class="text-decoration-none text-dark d-flex align-items-center flex-grow-1 p-2">
+
+                                        <span class="fw-bold" th:text="${r.kodDokumentu}"></span>
+                                        <small class="text-muted mx-2">|</small>
+                                        <small class="text-muted">PESEL: <span th:text="${r.pacjent.pesel}"></span></small>
+                                        <i class="bi bi-chevron-right ms-auto text-muted small me-2"></i>
+                                    </a>
+
+                                    <div class="border-start p-2">
+                                        <a th:href="@{/recepty/usun(kod=${r.kodDokumentu}, pesel=${r.pacjent.pesel}, source='wizyta')}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Usuń receptę"
+                                           onclick="return confirm('Czy na pewno usunąć tę receptę?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${w.recepty == null || w.recepty.isEmpty()}" class="text-center text-muted small fst-italic mb-3">
+                                Brak wystawionych recept.
+                            </div>
+
+                            <a th:href="@{/recepty/nowa(idWizyty=${w.numerWizyty}, source='wizyta')}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-plus-circle"></i> Wystaw Nową Receptę
                             </a>
                         </div>
-                        <div class="col-md-6">
-                            <a th:href="@{/skierowania/nowe(idWizyty=${w.numerWizyty})}" class="btn btn-outline-primary w-100 py-3">
-                                Wystaw Skierowanie
+
+                        <div class="tab-pane fade" id="skierowania" role="tabpanel">
+                            <div th:if="${w.skierowania != null && !w.skierowania.isEmpty()}" class="list-group mb-3">
+
+                                <div th:each="s : ${w.skierowania}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-0">
+
+                                    <a th:href="@{/skierowania/edytuj(kod=${s.kodDokumentu}, pesel=${s.pacjent.pesel}, source='wizyta')}"
+                                       class="text-decoration-none text-dark d-flex align-items-center flex-grow-1 p-2">
+
+                                        <div class="d-flex align-items-center overflow-hidden">
+                                            <span class="fw-bold" th:text="${s.kodDokumentu}"></span>
+                                            <small class="text-muted mx-2">|</small>
+                                            <small class="text-truncate" style="max-width: 150px;" th:text="${s.celBadania}"></small>
+                                        </div>
+
+                                        <i class="bi bi-pencil-square ms-auto text-muted small"></i>
+                                    </a>
+
+                                    <div class="border-start p-2">
+                                        <a th:href="@{/skierowania/usun(kod=${s.kodDokumentu}, pesel=${s.pacjent.pesel}, source='wizyta')}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Usuń skierowanie"
+                                           onclick="return confirm('Czy na pewno usunąć to skierowanie?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${w.skierowania == null || w.skierowania.isEmpty()}" class="text-center text-muted small fst-italic mb-3">
+                                Brak wystawionych skierowań.
+                            </div>
+
+                            <a th:href="@{/skierowania/nowe(idWizyty=${w.numerWizyty}, source='wizyta')}"
+                               class="btn btn-outline-primary w-100">
+                                <i class="bi bi-plus-circle"></i> Wystaw Nowe Skierowanie
                             </a>
                         </div>
                     </div>
@@ -173,8 +252,10 @@
         </div>
     </div>
 </div>
+
 <div th:replace="~{layout :: scripts}"></div>
 </body>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById('icdSearchInput');
@@ -189,16 +270,14 @@
                 icdRows.forEach(row => {
                     const labelText = row.querySelector('.icd-label').innerText.toLowerCase();
 
-                    // sprawdzamy czy tekst zawiera frazę
                     if (labelText.includes(searchText)) {
                         row.style.display = "";
                         hasVisibleItems = true;
                     } else {
-                        row.style.display = "none"; // Ukryj
+                        row.style.display = "none";
                     }
                 });
 
-                // brak wyników
                 if (!hasVisibleItems && icdRows.length > 0) {
                     noResultsMsg.style.display = "block";
                 } else {

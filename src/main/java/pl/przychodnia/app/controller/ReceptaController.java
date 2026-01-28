@@ -56,49 +56,52 @@ public class ReceptaController {
 
     // --- TWORZENIE NAGŁÓWKA ---
     @GetMapping("/nowa")
-    public String formularz(@RequestParam(required = false) Long idWizyty, Model model) {
+    public String formularz(@RequestParam(required = false) Long idWizyty,
+                            @RequestParam(defaultValue = "recepty") String source,
+                            Model model) {
         if (idWizyty != null) {
-            // połączenie z konkretną wizytą
             Wizyta wizyta = wizytaRepo.findById(idWizyty).orElseThrow();
             model.addAttribute("wybranaWizyta", wizyta);
         } else {
-            // lista wizyt do wyboru
             model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
         }
+        model.addAttribute("source", source);
         return "recepty/nowa";
     }
 
     @PostMapping("/utworz")
     public String utworz(@RequestParam Long idWizyty,
-                         @RequestParam String kodDokumentu, // Pobieramy kod z inputa
-                         Model model, // Używamy Model zamiast RedirectAttributes w przypadku błędu, żeby łatwo wrócić
+                         @RequestParam String kodDokumentu,
+                         @RequestParam(defaultValue = "recepty") String source,
+                         Model model,
                          RedirectAttributes ra) {
         try {
             var wizyta = wizytaRepo.findById(idWizyty).orElseThrow();
             String pesel = wizyta.getPacjent().getPesel();
 
-            // 1. Walidacja formatu (4 cyfry)
             if (!kodDokumentu.matches("\\d{4}")) {
                 throw new IllegalArgumentException("Kod recepty musi składać się dokładnie z 4 cyfr!");
             }
 
-            // 2. Walidacja unikalności DLA TEGO PACJENTA
             if (receptaRepo.existsByKodDokumentuAndPacjent_Pesel(kodDokumentu, pesel)) {
-                throw new IllegalArgumentException("Ten pacjent (PESEL: " + pesel + ") posiada już receptę o kodzie " + kodDokumentu);
+                throw new IllegalArgumentException("Ten pacjent posiada już receptę o kodzie " + kodDokumentu);
             }
 
-            // 3. Wywołanie procedury
             receptaService.utworzRecepte(kodDokumentu, pesel, wizyta.getLekarz().getNumerPwz(), idWizyty);
 
             ra.addAttribute("kod", kodDokumentu);
             ra.addAttribute("pesel", pesel);
+
+            if ("wizyta".equals(source)) {
+                ra.addAttribute("source", "wizyta");
+            }
+
             return "redirect:/recepty/szczegoly";
 
         } catch (Exception e) {
-            // W razie błędu wracamy do formularza z komunikatem
             model.addAttribute("error", e.getMessage());
-            // Musimy ponownie załadować listę wizyt, bo wracamy do widoku "nowa"
             model.addAttribute("wizyty", wizytaRepo.findAllByOrderByDataIGodzinaDesc());
+            model.addAttribute("source", source);
             return "recepty/nowa";
         }
     }
@@ -142,10 +145,22 @@ public class ReceptaController {
 
     // --- USUWANIE CAŁEJ RECEPTY ---
     @GetMapping("/usun")
-    public String usunRecepte(@RequestParam String kod, @RequestParam String pesel, RedirectAttributes ra) {
+    public String usunRecepte(@RequestParam String kod,
+                              @RequestParam String pesel,
+                              @RequestParam(defaultValue = "recepty") String source,
+                              RedirectAttributes ra) {
         try {
+            ReceptaId id = new ReceptaId(kod, pesel);
+            Recepta r = receptaRepo.findById(id).orElse(null);
+            Long idWizyty = (r != null && r.getWizyta() != null) ? r.getWizyta().getNumerWizyty() : null;
+
             receptaService.usunRecepte(kod, pesel);
             ra.addFlashAttribute("success", "Recepta została usunięta.");
+
+            if ("wizyta".equals(source) && idWizyty != null) {
+                return "redirect:/wizyta/" + idWizyty;
+            }
+
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Nie można usunąć recepty.");
         }

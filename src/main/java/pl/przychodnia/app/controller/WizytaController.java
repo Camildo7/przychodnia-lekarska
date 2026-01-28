@@ -45,7 +45,7 @@ public class WizytaController {
         Wizyta wizyta = wizytaRepo.findById(id).orElseThrow();
 
         model.addAttribute("w", wizyta);
-        model.addAttribute("choroby", chorobaRepo.findAll()); // Lista do checkboxów
+        model.addAttribute("choroby", chorobaRepo.findAll());
         model.addAttribute("lekarze", lekarzRepo.findAll());
         model.addAttribute("gabinety", gabinetRepo.findAll());
 
@@ -75,13 +75,10 @@ public class WizytaController {
     @PostMapping("/wizyta/zakoncz-pelna")
     public String zakonczPelna(@RequestParam Long idWizyty,
                                @RequestParam String zalecenia,
-                               // ZMIANA: Dodano (name = "choroby"), aby połączyć formularz z kodem
                                @RequestParam(name = "choroby", required = false) List<String> kodyChorob) {
 
-        // 1. Procedura (ustawia status 'T' i zalecenia)
         wizytaService.zakonczWizyte(idWizyty, zalecenia);
 
-        // 2. Przypisanie chorób (JPA)
         if (kodyChorob != null && !kodyChorob.isEmpty()) {
             Wizyta w = wizytaRepo.findById(idWizyty).orElseThrow();
             List<Choroba> wybraneChoroby = chorobaRepo.findAllById(kodyChorob);
@@ -92,10 +89,9 @@ public class WizytaController {
         return "redirect:/wizyta/" + idWizyty;
     }
 
-    // --- STARE METODY (Żeby nie psuć reszty) ---
     @GetMapping("/")
     public String listaWizyt(Model model) {
-        return "redirect:/kalendarz"; // Przekierujmy od razu na kalendarz
+        return "redirect:/kalendarz";
     }
 
     @GetMapping("/nowa")
@@ -133,12 +129,39 @@ public class WizytaController {
 
     @GetMapping("/wizyta/usun/{id}")
     public String usunWizyte(@PathVariable Long id, RedirectAttributes ra) {
-        try {
-            wizytaService.usunWizyte(id);
-            ra.addFlashAttribute("success", "Wizyta została pomyślnie usunięta.");
+        Wizyta w = wizytaRepo.findById(id).orElse(null);
+
+        if (w == null) {
+            ra.addFlashAttribute("error", "Wizyta nie istnieje.");
             return "redirect:/kalendarz";
+        }
+
+        boolean maRecepty = w.getRecepty() != null && !w.getRecepty().isEmpty();
+        boolean maSkierowania = w.getSkierowania() != null && !w.getSkierowania().isEmpty();
+
+        if (maRecepty || maSkierowania) {
+            StringBuilder errorMsg = new StringBuilder("Nie można usunąć wizyty, ponieważ posiada wystawione ");
+
+            if (maRecepty && maSkierowania) {
+                errorMsg.append("recepty i skierowania.");
+            } else if (maRecepty) {
+                errorMsg.append("recepty.");
+            } else {
+                errorMsg.append("skierowania.");
+            }
+
+            errorMsg.append(" Usuń najpierw dokumenty, aby móc usunąć wizytę.");
+
+            ra.addFlashAttribute("error", errorMsg.toString());
+            return "redirect:/wizyta/" + id;
+        }
+
+        try {
+            wizytaRepo.deleteById(id);
+            ra.addFlashAttribute("success", "Wizyta została pomyślnie usunięta.");
+            return "redirect:/kalendarz"; // Powrót do kalendarza po sukcesie
         } catch (Exception e) {
-            ra.addFlashAttribute("error", "Nie można usunąć wizyty! Jest do niej przypisane skierowanie lub recepta.");
+            ra.addFlashAttribute("error", "Błąd bazy danych podczas usuwania: " + e.getMessage());
             return "redirect:/wizyta/" + id;
         }
     }
