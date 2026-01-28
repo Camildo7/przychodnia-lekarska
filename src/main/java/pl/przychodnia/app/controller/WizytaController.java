@@ -36,6 +36,7 @@ public class WizytaController {
     @GetMapping("/kalendarz")
     public String widokKalendarza(Model model) {
         model.addAttribute("lekarze", lekarzRepo.findAll());
+        model.addAttribute("pacjenci", pacjentRepo.findAll());
         return "wizyty/kalendarz";
     }
 

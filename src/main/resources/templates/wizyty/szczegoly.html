@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: header}"></head>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+</head>
+
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
 
@@ -45,16 +51,16 @@
 
                         <div class="mb-3">
                             <label class="fw-bold">Lekarz:</label>
-                            <select name="lekarz" class="form-select" th:disabled="${w.czyOdbyta == 'T'}">
+                            <select name="lekarz" class="form-select select2" th:disabled="${w.czyOdbyta == 'T'}">
                                 <option th:each="l : ${lekarze}" th:value="${l.numerPwz}"
-                                        th:text="${l.nazwisko} + ' ' + ${l.imie}"
+                                        th:text="${l.nazwisko} + ' ' + ${l.imie} + (${!l.specjalizacje.isEmpty()} ? ' (' + ${l.specjalizacje[0].nazwaSpecjalizacji} + ')' : '')"
                                         th:selected="${l.numerPwz == w.lekarz.numerPwz}"></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="fw-bold">Gabinet:</label>
-                            <select name="gabinet" class="form-select" th:disabled="${w.czyOdbyta == 'T'}">
+                            <select name="gabinet" class="form-select select2" th:disabled="${w.czyOdbyta == 'T'}">
                                 <option th:each="g : ${gabinety}" th:value="${g.numerGabinetu}"
                                         th:text="'Gabinet ' + ${g.numerGabinetu} + ' (Piętro ' + ${g.pietro} + ')'"
                                         th:selected="${w.gabinet != null && w.gabinet.numerGabinetu == g.numerGabinetu}"></option>
@@ -120,7 +126,8 @@
                             <div class="input-group mb-2">
                                 <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
                                 <input type="text" id="icdSearchInput" class="form-control form-control-sm"
-                                       placeholder="Wpisz kod (np. J01) lub nazwę...">
+                                       placeholder="Wpisz kod (np. J01) lub nazwę..."
+                                       onkeydown="if(event.key === 'Enter') { event.preventDefault(); return false; }">
                             </div>
 
                             <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto; background-color: #fdfdfd;">
@@ -254,9 +261,21 @@
 </div>
 
 <div th:replace="~{layout :: scripts}"></div>
-</body>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/pl.js"></script>
 
 <script>
+    $(document).ready(function() {
+        // Inicjalizacja Select2 dla pól Lekarz i Gabinet
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            language: "pl",
+            width: '100%'
+        });
+    });
+
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById('icdSearchInput');
         const icdRows = document.querySelectorAll('.icd-row');
@@ -287,4 +306,6 @@
         }
     });
 </script>
+
+</body>
 </html>

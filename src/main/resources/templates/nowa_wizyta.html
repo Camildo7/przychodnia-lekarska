@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: header}"></head>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+</head>
+
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow">
+            <div class="card shadow mt-4">
                 <div class="card-header bg-success text-white">
                     <h3 class="mb-0">Rejestracja nowej wizyty</h3>
                 </div>
@@ -20,32 +26,45 @@
                     <form action="/nowa" method="post">
 
                         <div class="mb-3">
-                            <label class="form-label">Pacjent:</label>
-                            <select name="pesel" class="form-select" required>
-                                <option value="" disabled th:selected="${wybranyPesel == null}">-- Wybierz pacjenta --</option>
+                            <label class="form-label fw-bold">Pacjent:</label>
+                            <select name="pesel" class="form-select select2" required
+                                    data-placeholder="Wybierz pacjenta (wpisz nazwisko lub PESEL)">
+
+                                <option></option>
+
                                 <option th:each="p : ${pacjenci}"
                                         th:value="${p.pesel}"
                                         th:text="${p.nazwisko} + ' ' + ${p.imie} + ' (PESEL: ' + ${p.pesel} + ')'"
                                         th:selected="${p.pesel == wybranyPesel}"></option>
                             </select>
-                            <div class="form-text"><a href="/pacjenci/nowy">Nie ma pacjenta na liście? Dodaj go tutaj.</a></div>
+                            <div class="form-text mt-2">
+                                <a href="/pacjenci/nowy" class="text-decoration-none">
+                                    <i class="bi bi-person-plus"></i> Nie ma pacjenta na liście? Dodaj go tutaj.
+                                </a>
+                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Lekarz:</label>
-                            <select name="lekarzPwz" class="form-select" required>
-                                <option value="" disabled th:selected="${wybranyLekarz == null}">-- Wybierz lekarza --</option>
+                            <label class="form-label fw-bold">Lekarz:</label>
+                            <select name="lekarzPwz" class="form-select select2" required
+                                    data-placeholder="Wybierz lekarza">
+
+                                <option></option>
+
                                 <option th:each="l : ${lekarze}"
                                         th:value="${l.numerPwz}"
-                                        th:text="${l.nazwisko} + ' ' + ${l.imie}"
+                                        th:text="${l.nazwisko} + ' ' + ${l.imie} + ' (PWZ: ' + ${l.numerPwz} + ')'"
                                         th:selected="${l.numerPwz == wybranyLekarz}"></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Gabinet:</label>
-                            <select name="idGabinetu" class="form-select" required>
-                                <option value="" disabled th:selected="${wybranyGabinet == null}">-- Wybierz gabinet --</option>
+                            <label class="form-label fw-bold">Gabinet:</label>
+                            <select name="idGabinetu" class="form-select select2" required
+                                    data-placeholder="Wybierz gabinet">
+
+                                <option></option>
+
                                 <option th:each="g : ${gabinety}"
                                         th:value="${g.numerGabinetu}"
                                         th:text="'Gabinet ' + ${g.numerGabinetu} + ' (' + ${g.opisFunkcji} + ')'"
@@ -53,10 +72,9 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Data i godzina:</label>
-                            <input type="datetime-local" name="data" class="form-control"
-                                   th:value="${wybranaData}" required>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Data i godzina:</label>
+                            <input type="datetime-local" name="data" class="form-control" th:value="${wybranaData}" required>
                         </div>
 
                         <div class="d-grid gap-2">
@@ -69,6 +87,25 @@
         </div>
     </div>
 </div>
+
 <div th:replace="~{layout :: scripts}"></div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/pl.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            language: "pl",
+            width: '100%',
+            placeholder: $(this).data('placeholder'),
+            allowClear: true
+        });
+    });
+</script>
+
 </body>
 </html>

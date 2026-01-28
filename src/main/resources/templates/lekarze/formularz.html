@@ -126,19 +126,16 @@
             let hasVisibleItems = false;
 
             specRows.forEach(row => {
-                // Pobieramy tekst z labela wewnątrz wiersza
                 const labelText = row.querySelector('.spec-label').innerText.toLowerCase();
 
-                // Sprawdzamy czy tekst zawiera szukaną frazę
                 if (labelText.includes(searchText)) {
-                    row.style.display = ""; // Pokaż (domyślny styl)
+                    row.style.display = "";
                     hasVisibleItems = true;
                 } else {
-                    row.style.display = "none"; // Ukryj
+                    row.style.display = "none";
                 }
             });
 
-            // Pokaż komunikat "Brak wyników", jeśli wszystko zostało ukryte
             if (!hasVisibleItems && specRows.length > 0) {
                 noResultsMsg.style.display = "block";
             } else {
