@@ -28,7 +28,7 @@
                     <label>Nazwa Handlowa *</label>
                     <input type="text" th:field="*{nazwaHandlowa}" class="form-control"
                            th:classappend="${#fields.hasErrors('nazwaHandlowa')} ? 'is-invalid' : ''"
-                           required placeholder="np. Apap">
+                           required placeholder="np. Apap" maxlength="100">
                     <div class="invalid-feedback" th:errors="*{nazwaHandlowa}">Błąd nazwy</div>
                 </div>
 

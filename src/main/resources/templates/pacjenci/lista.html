@@ -54,7 +54,7 @@
                     <td th:text="${p.pesel}" class="fw-bold"></td>
                     <td th:text="${p.imie} + ' ' + ${p.nazwisko}"></td>
                     <td>
-                        <div th:text="${p.adresZamieszkania}"></div>
+                        <div th:text="${p.adresZamieszkania}" style="max-width: 400px;"></div>
                         <small class="text-muted" th:text="'Tel: ' + ${p.telefonKontaktowy}"></small>
                         <small class="text-muted" th:if="${p.email}" th:text="' | Email: ' + ${p.email}"></small>
                     </td>

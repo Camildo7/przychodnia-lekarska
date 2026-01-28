@@ -15,13 +15,13 @@
                 <div class="mb-3">
                     <label>Nazwa Specjalizacji (ID) *</label>
                     <input type="text" th:field="*{nazwaSpecjalizacji}" class="form-control"
-                           th:readonly="${isEdit}" required placeholder="np. Chirurg">
+                           th:readonly="${isEdit}" required placeholder="np. Chirurg" maxlength="50">
                     <div class="form-text" th:if="${isEdit}">Nazwy nie można zmienić.</div>
                 </div>
 
                 <div class="mb-3">
                     <label>Opis *</label>
-                    <textarea th:field="*{opis}" class="form-control" rows="3" required></textarea>
+                    <textarea th:field="*{opis}" class="form-control" rows="3" maxlength="255" required></textarea>
                 </div>
 
                 <div class="d-grid gap-2">

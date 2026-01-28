@@ -237,15 +237,13 @@ public class ReceptaController {
         PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
         PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow();
 
-        // LOGIKA LIMITU:
-        // To co jest w magazynie + To co "trzymamy" w tej pozycji
         int stanMagazynowy = pozycja.getLek().getStanMagazynowy();
         int aktualniePrzypisane = pozycja.getIloscOpakowan();
         int maxIlosc = stanMagazynowy + aktualniePrzypisane;
 
         model.addAttribute("pozycja", pozycja);
         model.addAttribute("maxIlosc", maxIlosc);
-        model.addAttribute("stanMagazynowy", stanMagazynowy); // Do wyświetlenia informacji
+        model.addAttribute("stanMagazynowy", stanMagazynowy);
 
         return "recepty/edytuj_pozycje";
     }
@@ -260,7 +258,6 @@ public class ReceptaController {
                                 RedirectAttributes ra,
                                 Model model) {
         try {
-            // Próba zapisu przez serwis
             receptaService.edytujPozycjeZWalidacjaStanu(ean, pesel, kod, ilosc, dawkowanie);
 
             ra.addAttribute("kod", kod);
@@ -269,10 +266,8 @@ public class ReceptaController {
             return "redirect:/recepty/szczegoly";
 
         } catch (IllegalArgumentException e) {
-            // W razie błędu (ktoś próbował obejść zabezpieczenia):
             model.addAttribute("error", e.getMessage());
 
-            // Musimy ponownie załadować dane do widoku, żeby formularz nie był pusty
             PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
             PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow();
 

@@ -2,6 +2,7 @@ package pl.przychodnia.app.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import pl.przychodnia.app.validation.MaxBytes;
 
 @Entity
 @Table(name = "POZYCJE_RECEPTY")
@@ -26,5 +27,6 @@ public class PozycjaRecepty {
     private Integer iloscOpakowan;
 
     @Column(name = "DAWKOWANIE")
+    @MaxBytes(value = 100, message = "Opis dawkowania za długi (max 100 znaków - polskie znaki liczone x2)")
     private String dawkowanie;
 }

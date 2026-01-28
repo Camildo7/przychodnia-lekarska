@@ -30,13 +30,13 @@
                     <div class="col-md-6 mb-3">
                         <label>Imię *</label>
                         <input type="text" th:field="*{imie}" class="form-control"
-                               th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''" required>
+                               th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''" maxlength="50" required>
                         <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Nazwisko *</label>
                         <input type="text" th:field="*{nazwisko}" class="form-control"
-                               th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''" required>
+                               th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''" maxlength="50" required>
                         <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                 <div class="mb-3">
                     <label>Adres Zamieszkania *</label>
                     <input type="text" th:field="*{adresZamieszkania}" class="form-control"
-                           th:classappend="${#fields.hasErrors('adresZamieszkania')} ? 'is-invalid' : ''" required>
+                           th:classappend="${#fields.hasErrors('adresZamieszkania')} ? 'is-invalid' : ''" maxlength="150" required>
                     <div class="invalid-feedback" th:errors="*{adresZamieszkania}">Błąd adresu</div>
                 </div>
 
@@ -68,7 +68,7 @@
                     <div class="col-md-6 mb-3">
                         <label>Email</label>
                         <input type="email" th:field="*{email}" class="form-control"
-                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''" maxlength="100" >
                         <div class="invalid-feedback" th:errors="*{email}">Błąd email</div>
                     </div>
                 </div>
