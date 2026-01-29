@@ -107,8 +107,8 @@
                 <tbody>
                 <tr th:each="w : ${sprzety.content}">
                     <td th:text="${w.kodInwentarzowy}" class="fw-bold"></td>
-                    <td th:text="${w.nazwaSprzetu}"></td>
-                    <td>
+                    <td th:text="${w.nazwaSprzetu}" style="max-width: 250px;"></td>
+                    <td style="max-width: 250px;">
                         <span class="badge bg-secondary"
                               th:text="'Gab. ' + ${w.gabinet.numerGabinetu}"></span>
                         <small class="text-muted ms-1" th:text="${w.gabinet.opisFunkcji}"></small>
