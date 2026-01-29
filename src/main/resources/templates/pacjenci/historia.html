@@ -21,6 +21,7 @@
                 <thead>
                 <tr>
                     <th>Data Wizyty</th>
+                    <th>Wizyta</th>
                     <th>Lekarz</th>
                     <th>Rozpoznana Choroba</th>
                     <th>Zalecenia</th>
@@ -28,10 +29,13 @@
                 </thead>
                 <tbody>
                 <tr th:each="h : ${historia}">
-                    <td th:text="${h.dataWizyty}"></td>
-                    <td th:text="${h.lekarzNazwisko}"></td>
-                    <td th:text="${h.nazwaChoroby}" style="color: #d9534f; font-weight: bold;"></td>
-                    <td th:text="${h.zalecenia}"></td>
+                    <td th:text="${h.dataWizyty}" style="max-width: 250px;" ></td>
+                    <td style="max-width: 250px;"> <a th:href="@{/wizyta/{id}(id=${h.numerWizyty})}"
+                           class="text-decoration-none fw-bold"
+                           th:text="'Nr ' + ${h.numerWizyty}"></a></td>
+                    <td th:text="${h.lekarzNazwisko}" style="max-width: 250px;"></td>
+                    <td th:text="${h.nazwaChoroby}" style="color: #d9534f; font-weight: bold; max-width: 250px;" ></td>
+                    <td th:text="${h.zalecenia}" style="max-width: 250px;"></td>
                 </tr>
                 </tbody>
             </table>

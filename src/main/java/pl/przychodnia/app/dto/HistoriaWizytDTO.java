@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class HistoriaWizytDTO {
-    private String dataWizyty; // Zmiana z Date na String
+    private String dataWizyty;
+    private Long numerWizyty;
     private String lekarzNazwisko;
     private String nazwaChoroby;
     private String zalecenia;

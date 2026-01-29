@@ -72,4 +72,7 @@ public interface WizytaRepository extends JpaRepository<Wizyta, Long> {
                                       @Param("idEdytowanejWizyty") Long idEdytowanejWizyty,
                                       @Param("startMinus30") LocalDateTime startMinus30,
                                       @Param("startPlus30") LocalDateTime startPlus30);
+
+    @Query("SELECT w.numerWizyty FROM Wizyta w WHERE w.pacjent.pesel = :pesel AND w.dataIGodzina = :data")
+    Long znajdzIdWizyty(@Param("pesel") String pesel, @Param("data") LocalDateTime data);
 }

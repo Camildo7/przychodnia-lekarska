@@ -7,6 +7,7 @@ import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.przychodnia.app.dto.HistoriaWizytDTO;
+import pl.przychodnia.app.repository.WizytaRepository;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -21,6 +22,12 @@ public class PacjentService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private final WizytaRepository wizytaRepository;
+
+    public PacjentService(WizytaRepository wizytaRepository) {
+        this.wizytaRepository = wizytaRepository;
+    }
 
     @Transactional
     public void dodajPacjenta(String pesel, String imie, String nazwisko, String adres, String telefon) {
@@ -42,7 +49,6 @@ public class PacjentService {
     }
 
     @Transactional
-    @SuppressWarnings("unchecked")
     public List<HistoriaWizytDTO> pobierzHistorie(String pesel) {
         try {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery("obsluga_medyczna.pobierz_historie_pacjenta");
@@ -62,32 +68,46 @@ public class PacjentService {
             for (Object[] row : results) {
                 Object rawDate = row[0];
                 String dataStr = "Brak daty";
+                Long numerWizyty = null;
+
+                LocalDateTime dataDoSzukania = null;
 
                 if (rawDate != null) {
                     try {
-                        if (rawDate instanceof Timestamp) {
-                            dataStr = sdf.format((Timestamp) rawDate);
-                        } else if (rawDate instanceof java.sql.Date) {
+                        if (rawDate instanceof java.sql.Timestamp) {
+                            dataDoSzukania = ((java.sql.Timestamp) rawDate).toLocalDateTime();
+                            dataStr = sdf.format((java.sql.Timestamp) rawDate);
+                        }
+                        else if (rawDate instanceof java.sql.Date) {
+                            dataDoSzukania = ((java.sql.Date) rawDate).toLocalDate().atStartOfDay();
                             dataStr = sdf.format((java.sql.Date) rawDate);
-                        } else if (rawDate instanceof java.util.Date) {
-                            dataStr = sdf.format((java.util.Date) rawDate);
-                        } else if (rawDate instanceof LocalDateTime) {
-                            dataStr = ((LocalDateTime) rawDate).format(dtf);
-                        } else {
-                            // Jeśli to coś innego, np. String lub Oracle TIMESTAMP
+                        }
+                        else if (rawDate instanceof LocalDateTime) {
+                            dataDoSzukania = (LocalDateTime) rawDate;
+                            dataStr = dataDoSzukania.format(dtf);
+                        }
+                        else {
                             dataStr = rawDate.toString();
                         }
                     } catch (Exception e) {
-                        dataStr = "Błąd daty";
-                        System.err.println("Błąd formatowania: " + rawDate.getClass().getName());
+                        System.err.println("Błąd konwersji daty: " + e.getMessage());
+                    }
+                }
+
+                if (dataDoSzukania != null) {
+                    try {
+                        numerWizyty = wizytaRepository.znajdzIdWizyty(pesel, dataDoSzukania);
+                    } catch (Exception e) {
+                        System.err.println("Nie udało się znaleźć ID wizyty dla daty: " + dataDoSzukania);
                     }
                 }
 
                 historia.add(new HistoriaWizytDTO(
                         dataStr,
-                        (String) row[1],    // Lekarz
-                        (String) row[2],    // Choroba
-                        (String) row[3]     // Zalecenia
+                        numerWizyty,
+                        (String) row[1],
+                        (String) row[2],
+                        (String) row[3]
                 ));
             }
 
