@@ -49,8 +49,8 @@
                 </thead>
                 <tbody>
                 <tr th:each="s : ${specjalizacje.content}">
-                    <td th:text="${s.nazwaSpecjalizacji}" class="fw-bold"></td>
-                    <td th:text="${s.opis}"></td>
+                    <td th:text="${s.nazwaSpecjalizacji}" class="fw-bold" style="max-width: 250px;"></td>
+                    <td th:text="${s.opis}" style="max-width: 250px;"></td>
                     <td>
                         <div class="btn-group" role="group">
                             <a th:href="@{/admin/specjalizacje/edytuj/{id}(id=${s.nazwaSpecjalizacji})}" class="btn btn-sm btn-warning">Edytuj</a>

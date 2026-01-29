@@ -59,7 +59,7 @@
                 <tr th:each="g : ${gabinety.content}">
                     <td th:text="${g.numerGabinetu}" class="fw-bold"></td>
                     <td th:text="${g.pietro}"></td>
-                    <td th:text="${g.opisFunkcji}"></td>
+                    <td th:text="${g.opisFunkcji}" style="max-width: 250px;"></td>
                     <td>
                         <div class="btn-group" role="group">
                             <a th:href="@{/admin/gabinety/edytuj/{id}(id=${g.numerGabinetu})}" class="btn btn-sm btn-warning">Edytuj</a>

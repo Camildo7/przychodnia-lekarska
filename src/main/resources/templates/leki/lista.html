@@ -65,8 +65,8 @@
                 <tbody>
                 <tr th:each="l : ${leki.content}">
                     <td th:text="${l.kodEan}" class="fw-bold"></td>
-                    <td th:text="${l.nazwaHandlowa}"></td>
-                    <td th:text="${l.substancjaCzynna}"></td>
+                    <td th:text="${l.nazwaHandlowa}" style="max-width: 250px;"></td>
+                    <td th:text="${l.substancjaCzynna}" style="max-width: 250px;"></td>
                     <td>
                             <span th:text="${l.stanMagazynowy} + ' ' + ${l.jednostkaMiary}"
                                   th:class="${l.stanMagazynowy < 10} ? 'text-danger fw-bold' : ''"></span>

@@ -67,9 +67,9 @@
                 <tbody>
                 <tr th:each="p : ${pacjenci.content}">
                     <td th:text="${p.pesel}" class="fw-bold"></td>
-                    <td th:text="${p.imie} + ' ' + ${p.nazwisko}"></td>
+                    <td th:text="${p.imie} + ' ' + ${p.nazwisko}" style="max-width: 250px;"></td>
 
-                    <td th:text="${p.adresZamieszkania}"></td>
+                    <td th:text="${p.adresZamieszkania}" style="max-width: 250px;"></td>
 
                     <td>
                         <div th:text="${p.telefonKontaktowy}"></div>

@@ -91,7 +91,7 @@
                         <div th:text="${r.pacjent.nazwisko} + ' ' + ${r.pacjent.imie}"></div>
                         <small class="text-muted" th:text="${r.pacjent.pesel}"></small>
                     </td>
-                    <td th:text="${r.lekarz.nazwisko} + ' ' + ${r.lekarz.imie}"></td>
+                    <td th:text="${r.lekarz.nazwisko} + ' ' + ${r.lekarz.imie}" style="max-width: 250px;"></td>
                     <td th:text="${#temporals.format(r.dataWystawienia, 'dd-MM-yyyy')}"></td>
                     <td th:text="${#temporals.format(r.dataWaznosci, 'dd-MM-yyyy')}"></td>
 

@@ -123,10 +123,10 @@
                     <td th:text="${s.kodDokumentu}" class="fw-bold"></td>
                     <td th:text="${#temporals.format(s.dataWystawienia, 'dd-MM-yyyy')}"></td>
                     <td>
-                        <div th:text="${s.pacjent.nazwisko} + ' ' + ${s.pacjent.imie}"></div>
+                        <div th:text="${s.pacjent.nazwisko} + ' ' + ${s.pacjent.imie}" style="max-width: 250px;"></div>
                         <small class="text-muted" th:text="${s.pacjent.pesel}"></small>
                     </td>
-                    <td th:text="${s.lekarz.nazwisko} + ' ' + ${s.lekarz.imie}"></td>
+                    <td th:text="${s.lekarz.nazwisko} + ' ' + ${s.lekarz.imie}" style="max-width: 250px;"></td>
                     <td>
                         <span class="badge bg-info text-dark" th:text="${s.celBadania}"></span>
                         <div class="small text-muted" th:text="${s.rozpoznanieWstepne}"></div>

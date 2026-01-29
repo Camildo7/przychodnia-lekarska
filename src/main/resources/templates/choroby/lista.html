@@ -59,8 +59,8 @@
                     <tbody>
                     <tr th:each="c : ${choroby.content}">
                         <td><span class="badge bg-primary" th:text="${c.kodIcd10}"></span></td>
-                        <td th:text="${c.nazwaChoroby}" class="fw-bold"></td>
-                        <td th:text="${c.opisKliniczny}" class="text-muted small"></td>
+                        <td th:text="${c.nazwaChoroby}" class="fw-bold" style="max-width: 250px;"></td>
+                        <td th:text="${c.opisKliniczny}" class="text-muted small" style="max-width: 250px;"></td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a th:href="@{/admin/choroby/edycja/{id}(id=${c.kodIcd10})}" class="btn btn-sm btn-warning">Edytuj</a>
