@@ -19,13 +19,21 @@ public class  WizytaApiController {
     }
 
     @GetMapping
-    public List<CalendarEvent> getEvents(@RequestParam(required = false) String lekarzId) {
+    public List<CalendarEvent> getEvents(@RequestParam(required = false) String lekarzId,
+                                         @RequestParam(required = false) String pesel) {
         List<Wizyta> wizyty = wizytaRepo.findAll();
 
-        // Filtrowanie po lekarzu (jeśli wybrano)
+        // filtrowanie po lekarzu
         if (lekarzId != null && !lekarzId.isEmpty()) {
             wizyty = wizyty.stream()
                     .filter(w -> w.getLekarz().getNumerPwz().equals(lekarzId))
+                    .collect(Collectors.toList());
+        }
+
+        // filtrowanie po peselu pacjenta
+        if (pesel != null && !pesel.isEmpty()) {
+            wizyty = wizyty.stream()
+                    .filter(w -> w.getPacjent().getPesel().equals(pesel))
                     .collect(Collectors.toList());
         }
 
@@ -34,13 +42,10 @@ public class  WizytaApiController {
             e.setId(w.getNumerWizyty());
             e.setTitle(w.getPacjent().getNazwisko() + " " + w.getPacjent().getImie());
 
-            // START: Data z bazy
+            e.setTitle(w.getPacjent().getNazwisko() + " " + w.getPacjent().getImie());
             e.setStart(w.getDataIGodzina().toString());
-
-            // KONIEC: Na sztywno +30 minut
             e.setEnd(w.getDataIGodzina().plusMinutes(30).toString());
 
-            // Kolory: Zielony = Odbyta, Niebieski = Planowana
             if ("T".equals(w.getCzyOdbyta())) {
                 e.setColor("#198754"); // Green
             } else {
