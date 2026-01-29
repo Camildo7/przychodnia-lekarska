@@ -10,6 +10,9 @@ import pl.przychodnia.app.entity.Specjalizacja;
 import pl.przychodnia.app.repository.GabinetRepository;
 import pl.przychodnia.app.repository.SpecjalizacjaRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Controller
 @RequestMapping("/admin")
@@ -26,21 +29,29 @@ public class ZarzadzanieController {
     // --- GABINETY ---
     @GetMapping("/gabinety")
     public String listaGabinetow(@RequestParam(required = false) String szukaj,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "10") int size,
                                  @RequestParam(defaultValue = "numerGabinetu") String sortField,
                                  @RequestParam(defaultValue = "asc") String sortDir,
                                  Model model) {
 
         Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Gabinet> pageGabinety;
 
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("gabinety", gabinetRepo.findByOpisFunkcjiContainingIgnoreCase(szukaj, sort));
+            pageGabinety = gabinetRepo.findByOpisFunkcjiContainingIgnoreCase(szukaj, pageable);
         } else {
-            model.addAttribute("gabinety", gabinetRepo.findAll(sort));
+            pageGabinety = gabinetRepo.findAll(pageable);
         }
 
+        model.addAttribute("gabinety", pageGabinety);
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("szukaj", szukaj);
+
         return "gabinety/lista";
     }
 
@@ -87,21 +98,29 @@ public class ZarzadzanieController {
 
     @GetMapping("/specjalizacje")
     public String listaSpecjalizacji(@RequestParam(required = false) String szukaj,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "nazwaSpecjalizacji") String sortField,
                                      @RequestParam(defaultValue = "asc") String sortDir,
                                      Model model) {
 
         Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Specjalizacja> pageSpec;
 
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("specjalizacje", specRepo.findByNazwaSpecjalizacjiContainingIgnoreCase(szukaj, sort));
+            pageSpec = specRepo.findByNazwaSpecjalizacjiContainingIgnoreCase(szukaj, pageable);
         } else {
-            model.addAttribute("specjalizacje", specRepo.findAll(sort));
+            pageSpec = specRepo.findAll(pageable);
         }
 
+        model.addAttribute("specjalizacje", pageSpec);
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("szukaj", szukaj);
+
         return "specjalizacje/lista";
     }
 

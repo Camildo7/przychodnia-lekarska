@@ -46,10 +46,11 @@
                             </strong>
                         </div>
                     </div>
-                    <form action="/recepty/zapisz-pozycje" method="post">
-                        <input type="hidden" name="kod" th:value="${pozycja.kodDokumentu}">
-                        <input type="hidden" name="pesel" th:value="${pozycja.pesel}">
-                        <input type="hidden" name="ean" th:value="${pozycja.lek.kodEan}">
+                    <form action="/recepty/zapisz-pozycje" method="post" th:object="${edycjaPozycji}">
+
+                        <input type="hidden" th:field="*{kod}">
+                        <input type="hidden" th:field="*{pesel}">
+                        <input type="hidden" th:field="*{ean}">
 
                         <div class="mb-3">
                             <label class="form-label text-muted">Wybrany lek:</label>
@@ -59,16 +60,19 @@
                                    tabindex="-1"
                                    style="box-shadow: none !important; border-color: #dee2e6 !important; outline: none !important; cursor: default;">
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nowa ilość opakowań:</label>
                             <div class="input-group">
-                                <input type="number" name="ilosc" class="form-control form-control-lg"
-                                       th:value="${pozycja.iloscOpakowan}"
+                                <input type="number" th:field="*{ilosc}" class="form-control form-control-lg"
                                        min="1"
                                        th:max="${maxIlosc}"
                                        oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);"
+                                       th:classappend="${#fields.hasErrors('ilosc')} ? 'is-invalid' : ''"
                                        required>
                                 <span class="input-group-text">szt.</span>
+
+                                <div class="invalid-feedback" th:errors="*{ilosc}">Błąd ilości</div>
                             </div>
                             <div class="form-text text-muted">
                                 Limit dostępności: <span th:text="${maxIlosc}"></span> szt.
@@ -78,16 +82,18 @@
                         <div class="mb-3">
                             <label class="form-label">Dawkowanie:</label>
                             <div class="input-group">
-                                <input type="text" name="dawkowanie" class="form-control"
-                                       th:value="${pozycja.dawkowanie}"
+                                <input type="text" th:field="*{dawkowanie}" class="form-control"
                                        maxlength="100"
-                                       placeholder="np. 1x1 rano" required>
+                                       placeholder="np. 1x1 rano"
+                                       th:classappend="${#fields.hasErrors('dawkowanie')} ? 'is-invalid' : ''"
+                                       required>
+
+                                <div class="invalid-feedback" th:errors="*{dawkowanie}">Błąd dawkowania</div>
                             </div>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">Zapisz zmiany
-                            </button>
+                            <button type="submit" class="btn btn-success btn-lg">Zapisz zmiany</button>
                             <a th:href="@{/recepty/szczegoly(kod=${pozycja.kodDokumentu}, pesel=${pozycja.pesel})}"
                                class="btn btn-outline-secondary btn-lg">Anuluj
                             </a>

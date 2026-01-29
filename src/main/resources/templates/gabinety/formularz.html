@@ -9,16 +9,28 @@
             <h4 class="mb-0">Dane Gabinetu</h4>
         </div>
         <div class="card-body">
+
             <form action="/admin/gabinety/zapisz" method="post" th:object="${gabinet}">
                 <input type="hidden" th:field="*{numerGabinetu}">
 
                 <div class="mb-3">
-                    <label>Piętro *</label>
-                    <input type="number" th:field="*{pietro}" class="form-control" required>
+                    <label class="fw-bold">Piętro *</label>
+                    <input type="number" th:field="*{pietro}" class="form-control"
+                           th:classappend="${#fields.hasErrors('pietro')} ? 'is-invalid' : ''"
+                           min="0" max="99"
+                           oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);"
+                           required>
+
+                    <div class="invalid-feedback" th:errors="*{pietro}">Błąd danych piętra</div>
                 </div>
+
                 <div class="mb-3">
-                    <label>Opis Funkcji *</label>
-                    <input type="text" th:field="*{opisFunkcji}" class="form-control" placeholder="np. Zabiegowy" required>
+                    <label class="fw-bold">Opis Funkcji *</label>
+                    <input type="text" th:field="*{opisFunkcji}" class="form-control"
+                           th:classappend="${#fields.hasErrors('opisFunkcji')} ? 'is-invalid' : ''"
+                           placeholder="np. Zabiegowy" required maxlength="255">
+
+                    <div class="invalid-feedback" th:errors="*{opisFunkcji}">Błąd opisu</div>
                 </div>
 
                 <div class="d-grid gap-2">

@@ -14,9 +14,11 @@
 
     <form action="/recepty" method="get" class="mb-4">
         <div class="input-group">
-            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj (Kod, Pacjent, Lekarz, Data)..." th:value="${param.szukaj}">
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj (Kod, Pacjent, Lekarz, Data)..." th:value="${szukaj}">
+            <input type="hidden" name="sortField" th:value="${sortField}">
+            <input type="hidden" name="sortDir" th:value="${sortDir}">
 
-            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}" th:href="@{/recepty}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
+            <a th:if="${szukaj != null && !#strings.isEmpty(szukaj)}" th:href="@{/recepty}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
 
             <button class="btn btn-outline-primary" type="submit">Szukaj</button>
         </div>
@@ -24,15 +26,15 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <div th:if="${#lists.isEmpty(recepty)}" class="text-center py-4 text-muted">
+            <div th:if="${recepty.totalElements == 0}" class="text-center py-4 text-muted">
                 Brak recept spełniających kryteria.
             </div>
 
-            <table class="table table-hover" th:if="${!#lists.isEmpty(recepty)}">
+            <table class="table table-hover" th:if="${recepty.totalElements > 0}">
                 <thead class="table-light">
                 <tr>
                     <th>
-                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='kodDokumentu', sortDir=${sortField == 'kodDokumentu' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/recepty(szukaj=${szukaj}, page=0, sortField='kodDokumentu', sortDir=${sortField == 'kodDokumentu' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Kod
                             <span th:if="${sortField == 'kodDokumentu'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -40,7 +42,7 @@
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='pacjent.nazwisko', sortDir=${sortField == 'pacjent.nazwisko' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/recepty(szukaj=${szukaj}, page=0, sortField='pacjent.nazwisko', sortDir=${sortField == 'pacjent.nazwisko' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Pacjent
                             <span th:if="${sortField == 'pacjent.nazwisko'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -48,7 +50,7 @@
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='lekarz.nazwisko', sortDir=${sortField == 'lekarz.nazwisko' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/recepty(szukaj=${szukaj}, page=0, sortField='lekarz.nazwisko', sortDir=${sortField == 'lekarz.nazwisko' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Lekarz
                             <span th:if="${sortField == 'lekarz.nazwisko'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -56,25 +58,52 @@
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/recepty(szukaj=${param.szukaj}, sortField='dataWystawienia', sortDir=${sortField == 'dataWystawienia' ? reverseSortDir : 'desc'})}"
+                        <a th:href="@{/recepty(szukaj=${szukaj}, page=0, sortField='dataWystawienia', sortDir=${sortField == 'dataWystawienia' ? reverseSortDir : 'desc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
-                            Data
+                            Data Wystawienia
                             <span th:if="${sortField == 'dataWystawienia'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
                             <span th:unless="${sortField == 'dataWystawienia'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/recepty(szukaj=${szukaj}, page=0, sortField='dataWaznosci', sortDir=${sortField == 'dataWaznosci' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Data Ważności
+                            <span th:if="${sortField == 'dataWaznosci'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'dataWaznosci'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/recepty(szukaj=${szukaj}, page=0, sortField='wizyta.numerWizyty', sortDir=${sortField == 'wizyta.numerWizyty' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Nr. wizyty
+                            <span th:if="${sortField == 'wizyta.numerWizyty'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'wizyta.numerWizyty'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
                         </a>
                     </th>
                     <th>Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="r : ${recepty}">
+                <tr th:each="r : ${recepty.content}">
                     <td th:text="${r.kodDokumentu}" class="fw-bold"></td>
                     <td>
                         <div th:text="${r.pacjent.nazwisko} + ' ' + ${r.pacjent.imie}"></div>
                         <small class="text-muted" th:text="${r.pacjent.pesel}"></small>
                     </td>
                     <td th:text="${r.lekarz.nazwisko} + ' ' + ${r.lekarz.imie}"></td>
-                    <td th:text="${r.dataWystawienia}"></td>
+                    <td th:text="${#temporals.format(r.dataWystawienia, 'dd-MM-yyyy')}"></td>
+                    <td th:text="${#temporals.format(r.dataWaznosci, 'dd-MM-yyyy')}"></td>
+
+                    <td>
+                        <div th:if="${r.wizyta != null}">
+                            <a th:href="@{/wizyta/{id}(id=${r.wizyta.numerWizyty})}"
+                               class="text-decoration-none fw-bold"
+                               th:text="'Nr ' + ${r.wizyta.numerWizyty}"></a>
+                        </div>
+                        <div th:unless="${r.wizyta != null}" class="text-muted small">-</div>
+                    </td>
+
                     <td>
                         <div class="btn-group">
                             <a th:href="@{/recepty/szczegoly(kod=${r.kodDokumentu}, pesel=${r.pacjent.pesel})}"
@@ -87,6 +116,37 @@
                 </tr>
                 </tbody>
             </table>
+
+            <div th:if="${recepty.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+
+                        <li class="page-item" th:classappend="${recepty.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/recepty(szukaj=${szukaj}, page=${recepty.number - 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&laquo;</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, recepty.totalPages - 1)}"
+                            th:classappend="${i == recepty.number} ? 'active'">
+                            <a class="page-link" th:href="@{/recepty(szukaj=${szukaj}, page=${i}, sortField=${sortField}, sortDir=${sortDir})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${recepty.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/recepty(szukaj=${szukaj}, page=${recepty.number + 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="text-center text-muted small mt-2" th:if="${recepty.totalElements > 0}">
+                Wyświetlono <span th:text="${recepty.numberOfElements}"></span> z <span th:text="${recepty.totalElements}"></span> recept
+                (Strona <span th:text="${recepty.number + 1}"></span> z <span th:text="${recepty.totalPages}"></span>)
+            </div>
+
         </div>
     </div>
 </div>

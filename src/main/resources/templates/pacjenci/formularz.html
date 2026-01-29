@@ -29,15 +29,15 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label>Imię *</label>
-                        <input type="text" th:field="*{imie}" class="form-control"
+                        <input type="text" th:field="*{imie}" id="imieInput" class="form-control"
                                th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''" maxlength="50" required>
-                        <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
+                        <div class="invalid-feedback" th:errors="*{imie}">Błąd podczas wprowadzania imienia</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Nazwisko *</label>
-                        <input type="text" th:field="*{nazwisko}" class="form-control"
+                        <input type="text" th:field="*{nazwisko}" id="nazwiskoInput" class="form-control"
                                th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''" maxlength="50" required>
-                        <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
+                        <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd podczas wprowadzania nazwiska</div>
                     </div>
                 </div>
 
@@ -55,12 +55,12 @@
                             <span class="input-group-text">📞</span>
                             <input type="text" th:field="*{telefonKontaktowy}" class="form-control"
                                    id="phoneInput"
-                                   placeholder="+48 123 456 789"
+                                   placeholder="+48 600 100 200"
                                    maxlength="15"
                                    th:classappend="${#fields.hasErrors('telefonKontaktowy')} ? 'is-invalid' : ''"
                                    required>
                             <div class="invalid-feedback" th:errors="*{telefonKontaktowy}">
-                                Format: +48 123 456 789
+                                Format: +48 600 100 200
                             </div>
                         </div>
                         <div class="form-text">Wymagany format: +48 123 456 789 (ze spacjami)</div>
@@ -85,4 +85,54 @@
 
 <div th:replace="~{layout :: scripts}"></div>
 </body>
+<script>
+    const phoneInput = document.getElementById('phoneInput');
+
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function (e) {
+            let rawValue = e.target.value;
+
+            if (rawValue === '') return;
+
+            let digits = rawValue.replace(/\D/g, '');
+
+            if (digits.length === 0 && rawValue.includes('+')) {
+                e.target.value = '+';
+                return;
+            }
+
+            let x = digits.match(/(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,3})/);
+
+            if (x) {
+                e.target.value = '+' + x[1] +
+                    (x[2] ? ' ' + x[2] : '') +
+                    (x[3] ? ' ' + x[3] : '') +
+                    (x[4] ? ' ' + x[4] : '');
+            }
+        });
+
+        if (phoneInput.value !== "") {
+            phoneInput.dispatchEvent(new Event('input'));
+        }
+
+        const capitalizeFirstLetter = (e) => {
+            let val = e.target.value;
+            if (val.length > 0) {
+                e.target.value = val.charAt(0).toUpperCase() + val.slice(1);
+            }
+        };
+
+
+        const imieInput = document.getElementById('imieInput');
+        const nazwiskoInput = document.getElementById('nazwiskoInput');
+
+        if (imieInput) {
+            imieInput.addEventListener('input', capitalizeFirstLetter);
+        }
+        if (nazwiskoInput) {
+            nazwiskoInput.addEventListener('input', capitalizeFirstLetter);
+        }
+    }
+</script>
+
 </html>

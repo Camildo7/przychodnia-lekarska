@@ -34,7 +34,7 @@
                     <thead class="table-light">
                     <tr>
                         <th style="width: 15%">
-                            <a th:href="@{/admin/choroby(szukaj=${szukaj}, sortField='kodIcd10', sortDir=${sortField == 'kodIcd10' ? reverseSortDir : 'asc'})}"
+                            <a th:href="@{/admin/choroby(szukaj=${szukaj}, page=0, sortField='kodIcd10', sortDir=${sortField == 'kodIcd10' ? reverseSortDir : 'asc'})}"
                                class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                                 Kod
                                 <span th:if="${sortField == 'kodIcd10'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -43,7 +43,7 @@
                         </th>
 
                         <th style="width: 35%">
-                            <a th:href="@{/admin/choroby(szukaj=${szukaj}, sortField='nazwaChoroby', sortDir=${sortField == 'nazwaChoroby' ? reverseSortDir : 'asc'})}"
+                            <a th:href="@{/admin/choroby(szukaj=${szukaj}, page=0, sortField='nazwaChoroby', sortDir=${sortField == 'nazwaChoroby' ? reverseSortDir : 'asc'})}"
                                class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                                 Nazwa Choroby
                                 <span th:if="${sortField == 'nazwaChoroby'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -57,7 +57,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="c : ${choroby}">
+                    <tr th:each="c : ${choroby.content}">
                         <td><span class="badge bg-primary" th:text="${c.kodIcd10}"></span></td>
                         <td th:text="${c.nazwaChoroby}" class="fw-bold"></td>
                         <td th:text="${c.opisKliniczny}" class="text-muted small"></td>
@@ -69,12 +69,34 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(choroby)}">
+                    <tr th:if="${choroby.totalElements == 0}">
                         <td colspan="4" class="text-center text-muted py-3">Brak wyników wyszukiwania.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+
+            <div th:if="${choroby.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${choroby.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/choroby(szukaj=${szukaj}, page=${choroby.number - 1}, sortField=${sortField}, sortDir=${sortDir})}">&laquo;</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, choroby.totalPages - 1)}"
+                            th:classappend="${i == choroby.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/choroby(szukaj=${szukaj}, page=${i}, sortField=${sortField}, sortDir=${sortDir})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${choroby.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/choroby(szukaj=${szukaj}, page=${choroby.number + 1}, sortField=${sortField}, sortDir=${sortDir})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="text-center text-muted small mt-2" th:if="${choroby.totalElements > 0}">
+                Strona <span th:text="${choroby.number + 1}"></span> z <span th:text="${choroby.totalPages}"></span>
+            </div>
+
         </div>
     </div>
 </div>

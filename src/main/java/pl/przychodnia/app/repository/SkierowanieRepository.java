@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pl.przychodnia.app.entity.Skierowanie;
 import pl.przychodnia.app.entity.SkierowanieId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -15,7 +17,7 @@ public interface SkierowanieRepository extends JpaRepository<Skierowanie, Skiero
             "LOWER(s.kodDokumentu) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(s.pacjent.nazwisko) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(s.celBadania) LIKE LOWER(CONCAT('%', :szukaj, '%'))")
-    List<Skierowanie> szukajSkierowan(@Param("szukaj") String szukaj, Sort sort);
+    Page<Skierowanie> szukajSkierowan(@Param("szukaj") String szukaj, Pageable pageable);
 
     boolean existsByKodDokumentuAndPacjent_Pesel(String kodDokumentu, String pesel);
 }

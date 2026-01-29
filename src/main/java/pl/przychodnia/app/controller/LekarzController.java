@@ -9,6 +9,9 @@ import pl.przychodnia.app.entity.Lekarz;
 import pl.przychodnia.app.repository.LekarzRepository;
 import pl.przychodnia.app.repository.SpecjalizacjaRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Controller
 @RequestMapping("/lekarze")
@@ -24,21 +27,30 @@ public class LekarzController {
 
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "nazwisko") String sortField,
                         @RequestParam(defaultValue = "asc") String sortDir,
                         Model model) {
 
         Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Lekarz> pageLekarze;
 
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("lekarze", lekarzRepo.findByNazwiskoContainingIgnoreCaseOrNumerPwzContaining(szukaj, szukaj, sort));
+            pageLekarze = lekarzRepo.findByNazwiskoContainingIgnoreCaseOrNumerPwzContaining(szukaj, szukaj, pageable);
         } else {
-            model.addAttribute("lekarze", lekarzRepo.findAll(sort));
+            pageLekarze = lekarzRepo.findAll(pageable);
         }
+
+        model.addAttribute("lekarze", pageLekarze);
 
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("szukaj", szukaj);
+
         return "lekarze/lista";
     }
 

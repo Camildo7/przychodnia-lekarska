@@ -30,7 +30,7 @@
                 <thead class="table-light">
                 <tr>
                     <th>
-                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, sortField='pesel', sortDir=${sortField == 'pesel' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, page=0, sortField='pesel', sortDir=${sortField == 'pesel' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             PESEL
                             <span th:if="${sortField == 'pesel'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -38,26 +38,44 @@
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, sortField='nazwisko', sortDir=${sortField == 'nazwisko' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, page=0, sortField='nazwisko', sortDir=${sortField == 'nazwisko' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Imię i Nazwisko
                             <span th:if="${sortField == 'nazwisko'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
                             <span th:unless="${sortField == 'nazwisko'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
                         </a>
                     </th>
-                    <th>Dane kontaktowe</th>
+                    <th>
+                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, page=0, sortField='adresZamieszkania', sortDir=${sortField == 'adresZamieszkania' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Adres
+                            <span th:if="${sortField == 'adresZamieszkania'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'adresZamieszkania'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a th:href="@{/pacjenci(szukaj=${param.szukaj}, page=0, sortField='telefonKontaktowy', sortDir=${sortField == 'telefonKontaktowy' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Telefon
+                            <span th:if="${sortField == 'telefonKontaktowy'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'telefonKontaktowy'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
                     <th>Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="p : ${pacjenci}">
+                <tr th:each="p : ${pacjenci.content}">
                     <td th:text="${p.pesel}" class="fw-bold"></td>
                     <td th:text="${p.imie} + ' ' + ${p.nazwisko}"></td>
+
+                    <td th:text="${p.adresZamieszkania}"></td>
+
                     <td>
-                        <div th:text="${p.adresZamieszkania}" style="max-width: 400px;"></div>
-                        <small class="text-muted" th:text="'Tel: ' + ${p.telefonKontaktowy}"></small>
-                        <small class="text-muted" th:if="${p.email}" th:text="' | Email: ' + ${p.email}"></small>
+                        <div th:text="${p.telefonKontaktowy}"></div>
+                        <small class="text-muted" th:if="${p.email}" th:text="${p.email}"></small>
                     </td>
+
                     <td>
                         <div class="btn-group" role="group">
                             <a th:href="@{/pacjenci/historia/{id}(id=${p.pesel})}" class="btn btn-sm btn-info text-white">
@@ -75,6 +93,36 @@
                 </tr>
                 </tbody>
             </table>
+
+            <div th:if="${pacjenci.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+
+                        <li class="page-item" th:classappend="${pacjenci.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/pacjenci(szukaj=${param.szukaj}, page=${pacjenci.number - 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&laquo;</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, pacjenci.totalPages - 1)}"
+                            th:classappend="${i == pacjenci.number} ? 'active'">
+                            <a class="page-link" th:href="@{/pacjenci(szukaj=${param.szukaj}, page=${i}, sortField=${sortField}, sortDir=${sortDir})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${pacjenci.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/pacjenci(szukaj=${param.szukaj}, page=${pacjenci.number + 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="text-center text-muted small mt-2" th:if="${pacjenci.totalElements > 0}">
+                Strona <span th:text="${pacjenci.number + 1}"></span> z <span th:text="${pacjenci.totalPages}"></span>
+                (Łącznie <span th:text="${pacjenci.totalElements}"></span> pacjentów)
+            </div>
         </div>
     </div>
 </div>

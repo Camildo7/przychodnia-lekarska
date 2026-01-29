@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.przychodnia.app.entity.Choroba;
 import pl.przychodnia.app.service.ChorobaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -25,10 +29,15 @@ public class ChorobaController {
     @GetMapping
     public String listaChorob(Model model,
                               @RequestParam(required = false) String szukaj,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
                               @RequestParam(defaultValue = "kodIcd10") String sortField,
                               @RequestParam(defaultValue = "asc") String sortDir) {
 
-        List<Choroba> choroby = chorobaService.pobierzWszystkie(szukaj, sortField, sortDir);
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Choroba> choroby = chorobaService.pobierzWszystkie(szukaj, pageable);
 
         model.addAttribute("choroby", choroby);
         model.addAttribute("szukaj", szukaj);

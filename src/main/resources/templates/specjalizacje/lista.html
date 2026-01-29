@@ -29,19 +29,26 @@
                 <thead class="table-light">
                 <tr>
                     <th>
-                        <a th:href="@{/admin/specjalizacje(szukaj=${param.szukaj}, sortField='nazwaSpecjalizacji', sortDir=${sortField == 'nazwaSpecjalizacji' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/admin/specjalizacje(szukaj=${param.szukaj}, page=0, sortField='nazwaSpecjalizacji', sortDir=${sortField == 'nazwaSpecjalizacji' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Nazwa
                             <span th:if="${sortField == 'nazwaSpecjalizacji'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
                             <span th:unless="${sortField == 'nazwaSpecjalizacji'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
                         </a>
                     </th>
-                    <th>Opis</th>
+                    <th>
+                        <a th:href="@{/admin/specjalizacje(szukaj=${param.szukaj}, page=0, sortField='opis', sortDir=${sortField == 'opis' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                            Opis
+                            <span th:if="${sortField == 'opis'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'opis'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
                     <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="s : ${specjalizacje}">
+                <tr th:each="s : ${specjalizacje.content}">
                     <td th:text="${s.nazwaSpecjalizacji}" class="fw-bold"></td>
                     <td th:text="${s.opis}"></td>
                     <td>
@@ -54,6 +61,36 @@
                 </tr>
                 </tbody>
             </table>
+
+            <div th:if="${specjalizacje.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+
+                        <li class="page-item" th:classappend="${specjalizacje.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/specjalizacje(szukaj=${param.szukaj}, page=${specjalizacje.number - 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&laquo;</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, specjalizacje.totalPages - 1)}"
+                            th:classappend="${i == specjalizacje.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/specjalizacje(szukaj=${param.szukaj}, page=${i}, sortField=${sortField}, sortDir=${sortDir})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${specjalizacje.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/specjalizacje(szukaj=${param.szukaj}, page=${specjalizacje.number + 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="text-center text-muted small mt-2" th:if="${specjalizacje.totalElements > 0}">
+                Strona <span th:text="${specjalizacje.number + 1}"></span> z <span th:text="${specjalizacje.totalPages}"></span>
+                (Łącznie <span th:text="${specjalizacje.totalElements}"></span> specjalizacji)
+            </div>
         </div>
     </div>
 </div>

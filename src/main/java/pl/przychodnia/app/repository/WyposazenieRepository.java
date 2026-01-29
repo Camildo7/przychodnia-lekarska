@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 import pl.przychodnia.app.entity.Wyposazenie;
 import java.util.List;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface WyposazenieRepository extends JpaRepository<Wyposazenie, String> {
 
@@ -14,5 +16,5 @@ public interface WyposazenieRepository extends JpaRepository<Wyposazenie, String
             "LOWER(w.nazwaSprzetu) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(w.kodInwentarzowy) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(w.gabinet.opisFunkcji) LIKE LOWER(CONCAT('%', :szukaj, '%'))")
-    List<Wyposazenie> szukajSprzetu(@Param("szukaj") String szukaj, Sort sort);
+    Page<Wyposazenie> szukajSprzetu(@Param("szukaj") String szukaj, Pageable pageable);
 }

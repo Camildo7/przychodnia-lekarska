@@ -26,17 +26,17 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label>Imię *</label>
-                        <input type="text" th:field="*{imie}" class="form-control"
+                        <input type="text" th:field="*{imie}" id="imieInput" class="form-control"
                                th:classappend="${#fields.hasErrors('imie')} ? 'is-invalid' : ''"
                                required placeholder="np. Jan" maxlength="50">
-                        <div class="invalid-feedback" th:errors="*{imie}">Błąd imienia</div>
+                        <div class="invalid-feedback" th:errors="*{imie}">Błąd podczas wprowadzania imienia</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Nazwisko *</label>
-                        <input type="text" th:field="*{nazwisko}" class="form-control"
+                        <input type="text" th:field="*{nazwisko}" id="nazwiskoInput" class="form-control"
                                th:classappend="${#fields.hasErrors('nazwisko')} ? 'is-invalid' : ''"
                                required placeholder="np. Kowalski" maxlength="50">
-                        <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd nazwiska</div>
+                        <div class="invalid-feedback" th:errors="*{nazwisko}">Błąd podczas wprowadzania nazwiska</div>
                     </div>
                 </div>
 
@@ -50,16 +50,16 @@
 
                 <div class="mb-3">
                     <label>Telefon Służbowy *</label>
-                    <input type="text" th:field="*{telefonSluzbowy}" class="form-control"
+                    <input type="text" th:field="*{telefonSluzbowy}" id="telefonInput" class="form-control"
                            placeholder="+48 600 100 200"
                            maxlength="15"
                            th:classappend="${#fields.hasErrors('telefonSluzbowy')} ? 'is-invalid' : ''">
 
                     <div class="invalid-feedback" th:errors="*{telefonSluzbowy}">
-                        Wymagany format: +48 xxx xxx xxx
+                        Wymagany format: +48 600 100 200
                     </div>
                     <div class="form-text text-muted">
-                        Wpisz numer z kierunkowym i spacjami, np.: <strong>+48 600 123 456</strong>
+                        Wpisz numer np.: <strong>+48 600 123 456</strong>
                     </div>
                 </div>
 
@@ -117,31 +117,81 @@
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+
         const searchInput = document.getElementById('specSearchInput');
         const specRows = document.querySelectorAll('.spec-row');
         const noResultsMsg = document.getElementById('noResultsMsg');
 
-        searchInput.addEventListener('keyup', function(e) {
-            const searchText = e.target.value.toLowerCase();
-            let hasVisibleItems = false;
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(e) {
+                const searchText = e.target.value.toLowerCase();
+                let hasVisibleItems = false;
 
-            specRows.forEach(row => {
-                const labelText = row.querySelector('.spec-label').innerText.toLowerCase();
+                specRows.forEach(row => {
+                    const labelText = row.querySelector('.spec-label').innerText.toLowerCase();
 
-                if (labelText.includes(searchText)) {
-                    row.style.display = "";
-                    hasVisibleItems = true;
+                    if (labelText.includes(searchText)) {
+                        row.style.display = "";
+                        hasVisibleItems = true;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
+                if (!hasVisibleItems && specRows.length > 0) {
+                    noResultsMsg.style.display = "block";
                 } else {
-                    row.style.display = "none";
+                    noResultsMsg.style.display = "none";
+                }
+            });
+        }
+
+        const phoneInput = document.getElementById('telefonInput');
+
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function (e) {
+                let rawValue = e.target.value;
+
+                if (rawValue === '') return;
+
+                let digits = rawValue.replace(/\D/g, '');
+
+                if (digits.length === 0 && rawValue.includes('+')) {
+                    e.target.value = '+';
+                    return;
+                }
+
+                let x = digits.match(/(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,3})/);
+
+                if (x) {
+                    e.target.value = '+' + x[1] +
+                        (x[2] ? ' ' + x[2] : '') +
+                        (x[3] ? ' ' + x[3] : '') +
+                        (x[4] ? ' ' + x[4] : '');
                 }
             });
 
-            if (!hasVisibleItems && specRows.length > 0) {
-                noResultsMsg.style.display = "block";
-            } else {
-                noResultsMsg.style.display = "none";
+            if (phoneInput.value !== "") {
+                phoneInput.dispatchEvent(new Event('input'));
             }
-        });
+        }
+
+        const capitalizeFirstLetter = (e) => {
+            let val = e.target.value;
+            if (val.length > 0) {
+                e.target.value = val.charAt(0).toUpperCase() + val.slice(1);
+            }
+        };
+
+        const imieInput = document.getElementById('imieInput');
+        const nazwiskoInput = document.getElementById('nazwiskoInput');
+
+        if (imieInput) {
+            imieInput.addEventListener('input', capitalizeFirstLetter);
+        }
+        if (nazwiskoInput) {
+            nazwiskoInput.addEventListener('input', capitalizeFirstLetter);
+        }
     });
 </script>
 </html>

@@ -12,6 +12,10 @@ import pl.przychodnia.app.entity.Wizyta;
 import pl.przychodnia.app.repository.*;
 import pl.przychodnia.app.service.ReceptaService;
 import org.springframework.data.domain.Sort;
+import pl.przychodnia.app.validation.MaxBytes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 
@@ -36,21 +40,30 @@ public class ReceptaController {
     // --- LISTA ---
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "0") int page,   // Numer strony (start od 0)
+                        @RequestParam(defaultValue = "10") int size,  // Elementów na stronę
                         @RequestParam(defaultValue = "dataWystawienia") String sortField,
                         @RequestParam(defaultValue = "desc") String sortDir,
                         Model model) {
 
         Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Recepta> pageRecept;
 
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("recepty", receptaRepo.szukajRecept(szukaj, sort));
+            pageRecept = receptaRepo.szukajRecept(szukaj, pageable);
         } else {
-            model.addAttribute("recepty", receptaRepo.findAll(sort));
+            pageRecept = receptaRepo.findAll(pageable);
         }
+
+        model.addAttribute("recepty", pageRecept);
 
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("szukaj", szukaj);
+
         return "recepty/lista";
     }
 
@@ -110,37 +123,68 @@ public class ReceptaController {
     @GetMapping("/szczegoly")
     public String szczegoly(@RequestParam String kod, @RequestParam String pesel, Model model) {
         ReceptaId id = new ReceptaId(kod, pesel);
-        Recepta recepta = receptaRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Nie znaleziono recepty"));
+        Recepta recepta = receptaRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono recepty"));
 
         model.addAttribute("recepta", recepta);
         model.addAttribute("pozycje", pozycjaRepo.findByKodDokumentuAndPesel(kod, pesel));
-        model.addAttribute("leki", lekRepo.findAll());
+        model.addAttribute("leki", lekRepo.findAll(Sort.by("nazwaHandlowa"))); // Warto posortować
+
+        DodajPozycjeForm form = new DodajPozycjeForm();
+        form.setKodDok(kod);
+        form.setPesel(pesel);
+        model.addAttribute("nowaPozycja", form);
+
         return "recepty/szczegoly";
     }
 
-    // --- DODAWANIE POZYCJI ---
+    // --- DODAWANIE POZYCJI (ZMODYFIKOWANE) ---
     @PostMapping("/dodaj-pozycje")
-    public String dodajPozycje(@RequestParam String kodDok, @RequestParam String pesel,
-                               @RequestParam String kodLeku, @RequestParam int ilosc,
-                               @RequestParam String dawkowanie, RedirectAttributes ra) {
+    public String dodajPozycje(@jakarta.validation.Valid @ModelAttribute("nowaPozycja") DodajPozycjeForm form,
+                               org.springframework.validation.BindingResult result,
+                               Model model,
+                               RedirectAttributes ra) {
+
+        if (result.hasErrors()) {
+            ReceptaId id = new ReceptaId(form.getKodDok(), form.getPesel());
+            Recepta r = receptaRepo.findById(id).orElseThrow();
+
+            model.addAttribute("recepta", r);
+            model.addAttribute("pozycje", pozycjaRepo.findByKodDokumentuAndPesel(form.getKodDok(), form.getPesel()));
+            model.addAttribute("leki", lekRepo.findAll(Sort.by("nazwaHandlowa")));
+
+            return "recepty/szczegoly";
+        }
+
         try {
-            receptaService.dodajPozycje(kodDok, pesel, kodLeku, ilosc, dawkowanie);
-            ra.addFlashAttribute("success", "Dodano lek.");
+            receptaService.dodajPozycje(
+                    form.getKodDok(),
+                    form.getPesel(),
+                    form.getKodLeku(),
+                    form.getIlosc(),
+                    form.getDawkowanie()
+            );
+
+            ra.addAttribute("kod", form.getKodDok());
+            ra.addAttribute("pesel", form.getPesel());
+            ra.addFlashAttribute("success", "Dodano lek do recepty.");
+            return "redirect:/recepty/szczegoly";
+
         } catch (Exception e) {
+            // 3. Łapanie błędów bazy danych
+            ra.addAttribute("kod", form.getKodDok());
+            ra.addAttribute("pesel", form.getPesel());
+
             String msg = e.getMessage();
             if (msg != null && msg.contains("ORA-20011")) {
                 ra.addFlashAttribute("error", "Brak wystarczającej ilości leku w magazynie!");
-            }
-            else if (msg != null && msg.contains("ORA-00001")) {
+            } else if (msg != null && msg.contains("ORA-00001")) {
                 ra.addFlashAttribute("error", "Ten lek znajduje się już na recepcie!");
+            } else {
+                ra.addFlashAttribute("error", "Błąd dodawania: " + msg);
             }
-            else {
-                ra.addFlashAttribute("error", "Błąd dodawania pozycji.");
-            }
+            return "redirect:/recepty/szczegoly";
         }
-        ra.addAttribute("kod", kodDok);
-        ra.addAttribute("pesel", pesel);
-        return "redirect:/recepty/szczegoly";
     }
 
     // --- USUWANIE CAŁEJ RECEPTY ---
@@ -228,7 +272,7 @@ public class ReceptaController {
 
 
 
-    // --- EDYCJA POZYCJI (Widok formularza) ---
+    // EDYCJA POZYCJI
     @GetMapping("/edytuj-pozycje")
     public String edytujPozycje(@RequestParam String kod,
                                 @RequestParam String pesel,
@@ -245,30 +289,28 @@ public class ReceptaController {
         model.addAttribute("maxIlosc", maxIlosc);
         model.addAttribute("stanMagazynowy", stanMagazynowy);
 
+        EdytujPozycjeForm form = new EdytujPozycjeForm();
+        form.setKod(kod);
+        form.setPesel(pesel);
+        form.setEan(ean);
+        form.setIlosc(pozycja.getIloscOpakowan());
+        form.setDawkowanie(pozycja.getDawkowanie());
+
+        model.addAttribute("edycjaPozycji", form);
+
         return "recepty/edytuj_pozycje";
     }
 
-    // --- ZAPIS POZYCJI (Przetwarzanie formularza) ---
+    // ZAPIS POZYCJI
     @PostMapping("/zapisz-pozycje")
-    public String zapiszPozycje(@RequestParam String kod,
-                                @RequestParam String pesel,
-                                @RequestParam String ean,
-                                @RequestParam Integer ilosc,
-                                @RequestParam String dawkowanie,
+    public String zapiszPozycje(@jakarta.validation.Valid @ModelAttribute("edycjaPozycji") EdytujPozycjeForm form,
+                                org.springframework.validation.BindingResult result,
                                 RedirectAttributes ra,
                                 Model model) {
-        try {
-            receptaService.edytujPozycjeZWalidacjaStanu(ean, pesel, kod, ilosc, dawkowanie);
 
-            ra.addAttribute("kod", kod);
-            ra.addAttribute("pesel", pesel);
-            ra.addFlashAttribute("success", "Zaktualizowano pozycję.");
-            return "redirect:/recepty/szczegoly";
-
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
-
-            PozycjaReceptyId id = new PozycjaReceptyId(ean, pesel, kod);
+        // walidacja formularza
+        if (result.hasErrors()) {
+            PozycjaReceptyId id = new PozycjaReceptyId(form.getEan(), form.getPesel(), form.getKod());
             PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow();
 
             int stanMagazynowy = pozycja.getLek().getStanMagazynowy();
@@ -280,5 +322,71 @@ public class ReceptaController {
 
             return "recepty/edytuj_pozycje";
         }
+
+        try {
+            receptaService.edytujPozycjeZWalidacjaStanu(
+                    form.getEan(),
+                    form.getPesel(),
+                    form.getKod(),
+                    form.getIlosc(),
+                    form.getDawkowanie()
+            );
+
+            ra.addAttribute("kod", form.getKod());
+            ra.addAttribute("pesel", form.getPesel());
+            ra.addFlashAttribute("success", "Zaktualizowano pozycję.");
+            return "redirect:/recepty/szczegoly";
+
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+
+            PozycjaReceptyId id = new PozycjaReceptyId(form.getEan(), form.getPesel(), form.getKod());
+            PozycjaRecepty pozycja = pozycjaRepo.findById(id).orElseThrow();
+
+            int stanMagazynowy = pozycja.getLek().getStanMagazynowy();
+            int maxIlosc = stanMagazynowy + pozycja.getIloscOpakowan();
+
+            model.addAttribute("pozycja", pozycja);
+            model.addAttribute("maxIlosc", maxIlosc);
+            model.addAttribute("stanMagazynowy", stanMagazynowy);
+
+            return "recepty/edytuj_pozycje";
+        }
+    }
+
+    @lombok.Data
+    class EdytujPozycjeForm {
+        private String kod;
+        private String pesel;
+        private String ean;
+
+        @jakarta.validation.constraints.NotNull(message = "Ilość jest wymagana.")
+        @jakarta.validation.constraints.Min(value = 1, message = "Ilość musi być większa od 0.")
+        private Integer ilosc;
+
+        @jakarta.validation.constraints.NotBlank(message = "Dawkowanie nie może być puste.")
+        @jakarta.validation.constraints.Size(max = 100, message = "Opis dawkowania za długi (max 100 znaków).")
+        @MaxBytes(value = 100, message = "Opis za długi (max 100 bajtów - polskie znaki liczone x2)")
+        private String dawkowanie;
+    }
+
+    @lombok.Data
+    class DodajPozycjeForm {
+        private String kodDok;
+        private String pesel;
+
+        @jakarta.validation.constraints.NotBlank(message = "Musisz wybrać lek z listy.")
+        private String kodLeku;
+
+        @jakarta.validation.constraints.NotNull(message = "Podaj ilość.")
+        @jakarta.validation.constraints.Min(value = 1, message = "Ilość musi być większa od 0.")
+        @jakarta.validation.constraints.Max(value = 50, message = "Maksymalnie 50 opakowań.")
+        private Integer ilosc = 1;
+
+        @jakarta.validation.constraints.NotBlank(message = "Dawkowanie jest wymagane.")
+        @jakarta.validation.constraints.Size(max = 100, message = "Dawkowanie za długie (max 100 znaków).")
+        // TO JEST KLUCZOWE:
+        @MaxBytes(value = 100, message = "Dawkowanie za długie (max 100 znaków - polskie znaki liczone x2)")
+        private String dawkowanie;
     }
 }

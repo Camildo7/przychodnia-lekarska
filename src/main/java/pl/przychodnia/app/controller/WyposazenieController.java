@@ -9,6 +9,9 @@ import pl.przychodnia.app.entity.Wyposazenie;
 import pl.przychodnia.app.repository.GabinetRepository;
 import pl.przychodnia.app.repository.WyposazenieRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Controller
 @RequestMapping("/wyposazenie")
@@ -24,21 +27,30 @@ public class WyposazenieController {
 
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "nazwaSprzetu") String sortField,
                         @RequestParam(defaultValue = "asc") String sortDir,
                         Model model) {
 
         Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Wyposazenie> pageSprzety;
 
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("sprzety", wypoRepo.szukajSprzetu(szukaj, sort));
+            pageSprzety = wypoRepo.szukajSprzetu(szukaj, pageable);
         } else {
-            model.addAttribute("sprzety", wypoRepo.findAll(sort));
+            pageSprzety = wypoRepo.findAll(pageable);
         }
+
+        model.addAttribute("sprzety", pageSprzety);
 
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("szukaj", szukaj);
+
         return "wyposazenie/lista";
     }
 

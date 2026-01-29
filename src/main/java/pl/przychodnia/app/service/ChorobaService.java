@@ -1,12 +1,11 @@
 package pl.przychodnia.app.service;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.przychodnia.app.entity.Choroba;
 import pl.przychodnia.app.repository.ChorobaRepository;
-
-import java.util.List;
 
 @Service
 public class ChorobaService {
@@ -17,13 +16,11 @@ public class ChorobaService {
         this.chorobaRepo = chorobaRepo;
     }
 
-    public List<Choroba> pobierzWszystkie(String keyword, String sortField, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
-
+    public Page<Choroba> pobierzWszystkie(String keyword, Pageable pageable) {
         if (keyword != null && !keyword.isEmpty()) {
-            return chorobaRepo.search(keyword, sort);
+            return chorobaRepo.search(keyword, pageable);
         }
-        return chorobaRepo.findAll(sort);
+        return chorobaRepo.findAll(pageable);
     }
 
     public Choroba pobierzPoKodzie(String kod) {

@@ -22,10 +22,12 @@ public class Choroba {
     @Column(name = "NAZWA_CHOROBY", nullable = false)
     @NotEmpty(message = "Nazwa choroby jest wymagana")
     @MaxBytes(value = 100, message = "Nazwa choroby za długa (max 100 znaków - polskie znaki liczone x2)")
+    @Size(max = 100, message = "Nazwa max 100 znaków")
     private String nazwaChoroby;
 
     @Column(name = "OPIS_KLINICZNY")
     @MaxBytes(value = 500, message = "Opis kliniczny za długi (max 500 znaków - polskie znaki liczone x2)")
+    @Size(max = 500, message = "Opis max 500 znaków")
     private String opisKliniczny;
 
     public String getKodIcd10() { return kodIcd10; }

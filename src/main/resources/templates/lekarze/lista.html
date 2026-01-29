@@ -5,23 +5,19 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Personel Medyczny</h1>
+        <h1>Baza Lekarzy</h1>
         <a href="/lekarze/nowy" class="btn btn-success">+ Dodaj Lekarza</a>
     </div>
 
     <form action="/lekarze" method="get" class="mb-4">
         <div class="input-group">
-            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj lekarza (Nazwisko lub PWZ)..." th:value="${param.szukaj}">
-
-            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}" th:href="@{/lekarze}" class="btn btn-outline-secondary" title="Wyczyść filtr">&times;</a>
-
+            <input type="text" name="szukaj" class="form-control" placeholder="Szukaj (Nazwisko lub PWZ)..." th:value="${param.szukaj}">
+            <a th:if="${param.szukaj != null && !#strings.isEmpty(param.szukaj)}" th:href="@{/lekarze}" class="btn btn-outline-secondary">&times;</a>
             <button class="btn btn-outline-primary" type="submit">Szukaj</button>
         </div>
     </form>
 
-    <div th:if="${param.error}" class="alert alert-danger">
-        Nie można usunąć lekarza (posiada wizyty lub recepty).
-    </div>
+    <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -29,37 +25,58 @@
                 <thead class="table-light">
                 <tr>
                     <th>
-                        <a th:href="@{/lekarze(szukaj=${param.szukaj}, sortField='numerPwz', sortDir=${sortField == 'numerPwz' ? reverseSortDir : 'asc'})}"
-                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                        <a th:href="@{/lekarze(szukaj=${param.szukaj}, page=0, sortField='numerPwz', sortDir=${sortField == 'numerPwz' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between">
                             PWZ
                             <span th:if="${sortField == 'numerPwz'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
                             <span th:unless="${sortField == 'numerPwz'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/lekarze(szukaj=${param.szukaj}, sortField='nazwisko', sortDir=${sortField == 'nazwisko' ? reverseSortDir : 'asc'})}"
-                           class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
-                            Nazwisko i Imię
+                        <a th:href="@{/lekarze(szukaj=${param.szukaj}, page=0, sortField='nazwisko', sortDir=${sortField == 'nazwisko' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between">
+                            Imię i Nazwisko
                             <span th:if="${sortField == 'nazwisko'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
                             <span th:unless="${sortField == 'nazwisko'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
                         </a>
                     </th>
                     <th>Specjalizacje</th>
-                    <th>Telefon</th>
+
+                    <th>
+                        <a th:href="@{/lekarze(szukaj=${param.szukaj}, page=0, sortField='telefonSluzbowy', sortDir=${sortField == 'telefonSluzbowy' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between">
+                            Telefon Służbowy
+                            <span th:if="${sortField == 'telefonSluzbowy'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'telefonSluzbowy'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/lekarze(szukaj=${param.szukaj}, page=0, sortField='dataZatrudnienia', sortDir=${sortField == 'dataZatrudnienia' ? reverseSortDir : 'asc'})}"
+                           class="text-decoration-none text-dark d-flex justify-content-between">
+                            Data Zatrudnienia
+                            <span th:if="${sortField == 'dataZatrudnienia'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
+                            <span th:unless="${sortField == 'dataZatrudnienia'}" class="text-muted opacity-25"><i class="bi bi-arrow-down-up"></i></span>
+                        </a>
+                    </th>
+
                     <th>Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="l : ${lekarze}">
+                <tr th:each="l : ${lekarze.content}">
                     <td th:text="${l.numerPwz}" class="fw-bold"></td>
-                    <td th:text="${l.imie} + ' ' + ${l.nazwisko}"></td>
+                    <td th:text="${l.nazwisko} + ' ' + ${l.imie}"></td>
                     <td>
-                        <span th:each="s : ${l.specjalizacje}" th:text="${s.nazwaSpecjalizacji}"
-                              class="badge bg-info text-dark me-1"></span>
+                        <span th:each="s : ${l.specjalizacje}" class="badge bg-info text-dark me-1" th:text="${s.nazwaSpecjalizacji}"></span>
                     </td>
+
                     <td th:text="${l.telefonSluzbowy}"></td>
+
+                    <td th:text="${#temporals.format(l.dataZatrudnienia, 'dd-MM-yyyy')}"></td>
+
                     <td>
-                        <div class="btn-group" role="group">
+                        <div class="btn-group">
                             <a th:href="@{/lekarze/edytuj/{id}(id=${l.numerPwz})}" class="btn btn-sm btn-warning">Edytuj</a>
                             <a th:href="@{/lekarze/usun/{id}(id=${l.numerPwz})}" class="btn btn-sm btn-danger"
                                onclick="return confirm('Usunąć lekarza?')">Usuń</a>
@@ -68,6 +85,27 @@
                 </tr>
                 </tbody>
             </table>
+
+            <div th:if="${lekarze.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${lekarze.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/lekarze(szukaj=${param.szukaj}, page=${lekarze.number - 1}, sortField=${sortField}, sortDir=${sortDir})}">&laquo;</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, lekarze.totalPages - 1)}"
+                            th:classappend="${i == lekarze.number} ? 'active'">
+                            <a class="page-link" th:href="@{/lekarze(szukaj=${param.szukaj}, page=${i}, sortField=${sortField}, sortDir=${sortDir})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${lekarze.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/lekarze(szukaj=${param.szukaj}, page=${lekarze.number + 1}, sortField=${sortField}, sortDir=${sortDir})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="text-center text-muted small mt-2" th:if="${lekarze.totalElements > 0}">
+                Strona <span th:text="${lekarze.number + 1}"></span> z <span th:text="${lekarze.totalPages}"></span>
+            </div>
         </div>
     </div>
 </div>

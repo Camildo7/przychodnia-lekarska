@@ -28,7 +28,7 @@
                 <thead class="table-light">
                 <tr>
                     <th>
-                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='kodEan', sortDir=${sortField == 'kodEan' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, page=0, sortField='kodEan', sortDir=${sortField == 'kodEan' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             EAN
                             <span th:if="${sortField == 'kodEan'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -36,7 +36,7 @@
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='nazwaHandlowa', sortDir=${sortField == 'nazwaHandlowa' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, page=0, sortField='nazwaHandlowa', sortDir=${sortField == 'nazwaHandlowa' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Nazwa Handlowa
                             <span th:if="${sortField == 'nazwaHandlowa'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -44,7 +44,7 @@
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='substancjaCzynna', sortDir=${sortField == 'substancjaCzynna' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, page=0, sortField='substancjaCzynna', sortDir=${sortField == 'substancjaCzynna' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Substancja
                             <span th:if="${sortField == 'substancjaCzynna'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -52,7 +52,7 @@
                         </a>
                     </th>
                     <th>
-                        <a th:href="@{/leki(szukaj=${param.szukaj}, sortField='stanMagazynowy', sortDir=${sortField == 'stanMagazynowy' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/leki(szukaj=${param.szukaj}, page=0, sortField='stanMagazynowy', sortDir=${sortField == 'stanMagazynowy' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
                             Stan
                             <span th:if="${sortField == 'stanMagazynowy'}"><i th:class="${sortDir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i></span>
@@ -63,7 +63,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="l : ${leki}">
+                <tr th:each="l : ${leki.content}">
                     <td th:text="${l.kodEan}" class="fw-bold"></td>
                     <td th:text="${l.nazwaHandlowa}"></td>
                     <td th:text="${l.substancjaCzynna}"></td>
@@ -79,6 +79,35 @@
                 </tr>
                 </tbody>
             </table>
+            <div th:if="${leki.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+
+                        <li class="page-item" th:classappend="${leki.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/leki(szukaj=${param.szukaj}, page=${leki.number - 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&laquo;</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, leki.totalPages - 1)}"
+                            th:classappend="${i == leki.number} ? 'active'">
+                            <a class="page-link" th:href="@{/leki(szukaj=${param.szukaj}, page=${i}, sortField=${sortField}, sortDir=${sortDir})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${leki.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/leki(szukaj=${param.szukaj}, page=${leki.number + 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="text-center text-muted small mt-2" th:if="${leki.totalElements > 0}">
+                Strona <span th:text="${leki.number + 1}"></span> z <span th:text="${leki.totalPages}"></span>
+                (Łącznie <span th:text="${leki.totalElements}"></span> leków)
+            </div>
         </div>
     </div>
 </div>

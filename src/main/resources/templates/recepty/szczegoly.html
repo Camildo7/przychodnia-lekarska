@@ -55,27 +55,42 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-secondary text-white">Dodaj Lek</div>
                 <div class="card-body">
-                    <form action="/recepty/dodaj-pozycje" method="post">
-                        <input type="hidden" name="kodDok" th:value="${recepta.kodDokumentu}">
-                        <input type="hidden" name="pesel" th:value="${recepta.pacjent.pesel}">
+                    <form action="/recepty/dodaj-pozycje" method="post" th:object="${nowaPozycja}">
+
+                        <input type="hidden" th:field="*{kodDok}">
+                        <input type="hidden" th:field="*{pesel}">
 
                         <div class="mb-3">
-                            <label>Lek (Stan w nawiasie):</label>
-                            <select name="kodLeku" class="form-select" required>
+                            <label class="fw-bold">Lek (Stan w nawiasie):</label>
+                            <select th:field="*{kodLeku}" class="form-select select2"
+                                    th:classappend="${#fields.hasErrors('kodLeku')} ? 'is-invalid'">
                                 <option th:each="l : ${leki}"
                                         th:value="${l.kodEan}"
                                         th:text="${l.nazwaHandlowa} + ' (' + ${l.stanMagazynowy} + ' ' + ${l.jednostkaMiary} + ')'">
                                 </option>
                             </select>
+                            <div class="invalid-feedback" th:errors="*{kodLeku}">Błąd leku</div>
                         </div>
+
                         <div class="mb-3">
-                            <label>Ilość:</label>
-                            <input type="number" name="ilosc" class="form-control" value="1" min="1" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);" required>
+                            <label class="fw-bold">Ilość:</label>
+                            <input type="number" th:field="*{ilosc}" class="form-control"
+                                   min="1"
+                                   oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);"
+                                   th:classappend="${#fields.hasErrors('ilosc')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:errors="*{ilosc}">Błąd ilości</div>
                         </div>
+
                         <div class="mb-3">
-                            <label>Dawkowanie:</label>
-                            <input type="text" name="dawkowanie" class="form-control" placeholder="np. 1x dziennie" maxlength="100" required>
+                            <label class="fw-bold">Dawkowanie:</label>
+                            <input type="text" th:field="*{dawkowanie}" class="form-control"
+                                   placeholder="np. 1x dziennie"
+                                   maxlength="100"
+                                   th:classappend="${#fields.hasErrors('dawkowanie')} ? 'is-invalid'">
+
+                            <div class="invalid-feedback" th:errors="*{dawkowanie}">Błąd dawkowania</div>
                         </div>
+
                         <button type="submit" class="btn btn-success w-100">Dodaj pozycję</button>
                     </form>
                 </div>

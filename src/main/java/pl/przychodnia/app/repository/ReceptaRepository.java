@@ -1,13 +1,12 @@
 package pl.przychodnia.app.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pl.przychodnia.app.entity.Recepta;
 import pl.przychodnia.app.entity.ReceptaId;
-import org.springframework.data.domain.Sort;
-
-import java.util.List;
 
 public interface ReceptaRepository extends JpaRepository<Recepta, ReceptaId> {
 
@@ -16,7 +15,7 @@ public interface ReceptaRepository extends JpaRepository<Recepta, ReceptaId> {
             "LOWER(r.pacjent.nazwisko) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "LOWER(r.lekarz.nazwisko) LIKE LOWER(CONCAT('%', :szukaj, '%')) OR " +
             "CAST(r.dataWystawienia AS string) LIKE CONCAT('%', :szukaj, '%')")
-    List<Recepta> szukajRecept(@Param("szukaj") String szukaj, Sort sort);
+    Page<Recepta> szukajRecept(@Param("szukaj") String szukaj, Pageable pageable);
 
     boolean existsByKodDokumentuAndPacjent_Pesel(String kodDokumentu, String pesel);
 }

@@ -37,16 +37,20 @@
                     <input type="text" th:field="*{nazwaChoroby}"
                            class="form-control"
                            th:classappend="${#fields.hasErrors('nazwaChoroby')} ? 'is-invalid' : ''"
-                           required placeholder="np. Ostre zapalenie gardła">
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nazwaChoroby')}" th:errors="*{nazwaChoroby}">
-                        Nazwa jest wymagana.
-                    </div>
+                           required placeholder="np. Ostre zapalenie gardła"
+                           maxlength="100">
+
+                    <div class="invalid-feedback" th:errors="*{nazwaChoroby}">Błąd nazwy</div>
                 </div>
 
                 <div class="mb-3">
                     <label>Opis Kliniczny</label>
                     <textarea th:field="*{opisKliniczny}" class="form-control" rows="3"
-                              placeholder="Krótki opis objawów..."></textarea>
+                              th:classappend="${#fields.hasErrors('opisKliniczny')} ? 'is-invalid' : ''"
+                              placeholder="Krótki opis objawów..."
+                              maxlength="500"></textarea>
+
+                    <div class="invalid-feedback" th:errors="*{opisKliniczny}">Błąd opisu</div>
                 </div>
 
                 <div class="d-grid gap-2">

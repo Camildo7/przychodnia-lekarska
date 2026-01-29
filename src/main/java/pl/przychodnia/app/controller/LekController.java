@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import pl.przychodnia.app.entity.Lek;
 import pl.przychodnia.app.repository.LekRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Controller
 @RequestMapping("/leki")
@@ -22,21 +25,29 @@ public class LekController {
     // Lista leków + wyszukiwanie
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size,
                         @RequestParam(defaultValue = "nazwaHandlowa") String sortField,
                         @RequestParam(defaultValue = "asc") String sortDir,
                         Model model) {
 
         Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Lek> pageLekow;
 
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("leki", lekRepo.szukajLekow(szukaj, sort));
+            pageLekow = lekRepo.szukajLekow(szukaj, pageable);
         } else {
-            model.addAttribute("leki", lekRepo.findAll(sort));
+            pageLekow = lekRepo.findAll(pageable);
         }
 
+        model.addAttribute("leki", pageLekow);
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("szukaj", szukaj);
+
         return "leki/lista";
     }
 

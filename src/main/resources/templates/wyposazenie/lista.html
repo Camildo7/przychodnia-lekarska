@@ -32,7 +32,7 @@
                 <thead class="table-light">
                 <tr>
                     <th>
-                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='kodInwentarzowy', sortDir=${sortField == 'kodInwentarzowy' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=0, sortField='kodInwentarzowy', sortDir=${sortField == 'kodInwentarzowy' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
                            title="Sortuj po kodzie">
                             Kod
@@ -46,7 +46,7 @@
                     </th>
 
                     <th>
-                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='nazwaSprzetu', sortDir=${sortField == 'nazwaSprzetu' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=0, sortField='nazwaSprzetu', sortDir=${sortField == 'nazwaSprzetu' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
                            title="Sortuj po nazwie">
                             Nazwa
@@ -60,7 +60,7 @@
                     </th>
 
                     <th>
-                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='gabinet.numerGabinetu', sortDir=${sortField == 'gabinet.numerGabinetu' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=0, sortField='gabinet.numerGabinetu', sortDir=${sortField == 'gabinet.numerGabinetu' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
                            title="Sortuj po numerze gabinetu">
                             Gabinet
@@ -74,7 +74,7 @@
                     </th>
 
                     <th>
-                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='dataZakupu', sortDir=${sortField == 'dataZakupu' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=0, sortField='dataZakupu', sortDir=${sortField == 'dataZakupu' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
                            title="Sortuj po dacie zakupu">
                             Data Zakupu
@@ -88,7 +88,7 @@
                     </th>
 
                     <th>
-                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, sortField='dataPrzegladu', sortDir=${sortField == 'dataPrzegladu' ? reverseSortDir : 'asc'})}"
+                        <a th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=0, sortField='dataPrzegladu', sortDir=${sortField == 'dataPrzegladu' ? reverseSortDir : 'asc'})}"
                            class="text-decoration-none text-dark d-flex justify-content-between align-items-center"
                            title="Sortuj po dacie przeglądu">
                             Data Przeglądu
@@ -105,7 +105,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="w : ${sprzety}">
+                <tr th:each="w : ${sprzety.content}">
                     <td th:text="${w.kodInwentarzowy}" class="fw-bold"></td>
                     <td th:text="${w.nazwaSprzetu}"></td>
                     <td>
@@ -138,6 +138,35 @@
                 </tr>
                 </tbody>
             </table>
+            <div th:if="${sprzety.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+
+                        <li class="page-item" th:classappend="${sprzety.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=${sprzety.number - 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&laquo;</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, sprzety.totalPages - 1)}"
+                            th:classappend="${i == sprzety.number} ? 'active'">
+                            <a class="page-link" th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=${i}, sortField=${sortField}, sortDir=${sortDir})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${sprzety.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/wyposazenie(szukaj=${param.szukaj}, page=${sprzety.number + 1}, sortField=${sortField}, sortDir=${sortDir})}">
+                                <span>&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="text-center text-muted small mt-2" th:if="${sprzety.totalElements > 0}">
+                Strona <span th:text="${sprzety.number + 1}"></span> z <span th:text="${sprzety.totalPages}"></span>
+                (Łącznie <span th:text="${sprzety.totalElements}"></span> pozycji)
+            </div>
         </div>
     </div>
 </div>

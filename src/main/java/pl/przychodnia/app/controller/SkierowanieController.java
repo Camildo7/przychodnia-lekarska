@@ -12,6 +12,9 @@ import pl.przychodnia.app.entity.Wizyta;
 import pl.przychodnia.app.repository.SkierowanieRepository;
 import pl.przychodnia.app.repository.WizytaRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 
@@ -29,22 +32,29 @@ public class SkierowanieController {
 
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
-                        @RequestParam(defaultValue = "dataWystawienia") String sortField, // Domyślne pole
-                        @RequestParam(defaultValue = "desc") String sortDir,              // Domyślny kierunek
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size,
+                        @RequestParam(defaultValue = "dataWystawienia") String sortField,
+                        @RequestParam(defaultValue = "desc") String sortDir,
                         Model model) {
 
-        Sort.Direction direction = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortField);
+        Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Skierowanie> pageSkierowan;
 
         if (szukaj != null && !szukaj.isEmpty()) {
-            model.addAttribute("skierowania", skierowanieRepo.szukajSkierowan(szukaj, sort));
+            pageSkierowan = skierowanieRepo.szukajSkierowan(szukaj, pageable);
         } else {
-            model.addAttribute("skierowania", skierowanieRepo.findAll(sort));
+            pageSkierowan = skierowanieRepo.findAll(pageable);
         }
+
+        model.addAttribute("skierowania", pageSkierowan);
 
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("szukaj", szukaj);
 
         return "skierowania/lista";
     }
