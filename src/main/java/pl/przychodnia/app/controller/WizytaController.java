@@ -32,7 +32,6 @@ public class WizytaController {
         this.wizytaService = ws;
     }
 
-    // --- KALENDARZ ---
     @GetMapping("/kalendarz")
     public String widokKalendarza(Model model) {
         model.addAttribute("lekarze", lekarzRepo.findAll());
@@ -40,7 +39,6 @@ public class WizytaController {
         return "wizyty/kalendarz";
     }
 
-    // --- SZCZEGÓŁY WIZYTY ---
     @GetMapping("/wizyta/{id}")
     public String szczegolyWizyty(@PathVariable Long id, Model model) {
         Wizyta wizyta = wizytaRepo.findById(id).orElseThrow();
@@ -53,7 +51,6 @@ public class WizytaController {
         return "wizyty/szczegoly";
     }
 
-    // --- EDYCJA PARAMETRÓW ---
     @PostMapping("/wizyta/zapisz")
     public String zapiszZmiany(@RequestParam Long numerWizyty,
                                @RequestParam String dataIGodzina,
@@ -72,7 +69,6 @@ public class WizytaController {
         return "redirect:/wizyta/" + numerWizyty;
     }
 
-    // --- ZAKOŃCZENIE WIZYTY ---
     @PostMapping("/wizyta/zakoncz-pelna")
     public String zakonczPelna(@RequestParam Long idWizyty,
                                @RequestParam String zalecenia,

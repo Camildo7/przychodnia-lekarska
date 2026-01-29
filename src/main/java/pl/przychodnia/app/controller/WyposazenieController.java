@@ -62,7 +62,6 @@ public class WyposazenieController {
         return "wyposazenie/formularz";
     }
 
-    // DODANA METODA EDYCJI
     @GetMapping("/edytuj/{id}")
     public String edytuj(@PathVariable String id, Model model) {
         Wyposazenie w = wypoRepo.findById(id)
@@ -79,12 +78,10 @@ public class WyposazenieController {
                          @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
                          Model model) {
 
-        // 4. Walidacja DUPLIKATU ID:
         if (!isEdit && wypoRepo.existsById(w.getKodInwentarzowy())) {
             result.rejectValue("kodInwentarzowy", "error.wyposazenie", "Sprzęt o takim kodzie już istnieje.");
         }
 
-        // 2. Jeśli są błędy walidacji -> wracamy do formularza
         if (result.hasErrors()) {
             model.addAttribute("gabinety", gabinetRepo.findAll());
             model.addAttribute("isEdit", isEdit);

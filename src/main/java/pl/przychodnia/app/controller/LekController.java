@@ -22,7 +22,6 @@ public class LekController {
         this.lekRepo = lekRepo;
     }
 
-    // Lista leków + wyszukiwanie
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
                         @RequestParam(defaultValue = "0") int page,
@@ -51,7 +50,6 @@ public class LekController {
         return "leki/lista";
     }
 
-    // Formularz dodawania (NOWY)
     @GetMapping("/nowy")
     public String formularz(Model model) {
         model.addAttribute("lek", new Lek());
@@ -59,7 +57,6 @@ public class LekController {
         return "leki/formularz";
     }
 
-    // Formularz edycji (EDYTUJ)
     @GetMapping("/edytuj/{ean}")
     public String edytuj(@PathVariable String ean, Model model) {
         Lek lek = lekRepo.findById(ean).orElseThrow(() -> new IllegalArgumentException("Brak leku o podanym EAN"));
@@ -74,14 +71,12 @@ public class LekController {
                          @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
                          Model model) {
 
-        // 1. Ochrona przed duplikatem EAN (tylko przy tworzeniu nowego)
         if (!isEdit && lekRepo.existsById(lek.getKodEan())) {
             result.rejectValue("kodEan", "error.lek", "Lek o podanym kodzie EAN już istnieje w bazie.");
         }
 
-        // 2. Obsługa błędów walidacji (np. EAN ma 12 cyfr zamiast 13)
         if (result.hasErrors()) {
-            model.addAttribute("isEdit", isEdit); // Odsyłamy flagę, żeby formularz wiedział jak wyświetlić pole
+            model.addAttribute("isEdit", isEdit);
             return "leki/formularz";
         }
 
@@ -89,13 +84,11 @@ public class LekController {
         return "redirect:/leki";
     }
 
-    // Usuwanie
     @GetMapping("/usun/{ean}")
     public String usun(@PathVariable String ean, Model model) {
         try {
             lekRepo.deleteById(ean);
         } catch (Exception e) {
-            // Obsługa błędu klucza obcego (jeśli lek jest na recepcie)
             model.addAttribute("error", "Nie można usunąć leku, ponieważ został już przypisany do recepty.");
             model.addAttribute("leki", lekRepo.findAll());
             return "leki/lista";

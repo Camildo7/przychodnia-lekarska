@@ -56,7 +56,6 @@ public class PacjentController {
         return "pacjenci/lista";
     }
 
-    // Formularz dodawania
     @GetMapping("/nowy")
     public String formularz(Model model) {
         model.addAttribute("pacjent", new Pacjent());
@@ -64,7 +63,6 @@ public class PacjentController {
         return "pacjenci/formularz";
     }
 
-    // Formularz edycji
     @GetMapping("/edytuj/{pesel}")
     public String edytuj(@PathVariable String pesel, Model model) {
         Pacjent p = pacjentRepository.findById(pesel)
@@ -74,7 +72,6 @@ public class PacjentController {
         return "pacjenci/formularz";
     }
 
-    // Historia (bez zmian)
     @GetMapping("/historia/{pesel}")
     public String historia(@PathVariable String pesel, Model model) {
         try {
@@ -88,19 +85,16 @@ public class PacjentController {
         }
     }
 
-    // Zapis (Dodawanie lub Edycja) z Walidacją
     @PostMapping("/zapisz")
     public String zapisz(@Valid @ModelAttribute("pacjent") Pacjent p,
                          BindingResult result,
                          @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
                          Model model) {
 
-        // 1. Walidacja unikalności PESEL (tylko przy dodawaniu nowego)
         if (!isEdit && pacjentRepository.existsById(p.getPesel())) {
             result.rejectValue("pesel", "error.pacjent", "Pacjent o podanym numerze PESEL już istnieje.");
         }
 
-        // 2. Jeśli są błędy (np. cyfry w imieniu, zły telefon, duplikat PESEL), wracamy do formularza
         if (result.hasErrors()) {
             model.addAttribute("isEdit", isEdit);
             return "pacjenci/formularz";
@@ -108,10 +102,8 @@ public class PacjentController {
 
         try {
             if (isEdit) {
-                // Edycja: JPA
                 pacjentRepository.save(p);
             } else {
-                // Procedura
                 pacjentService.dodajPacjenta(
                         p.getPesel(),
                         p.getImie(),
@@ -119,7 +111,6 @@ public class PacjentController {
                         p.getAdresZamieszkania(),
                         p.getTelefonKontaktowy()
                 );
-                // Uzupełnienie emaila
                 if (p.getEmail() != null && !p.getEmail().isEmpty()) {
                     pacjentRepository.save(p);
                 }

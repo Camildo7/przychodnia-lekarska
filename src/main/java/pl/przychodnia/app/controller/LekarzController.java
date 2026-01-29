@@ -77,7 +77,6 @@ public class LekarzController {
                          @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
                          Model model) {
 
-        // 1. ZABEZPIECZENIE PRZED DUPLIKATEM PWZ
         if (!isEdit && lekarzRepo.existsById(lekarz.getNumerPwz())) {
             result.rejectValue("numerPwz", "error.lekarz", "Lekarz o podanym numerze PWZ już istnieje.");
         }

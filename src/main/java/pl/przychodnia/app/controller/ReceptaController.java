@@ -37,7 +37,6 @@ public class ReceptaController {
         this.receptaService = rs;
     }
 
-    // --- LISTA ---
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
                         @RequestParam(defaultValue = "0") int page,   // Numer strony (start od 0)
@@ -67,7 +66,6 @@ public class ReceptaController {
         return "recepty/lista";
     }
 
-    // --- TWORZENIE NAGŁÓWKA ---
     @GetMapping("/nowa")
     public String formularz(@RequestParam(required = false) Long idWizyty,
                             @RequestParam(defaultValue = "recepty") String source,
@@ -119,7 +117,6 @@ public class ReceptaController {
         }
     }
 
-    // --- SZCZEGÓŁY / MASTER-DETAIL ---
     @GetMapping("/szczegoly")
     public String szczegoly(@RequestParam String kod, @RequestParam String pesel, Model model) {
         ReceptaId id = new ReceptaId(kod, pesel);
@@ -138,7 +135,6 @@ public class ReceptaController {
         return "recepty/szczegoly";
     }
 
-    // --- DODAWANIE POZYCJI (ZMODYFIKOWANE) ---
     @PostMapping("/dodaj-pozycje")
     public String dodajPozycje(@jakarta.validation.Valid @ModelAttribute("nowaPozycja") DodajPozycjeForm form,
                                org.springframework.validation.BindingResult result,
@@ -187,7 +183,6 @@ public class ReceptaController {
         }
     }
 
-    // --- USUWANIE CAŁEJ RECEPTY ---
     @GetMapping("/usun")
     public String usunRecepte(@RequestParam String kod,
                               @RequestParam String pesel,
@@ -211,7 +206,6 @@ public class ReceptaController {
         return "redirect:/recepty";
     }
 
-    // --- USUWANIE POZYCJI ---
     @GetMapping("/usun-pozycje")
     public String usunPozycje(@RequestParam String kod,
                               @RequestParam String pesel,
@@ -229,7 +223,6 @@ public class ReceptaController {
         return "redirect:/recepty/szczegoly";
     }
 
-    // --- EDYCJA NAGŁÓWKA ---
     @GetMapping("/edytuj")
     public String edytujRecepte(@RequestParam String kod, @RequestParam String pesel, Model model) {
         try {
@@ -270,9 +263,6 @@ public class ReceptaController {
         return "redirect:/recepty/szczegoly?kod=" + kodDokumentu + "&pesel=" + pesel;
     }
 
-
-
-    // EDYCJA POZYCJI
     @GetMapping("/edytuj-pozycje")
     public String edytujPozycje(@RequestParam String kod,
                                 @RequestParam String pesel,
@@ -301,7 +291,6 @@ public class ReceptaController {
         return "recepty/edytuj_pozycje";
     }
 
-    // ZAPIS POZYCJI
     @PostMapping("/zapisz-pozycje")
     public String zapiszPozycje(@jakarta.validation.Valid @ModelAttribute("edycjaPozycji") EdytujPozycjeForm form,
                                 org.springframework.validation.BindingResult result,

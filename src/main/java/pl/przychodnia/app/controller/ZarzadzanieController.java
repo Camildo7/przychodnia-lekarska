@@ -26,7 +26,6 @@ public class ZarzadzanieController {
         this.specRepo = sr;
     }
 
-    // --- GABINETY ---
     @GetMapping("/gabinety")
     public String listaGabinetow(@RequestParam(required = false) String szukaj,
                                  @RequestParam(defaultValue = "0") int page,
@@ -73,8 +72,6 @@ public class ZarzadzanieController {
                                 BindingResult result,
                                 Model model) {
 
-        // Gabinety mają ID generowane automatycznie, więc nie ma ryzyka nadpisania przy tworzeniu.
-        // Standardowa walidacja wystarczy.
 
         if (result.hasErrors()) {
             return "gabinety/formularz";
@@ -93,8 +90,6 @@ public class ZarzadzanieController {
         }
         return "redirect:/admin/gabinety";
     }
-
-    // --- SPECJALIZACJE ---
 
     @GetMapping("/specjalizacje")
     public String listaSpecjalizacji(@RequestParam(required = false) String szukaj,
@@ -146,7 +141,6 @@ public class ZarzadzanieController {
                                       @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
                                       Model model) {
 
-        // 4. Zabezpieczenie przed duplikatem ID
         if (!isEdit && specRepo.existsById(s.getNazwaSpecjalizacji())) {
             result.rejectValue("nazwaSpecjalizacji", "error.specjalizacja", "Taka specjalizacja już istnieje.");
         }

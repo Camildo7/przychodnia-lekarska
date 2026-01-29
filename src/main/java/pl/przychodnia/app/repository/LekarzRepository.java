@@ -6,6 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface LekarzRepository extends JpaRepository<Lekarz, String> {
 
-    // szuka lekarzy po nazwisku lub numerze PWZ
     Page<Lekarz> findByNazwiskoContainingIgnoreCaseOrNumerPwzContaining(String nazwisko, String pwz, Pageable pageable);
 }

@@ -23,14 +23,12 @@ public class  WizytaApiController {
                                          @RequestParam(required = false) String pesel) {
         List<Wizyta> wizyty = wizytaRepo.findAll();
 
-        // filtrowanie po lekarzu
         if (lekarzId != null && !lekarzId.isEmpty()) {
             wizyty = wizyty.stream()
                     .filter(w -> w.getLekarz().getNumerPwz().equals(lekarzId))
                     .collect(Collectors.toList());
         }
 
-        // filtrowanie po peselu pacjenta
         if (pesel != null && !pesel.isEmpty()) {
             wizyty = wizyty.stream()
                     .filter(w -> w.getPacjent().getPesel().equals(pesel))
