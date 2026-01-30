@@ -2,7 +2,7 @@ package pl.przychodnia.app.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import org.springframework.format.annotation.DateTimeFormat; // Pamiętaj o imporcie!
+import org.springframework.format.annotation.DateTimeFormat;
 import lombok.Data;
 import pl.przychodnia.app.validation.MaxBytes;
 

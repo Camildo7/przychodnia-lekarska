@@ -137,7 +137,6 @@ public class ZarzadzanieController {
     @PostMapping("/specjalizacje/zapisz")
     public String zapiszSpecjalizacje(@Valid @ModelAttribute("specjalizacja") Specjalizacja s,
                                       BindingResult result,
-                                      // 3. Pobieramy flagę isEdit
                                       @RequestParam(value = "isEdit", defaultValue = "false") boolean isEdit,
                                       Model model) {
 

@@ -1,7 +1,7 @@
 package pl.przychodnia.app.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern; // Import
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import java.time.LocalDate;
 

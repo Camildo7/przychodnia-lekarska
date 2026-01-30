@@ -53,7 +53,7 @@ public class LekController {
     @GetMapping("/nowy")
     public String formularz(Model model) {
         model.addAttribute("lek", new Lek());
-        model.addAttribute("isEdit", false); // TO WAŻNE: Pole EAN będzie aktywne
+        model.addAttribute("isEdit", false);
         return "leki/formularz";
     }
 
@@ -61,7 +61,7 @@ public class LekController {
     public String edytuj(@PathVariable String ean, Model model) {
         Lek lek = lekRepo.findById(ean).orElseThrow(() -> new IllegalArgumentException("Brak leku o podanym EAN"));
         model.addAttribute("lek", lek);
-        model.addAttribute("isEdit", true); // TO WAŻNE: Pole EAN będzie zablokowane (readonly)
+        model.addAttribute("isEdit", true);
         return "leki/formularz";
     }
 

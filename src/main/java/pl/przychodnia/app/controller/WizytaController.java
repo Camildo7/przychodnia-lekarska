@@ -156,7 +156,7 @@ public class WizytaController {
         try {
             wizytaRepo.deleteById(id);
             ra.addFlashAttribute("success", "Wizyta została pomyślnie usunięta.");
-            return "redirect:/kalendarz"; // Powrót do kalendarza po sukcesie
+            return "redirect:/kalendarz";
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Błąd bazy danych podczas usuwania: " + e.getMessage());
             return "redirect:/wizyta/" + id;

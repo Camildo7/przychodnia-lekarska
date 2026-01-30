@@ -45,9 +45,9 @@ public class  WizytaApiController {
             e.setEnd(w.getDataIGodzina().plusMinutes(30).toString());
 
             if ("T".equals(w.getCzyOdbyta())) {
-                e.setColor("#198754"); // Green
+                e.setColor("#198754"); // zielony
             } else {
-                e.setColor("#0d6efd"); // Blue
+                e.setColor("#0d6efd"); // niebieski
             }
             return e;
         }).collect(Collectors.toList());

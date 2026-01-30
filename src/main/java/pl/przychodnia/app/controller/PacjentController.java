@@ -27,7 +27,6 @@ public class PacjentController {
         this.pacjentService = pacjentService;
     }
 
-    // Lista z wyszukiwaniem
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
                         @RequestParam(defaultValue = "0") int page,

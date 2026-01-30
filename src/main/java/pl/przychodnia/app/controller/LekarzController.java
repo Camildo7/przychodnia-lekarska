@@ -83,7 +83,7 @@ public class LekarzController {
 
         if (result.hasErrors()) {
             model.addAttribute("dostepneSpecjalizacje", specRepo.findAll());
-            model.addAttribute("isEdit", isEdit); // Ważne: odsyłamy flagę z powrotem
+            model.addAttribute("isEdit", isEdit);
             return "lekarze/formularz";
         }
 

@@ -34,19 +34,19 @@ public class WizytaService {
         LocalDateTime startMinus30 = data.minusMinutes(30);
         LocalDateTime startPlus30 = data.plusMinutes(30);
 
-        // Sprawdzanie dyspozycji lekarza
+        // sprawdzanie dyspozycji lekarza
         long konfliktyLekarz = wizytaRepo.countKonfliktyLekarza(pwzLekarza, startMinus30, startPlus30);
         if (konfliktyLekarz > 0) {
             throw new IllegalStateException("Ten lekarz ma już umówioną wizytę w tym czasie.");
         }
 
-        // Sprawdzanie dyspozycji lekarza
+        // sprawdzanie dyspozycji lekarza
         long konfliktyPacjent = wizytaRepo.countKonfliktyPacjenta(pesel, startMinus30, startPlus30);
         if (konfliktyPacjent > 0) {
             throw new IllegalStateException("Ten pacjent ma już umówioną wizytę w tym czasie.");
         }
 
-        // Sprawdzanie dostępności gabinetu
+        // sprawdzanie dostępności gabinetu
         long konfliktyGabinet = wizytaRepo.countKonfliktyGabinetu(nrGabinetu, startMinus30, startPlus30);
         if (konfliktyGabinet > 0) {
             throw new IllegalStateException("Ten gabinet jest zajęty w wybranym terminie.");

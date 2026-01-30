@@ -39,8 +39,8 @@ public class ReceptaController {
 
     @GetMapping
     public String lista(@RequestParam(required = false) String szukaj,
-                        @RequestParam(defaultValue = "0") int page,   // Numer strony (start od 0)
-                        @RequestParam(defaultValue = "10") int size,  // Elementów na stronę
+                        @RequestParam(defaultValue = "0") int page,   // numer strony
+                        @RequestParam(defaultValue = "10") int size,  // liczba elementów na stronie
                         @RequestParam(defaultValue = "dataWystawienia") String sortField,
                         @RequestParam(defaultValue = "desc") String sortDir,
                         Model model) {
@@ -125,7 +125,7 @@ public class ReceptaController {
 
         model.addAttribute("recepta", recepta);
         model.addAttribute("pozycje", pozycjaRepo.findByKodDokumentuAndPesel(kod, pesel));
-        model.addAttribute("leki", lekRepo.findAll(Sort.by("nazwaHandlowa"))); // Warto posortować
+        model.addAttribute("leki", lekRepo.findAll(Sort.by("nazwaHandlowa")));
 
         DodajPozycjeForm form = new DodajPozycjeForm();
         form.setKodDok(kod);
@@ -167,7 +167,6 @@ public class ReceptaController {
             return "redirect:/recepty/szczegoly";
 
         } catch (Exception e) {
-            // 3. Łapanie błędów bazy danych
             ra.addAttribute("kod", form.getKodDok());
             ra.addAttribute("pesel", form.getPesel());
 
@@ -374,7 +373,6 @@ public class ReceptaController {
 
         @jakarta.validation.constraints.NotBlank(message = "Dawkowanie jest wymagane.")
         @jakarta.validation.constraints.Size(max = 100, message = "Dawkowanie za długie (max 100 znaków).")
-        // TO JEST KLUCZOWE:
         @MaxBytes(value = 100, message = "Dawkowanie za długie (max 100 znaków - polskie znaki liczone x2)")
         private String dawkowanie;
     }

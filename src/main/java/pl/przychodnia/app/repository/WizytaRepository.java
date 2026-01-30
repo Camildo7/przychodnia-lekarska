@@ -10,7 +10,7 @@ public interface WizytaRepository extends JpaRepository<Wizyta, Long> {
 
     List<Wizyta> findAllByOrderByDataIGodzinaDesc();
 
-    // Czy lekarz ma wizyte w tym czasie
+    // czy lekarz ma wizyte w tym czasie
     @Query("SELECT COUNT(w) FROM Wizyta w WHERE " +
             "w.lekarz.numerPwz = :pwz " +
             "AND w.czyOdbyta != 'Anulowana' " +
@@ -20,7 +20,7 @@ public interface WizytaRepository extends JpaRepository<Wizyta, Long> {
                                @Param("startMinus30") LocalDateTime startMinus30,
                                @Param("startPlus30") LocalDateTime startPlus30);
 
-    // Czy pacjent jest na wizycie w tym czasie
+    // czy pacjent jest na wizycie w tym czasie
     @Query("SELECT COUNT(w) FROM Wizyta w WHERE " +
             "w.pacjent.pesel = :pesel " +
             "AND w.czyOdbyta != 'Anulowana' " +
@@ -30,7 +30,7 @@ public interface WizytaRepository extends JpaRepository<Wizyta, Long> {
                                @Param("startMinus30") LocalDateTime startMinus30,
                                @Param("startPlus30") LocalDateTime startPlus30);
 
-    // Czy w gabinecie jest wizyta w tym czasie
+    // czy w gabinecie jest wizyta w tym czasie
     @Query("SELECT COUNT(w) FROM Wizyta w WHERE " +
             "w.gabinet.numerGabinetu = :idGabinetu " +
             "AND w.czyOdbyta != 'Anulowana' " +

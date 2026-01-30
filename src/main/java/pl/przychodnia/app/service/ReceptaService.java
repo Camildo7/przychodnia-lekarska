@@ -117,7 +117,7 @@ public class ReceptaService {
         lek.setStanMagazynowy(lek.getStanMagazynowy() - roznica);
         lekRepo.save(lek);
 
-        // Aktualizujemy pozycję na recepcie
+        // aktualizacja pozycji recepty
         pozycja.setIloscOpakowan(nowaIlosc);
         pozycja.setDawkowanie(noweDawkowanie);
         pozycjaRepo.save(pozycja);
